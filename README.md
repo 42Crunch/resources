@@ -68,7 +68,7 @@ Two deployments are used:
 
 Both deployments point a mongo database, which is deployed in a pod call pixidb and fronted by a service.
 
-![](/Volumes/DATA/42Crunch/Source/resources/images/Deployment.jpg)
+![](/images/Deployment.jpg)
 
 ## Deployment Steps
 

@@ -1,0 +1,236 @@
+{
+	"info": {
+		"_postman_id": "be047ad9-f6ae-49ff-b070-235889401b6e",
+		"name": "Pixi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "822ba003-f29c-4cb2-ade2-f33acee17f26",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.globals.set(\"token\", jsonData.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"disabled": false
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "pass",
+							"value": "pass1",
+							"type": "text"
+						},
+						{
+							"key": "user",
+							"value": "hacker@getme.in",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/api/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "822ba003-f29c-4cb2-ade2-f33acee17f26",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.globals.set(\"token\", jsonData.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 50,\n  \"user\": \"mckesson@getme.in\",\n  \"pass\": \"hellopixi\",\n  \"name\": \"McKesson\",\n  \"is_admin\": false,\n  \"account_balance\": 1000\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/register",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all Users",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/admin/all_users",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"admin",
+						"all_users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Logged User Info",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/admin/all_users",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"admin",
+						"all_users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SET USER INFO",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"_id\": 44,\n        \"email\": \"isamauny@gmail.com\",\n        \"password\": \"Zv6H3Rsxqd\",\n        \"name\": \"isamauny\",\n        \"is_admin\": true\n    }"
+				},
+				"url": {
+					"raw": "{{url}}/api/user/edit_info",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"edit_info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Logged User Pictures",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GIve me some money",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search for user",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	]
+}

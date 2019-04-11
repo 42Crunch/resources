@@ -146,6 +146,10 @@ Once the deployment is complete, you can test the deployment by using the Postma
      "account_balance": 1000
    }
    ```
+   For example, you can use the 'curl' command as below  : 
+   ```shell
+   curl -k -H "Content-Type:application/json" --data "{\"id\": 50, \"user\": \"42crunch@getme.in\", \"pass\": \"hellopixi\", \"name\": \"42Crunch\", \"is_admin\": false, \"account_balance\": 1000}" https://pixi-secured.42crunch.test/api/register
+   ```
 
 6. If all goes well, you should see a response similar to this. This x-access-token is a JWT , which needs to be injected in a x-access-token header for all API calls (except login and register).
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./env
+source ../etc/env
 
 if [ -z "$RUNTIME_NS" ]; then
     echo "Please configure namespace by setting RUNTIME_NS in etc/env"

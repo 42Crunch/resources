@@ -72,7 +72,7 @@ Both deployments point a mongo database, which is deployed in a pod call pixidb 
 
 ## Deployment Steps
 
-> Our deployment uses a specific namespace (**42crunch**), so that you can deploy the artifacts in an existing Kubernetes cluster without overlapping with other artifacts. If you want to change this name, edit the `etc/env file` before running the script.
+> This deployment uses a specific namespace (**42crunch**), so that you can deploy the artifacts in an existing Kubernetes cluster without overlapping with other artifacts. If you want to change this name, edit the `etc/env file` before running the script.
 
 1. Log in onto the 42Crunch platform at https://42crunch.platform.com
 
@@ -134,7 +134,7 @@ Once the deployment is complete, you can test the deployment by using the Postma
 
 4. Create an environment variable called **42c_url** and set its value to: https://pixi-secured.42crunch.test to invoke the protected API or to http://pixi-direct.42crunch.test:8090 to invoke the API directly.
 
-5. Invoke POST  /api/register operation with the following contents 
+5. From Postman, Invoke POST  /api/register operation with the following contents 
 
    ```json
    {
@@ -146,7 +146,7 @@ Once the deployment is complete, you can test the deployment by using the Postma
      "account_balance": 1000
    }
    ```
-   For example, you can use the 'curl' command as below  : 
+   Alternatively, you can use the following 'curl' command : 
    ```shell
    curl -k -H "Content-Type:application/json" --data "{\"id\": 50, \"user\": \"42crunch@getme.in\", \"pass\": \"hellopixi\", \"name\": \"42Crunch\", \"is_admin\": false, \"account_balance\": 1000}" https://pixi-secured.42crunch.test/api/register
    ```

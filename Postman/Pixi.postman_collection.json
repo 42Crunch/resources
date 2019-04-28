@@ -25,8 +25,9 @@
 				"header": [
 					{
 						"key": "Content-Type",
+						"name": "Content-Type",
 						"value": "application/x-www-form-urlencoded",
-						"disabled": false
+						"type": "text"
 					}
 				],
 				"body": {
@@ -34,20 +35,20 @@
 					"urlencoded": [
 						{
 							"key": "pass",
-							"value": "pass1",
+							"value": "hellopixi",
 							"type": "text"
 						},
 						{
 							"key": "user",
-							"value": "hacker@getme.in",
+							"value": "user@acme.com",
 							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "{{url}}/api/login",
+					"raw": "{{42c_url}}/api/login",
 					"host": [
-						"{{url}}"
+						"{{42c_url}}"
 					],
 					"path": [
 						"api",
@@ -84,12 +85,12 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"id\": 50,\n  \"user\": \"mckesson@getme.in\",\n  \"pass\": \"hellopixi\",\n  \"name\": \"McKesson\",\n  \"is_admin\": false,\n  \"account_balance\": 1000\n}"
+					"raw": "{\n  \"id\": 50,\n  \"user\": \"user@acme.com\",\n  \"pass\": \"hellopixi\",\n  \"name\": \"Pixi User\",\n  \"is_admin\": false,\n  \"account_balance\": 1000\n}"
 				},
 				"url": {
-					"raw": "{{url}}/api/register",
+					"raw": "{{42c_url}}/api/register",
 					"host": [
-						"{{url}}"
+						"{{42c_url}}"
 					],
 					"path": [
 						"api",
@@ -156,78 +157,37 @@
 			"response": []
 		},
 		{
-			"name": "SET USER INFO",
+			"name": "Search for user",
 			"request": {
-				"method": "PUT",
+				"method": "GET",
 				"header": [
 					{
 						"key": "x-access-token",
-						"value": "{{token}}"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
+						"value": "{{token}}",
+						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n        \"_id\": 44,\n        \"email\": \"isamauny@gmail.com\",\n        \"password\": \"Zv6H3Rsxqd\",\n        \"name\": \"isamauny\",\n        \"is_admin\": true\n    }"
+					"raw": ""
 				},
 				"url": {
-					"raw": "{{url}}/api/user/edit_info",
+					"raw": "{{42c_url}}/api/admin/users/search?search=user1",
 					"host": [
-						"{{url}}"
+						"{{42c_url}}"
 					],
 					"path": [
 						"api",
-						"user",
-						"edit_info"
+						"admin",
+						"users",
+						"search"
+					],
+					"query": [
+						{
+							"key": "search",
+							"value": "user1"
+						}
 					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Logged User Pictures",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GIve me some money",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Search for user",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": ""
 				}
 			},
 			"response": []

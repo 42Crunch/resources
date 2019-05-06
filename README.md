@@ -1,7 +1,7 @@
 # 42Crunch API Firewall Deployment Setup
-This document describes how to deploy 42Crunch API Firewall. 
+This document describes how to deploy 42Crunch API Firewall. For more information on 42Crunch Platform and API Firewall, see [42Crunch Platform documentation](https://docs.42crunch.com/latest/content/home.htm).
 
-The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [DevSlop OWASP](https://devslop.co/Home/Pixi) project to demonstrate common API issues.
+The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues.
 
 We recommend that you install the Pixi API in a dedicated Kubernetes cluster, and delete the cluster once your tests are completed. Do not leave the unprotected Pixi API running, it is vulnerable! 
 
@@ -56,7 +56,7 @@ You also need to be registered as a user on the 42Crunch Platform to get access 
 This deployment uses a specific namespace called `42crunch`. This means that you can deploy the artifacts in an existing Kubernetes cluster without overlapping other existing artifacts. If you want to change this name, edit the `etc/env` file and change the namespace before you run the script.
 
 ## Import Pixi API and generate a firewall configuration
-1. Log in to 42Crunch Platform at https://42crunch.platform.com.
+1. Log in to 42Crunch Platform at https://platform.42crunch.com.
 
 2. Create an API collection called `PixiTest`. 
 

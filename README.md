@@ -55,7 +55,7 @@ You also need to be registered as a user on the 42Crunch Platform to get access 
 
 This deployment uses a specific namespace called `42crunch`. This means that you can deploy the artifacts in an existing Kubernetes cluster without overlapping other existing artifacts. If you want to change this name, edit the `etc/env` file and change the namespace before you run the script.
 
-## Import Pixi API and generate a firewall configuration
+## Step 1 - Import Pixi API and generate a firewall configuration
 1. Log in to 42Crunch Platform at https://platform.42crunch.com.
 
 2. Create an API collection called `PixiTest`. 
@@ -67,7 +67,7 @@ The API should score 82/100 in API Contract Security Audit: the detailing of API
 
 5. Copy the generated protection token to clipboard.
 
-## Configure the deployment scripts
+## Step 2- Configure the deployment scripts
 You must configure the deployment scripts to use the firewall configuration you just created and to succesfully authenticate to DockerHub.
 
 1. Go to edit the file `etc/secret-protection-token`.
@@ -86,7 +86,7 @@ You must configure the deployment scripts to use the firewall configuration you 
     REGISTRY_USERNAME=<your_user>
     REGISTRY_PASSWORD=<your_password>
     ```  
-## Run API Firewall
+## Step 3 - Run API Firewall
 1. Depending on your platform, run either the `pixi-create-demo.sh` or `pixi-create-demo.bat` script to deploy the sample configuration:
 
    ```shell
@@ -112,7 +112,7 @@ You must configure the deployment scripts to use the firewall configuration you 
    pixi-secured-54d957c8bc-h867f   2/2     Running   0          1h
    pixidb-755f648d47-k5pm9         1/1     Running   0          1h
    ```
-## Configure testing tools
+## Step 4 - Configure testing tools
 You can test API Firewall using the Postman collection in this repository, or other tools like cURL or the Advanced REST Google Chrome plugin. This example uses the provided Postman collection.
 
 1. Run `kubectl get svc -n 42crunch` to get the external IP of the `pixisecured` deployment (values shown here are placeholders): 
@@ -161,7 +161,7 @@ You should see a response similar to this. This `x-access-token` is a JWT that y
    }
    ```
 
-## Test API Firewall in action
+## Step 5 - Test API Firewall in action
 
 42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. You can test  the firewall behavior with the following requests:
 

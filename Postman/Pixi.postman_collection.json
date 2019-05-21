@@ -85,7 +85,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"id\": 50,\n  \"user\": \"user@acme.com\",\n  \"pass\": \"hellopixi\",\n  \"name\": \"Pixi User\",\n  \"is_admin\": false,\n  \"account_balance\": 1000\n}"
+					"raw": "{\n  \"id\": 50,\n  \"user\": \"user@pixi.com\",\n  \"pass\": \"hellopixi\",\n  \"name\": \"Pixi User\",\n  \"is_admin\": false,\n  \"account_balance\": 1000\n}"
 				},
 				"url": {
 					"raw": "{{42c_url}}/api/register",

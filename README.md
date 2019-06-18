@@ -63,9 +63,11 @@ This deployment uses a specific namespace called `42crunch`. This means that you
 3. Import the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. 
 The API should score 82/100 in API Contract Security Audit: the detailing of API contract description in this file has been optimised, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schemas).
 
-4. Go to the **Protection** tab, and click **Enable**.
+5. On the **API Summary** tab, click **Protect API** to create a firewall configuration for the API.
 
-5. Copy the generated protection token to clipboard.
+6. Click **Protection Tokens > Create New Token**, and create a protection token for the firewall configuration. This tells the API Firewall instance which firewall configuration to run.
+
+7. Copy protection token value to clipboard, and close the dialog.
 
 ### Step 2- Configure the deployment scripts
 You must configure the deployment scripts to use the firewall configuration you just created and to succesfully authenticate to DockerHub.

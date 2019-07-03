@@ -1,16 +1,4 @@
 ---
-#STORAGE for firewall logs
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: firewall-logs
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -56,8 +44,6 @@ spec:
       - name: apifirewall
         image: '42crunch/apifirewall:latest'
         imagePullPolicy: Always
-        args: ["-platform", "protection.42crunch.com:8001"]
-        command: ["/bin/squire"]
         ports:
           - containerPort: 443
         env:
@@ -90,9 +76,6 @@ spec:
         - configMapRef:
             name: firewall-props
         volumeMounts:
-        - name: firewall-logs
-          mountPath: /opt/guardian/logs
-          readOnly: false
         - name: certs-volume
           mountPath: /opt/guardian/conf/vhost/ssl
           readOnly: true
@@ -102,9 +85,6 @@ spec:
         ports:
           - containerPort: 8090
       volumes:
-        - name: firewall-logs
-          persistentVolumeClaim:
-            claimName: firewall-logs
         - name: certs-volume
           secret:
             secretName: guardiancerts

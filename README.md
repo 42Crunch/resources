@@ -166,7 +166,7 @@ You should see a response similar to this. This `x-access-token` is a JWT that y
 
 ### Step 5 - Test API Firewall in action
 
-42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. You can test  the firewall behavior with the following requests:
+42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. You can test the firewall behavior with the following requests:
 
 1. Wrong verb: the operation `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
 
@@ -174,11 +174,11 @@ You should see a response similar to this. This `x-access-token` is a JWT that y
 
 3. Wrong `Content-Type`: the OpenAPI definition states that the operation `/api/register` requires input in the form of `application/json`. If you use a different value or if you do not specify the `Content-Type`, the request is blocked. 
 
-4. Missing a parameter that the input JSON structure requires: the schema for the operation `/api/register` specifies that the parameters `user`, `name`, `email`, and `password` are mandatory. If you do not specify any of these parameters, the request is blocked. 
+4. Missing a parameter that the input JSON structure requires: the schema for the operation `/api/register` specifies that the parameters `user`, `name`, `email`, and `password` are mandatory. If you leave out any of these parameters, the request is blocked. 
 
-5. Wrong format for values: if you specify a value (such as email) in a format that does not match the schema, the request is blocked. For example, try to register a user with email `user@acme.com@elysee.fr` (you can read how this was exploited by hackers here)
+5. Wrong format for values: if you specify a value (such as email) in a format that does not match the schema, the request is blocked. For example, try to register a user with email `user@acme.com@elysee.fr` (you can read how this was exploited by hackers [here](https://apisecurity.io/issue-28-breaches-tchap-shopify-justdial/) ).
 
-6. MongoDB injection: The API has a MongoDB injection vulnerability which can be exploited to login to the application without specifying a password. You can try to login using the following raw parameters in Postman `user=user@acme.com&pass[$ne]=`. You will be able to login with the unprotected API, but will be blocked by our firewall.
+6. The Pixi API has a MongoDB injection vulnerability that allows logging in to the application without specifying a password. You can try this by using the raw parameters `user=user@acme.com&pass[$ne]=` in Postman for a login request. You will see that you can log in to the unprotected API, but the request is blocked by API Firewall on the protected API.
 
 7. Reflected XSS attack: If you introduce a XSS attack like the example below, the request is blocked: 
 

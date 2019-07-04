@@ -10,6 +10,7 @@ We recommend that you install the Pixi API in a dedicated Kubernetes cluster, an
 - DigitalOcean
 - Google
 - IBM
+- Amazon
 
 ## Created artifacts
 The deployment involves two types of artifacts: configuration artifacts and runtime artifacts.
@@ -106,7 +107,7 @@ You must configure the deployment scripts to use the firewall configuration you 
    kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
    ```
 
-2. Once the deployment is complete, run `kubectl get pods -n 42crunch` to check that all pods are successful running:
+2. Once the deployment is complete, run `kubectl get pods -n 42crunch` to check that all pods are successfully running:
 
    ```shell
    NAME                            READY   STATUS    RESTARTS   AGE
@@ -165,19 +166,19 @@ You should see a response similar to this. This `x-access-token` is a JWT that y
 
 ### Step 5 - Test API Firewall in action
 
-42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. You can test  the firewall behavior with the following requests:
+42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. You can test the firewall behavior with the following requests:
 
-1. Wrong verb: the opertion `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
+1. Wrong verb: the operation `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
 
 2. Wrong path: any request to a path _not_ defined in the OAS definition is blocked, try `/api/foo`, for example.
 
 3. Wrong `Content-Type`: the OpenAPI definition states that the operation `/api/register` requires input in the form of `application/json`. If you use a different value or if you do not specify the `Content-Type`, the request is blocked. 
 
-4. Missing a parameter that the input JSON structure requires: the schema for the operation `/api/register` specifies that the parameters `user`, `name`, `email`, and `password` are mandatory. If you do not specify all of these parameters, the requests is blocked. 
+4. Missing a parameter that the input JSON structure requires: the schema for the operation `/api/register` specifies that the parameters `user`, `name`, `email`, and `password` are mandatory. If you leave out any of these parameters, the request is blocked. 
 
-5. Wrong format for values: if you specify a value (such as email) in a format that does not match the schema, the request is blocked.
+5. Wrong format for values: if you specify a value (such as email) in a format that does not match the schema, the request is blocked. For example, try to register a user with email `user@acme.com@elysee.fr` (you can read how this was exploited by hackers [here](https://apisecurity.io/issue-28-breaches-tchap-shopify-justdial/) ).
 
-6. MongoDB injection: If you introduce a MongoDB injection like `[$ne]=1` instead of the password value when calling the login method, the request and login are blocked.
+6. The Pixi API has a MongoDB injection vulnerability that allows logging in to the application without specifying a password. You can try this by using the raw parameters `user=user@acme.com&pass[$ne]=` in Postman for a login request. You will see that you can log in to the unprotected API, but the request is blocked by API Firewall on the protected API.
 
 7. Reflected XSS attack: If you introduce a XSS attack like the example below, the request is blocked: 
 

@@ -1,3 +1,51 @@
 apiVersion: v1
-entries: {}
-generated: "2019-07-31T17:04:33.425482154+02:00"
+entries:
+  apifw-proxy:
+  - apiVersion: v1
+    appVersion: latest
+    created: "2019-07-31T17:09:39.085629302+02:00"
+    description: Template for API Firewall proxy protection pattern.
+    digest: c406b344ec7a2872b89b6f997ec7c6c67ee425c30fff06ee527549492d91e143
+    engine: gotpl
+    icon: https://pbs.twimg.com/profile_images/818900935594405888/fPUXoYW0_400x400.jpg
+    keywords:
+    - 42c
+    - 42Crunch
+    - apifirewall
+    maintainers:
+    - email: info@42crunch.com
+      name: 42crunch
+    name: apifw-proxy
+    urls:
+    - https://42Crunch.github.io/resources/helm/packages/apifw-proxy-v0.0.1.tgz
+    version: v0.0.1
+  apifw-sidecar:
+  - apiVersion: v1
+    appVersion: latest
+    created: "2019-07-31T17:09:39.085901223+02:00"
+    description: Protected Pixi app with API firewall sidecar pattern
+    digest: 21d435d8f23195af49a1dd885c2c5fc1c6821343a371a18179ccf18b0a6ac06e
+    engine: gotpl
+    icon: https://pbs.twimg.com/profile_images/818900935594405888/fPUXoYW0_400x400.jpg
+    keywords:
+    - 42c
+    - 42Crunch
+    - apifirewall
+    maintainers:
+    - email: info@42crunch.com
+      name: 42crunch
+    name: apifw-sidecar
+    urls:
+    - https://42Crunch.github.io/resources/helm/packages/apifw-sidecar-v0.0.1.tgz
+    version: v0.0.1
+  pixi-stack:
+  - apiVersion: v1
+    appVersion: latest
+    created: "2019-07-31T17:09:39.08630448+02:00"
+    description: Pixi stack deployment
+    digest: bf7fac82ea8e7dd0a61e26ea232abb6c2dfcb0a55bbe817cb0790c16cb7a2d0c
+    name: pixi-stack
+    urls:
+    - https://42Crunch.github.io/resources/helm/packages/pixi-stack-v0.0.1.tgz
+    version: v0.0.1
+generated: "2019-07-31T17:09:39.085198919+02:00"

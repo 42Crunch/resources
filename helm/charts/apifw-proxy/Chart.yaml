@@ -1,0 +1,15 @@
+apiVersion: v1
+name: apifw-proxy
+version: v0.0.1
+appVersion: 'latest'
+icon: https://pbs.twimg.com/profile_images/818900935594405888/fPUXoYW0_400x400.jpg
+deprecated: false
+description: Template for API Firewall proxy protection pattern.
+keywords:
+- 42c
+- 42Crunch
+- apifirewall
+maintainers:
+- name: 42crunch
+  email: info@42crunch.com
+engine: gotpl

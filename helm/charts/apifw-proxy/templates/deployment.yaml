@@ -1,0 +1,80 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "apifw-proxy.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ template "apifw-proxy.name" . }}
+    helm.sh/chart: {{ include "apifw-proxy.chart" . }}
+    app.kubernetes.io/managed-by:  {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "apifw-proxy.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "apifw-proxy.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ include "apifw-proxy.fullname" . }}-registry-creds
+      containers:
+        - name: apifw
+          image: "{{ .Values.API_FW.repository }}:{{ .Values.API_FW.tag }}"
+          imagePullPolicy: {{ .Values.API_FW.pullPolicy }}
+          ports:
+            - name: apifw
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            - name: GUARDIAN_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: GUARDIAN_INSTANCE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: GUARDIAN_INSTANCE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: GUARDIAN_INSTANCE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: GUARDIAN_INSTANCE_SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: LISTEN_PORT
+              value: "{{ .Values.service.port }}"
+            - name: TARGET_URL
+              value: "{{ .Values.API_FW.TargetServer }}"
+            - name: PROTECTION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "apifw-proxy.fullname" . }}-protection-token
+                  key: PROTECTION_TOKEN
+            - name: LISTEN_SSL_CERT
+              value: tls.crt
+            - name: LISTEN_SSL_KEY
+              value: tls.key
+            - name: SERVER_NAME
+              value: {{ .Values.API_FW.ServerName }}
+          volumeMounts:
+            - name: certs-volume
+              mountPath: /opt/guardian/conf/vhost/ssl
+              readOnly: true
+      volumes:
+        - name: certs-volume
+          secret:
+            secretName: {{ include "apifw-proxy.fullname" . }}-tls

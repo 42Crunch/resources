@@ -1,0 +1,56 @@
+
+
+*****************************************************************************************************
+*                             SECURITY WARNING!!!                                                   *
+*   Pixi is an intentionally vulnerable app and consists of a vulnerable web app and API service.   *
+*****************************************************************************************************
+
+    PixiApp and PixiDB had beend deployed.
+
+    Pixi is a piece of DevSlop, a resource for learning how application security professionals fit into DevOps.
+    More info here <https://www.owasp.org/index.php/OWASP_DevSlop_Project>
+
+    Get the apifw-pixi URL to visit by followinf these instrucctions:
+
+{{ if contains "NodePort" .Values.service.type -}}
+{{ if contains "minikube" .Values.environment -}}
+
+|-----------------------------------------------------------------------------------------------------------------|
+        Execute this command to get the /etc/host entry you require for Minikube
+
+            $(minikube ip) {{.Values.apifw_servername }}
+{{ else if contains "minishift" .Values.environment -}}
+
+|-----------------------------------------------------------------------------------------------------------------|
+        Execute this command to get the /etc/host entry you require for Minishift
+
+            $(minishift ip) {{.Values.apifw_servername }}
+{{- end }}
+
+        Access the service in this url:
+            https://{{.Values.apifw_servername }}:30443/
+
+        The unprotected web/api will be in:
+            http://{{.Values.apifw_servername }}:30800/
+            http://{{.Values.apifw_servername }}:30809/
+
+|-----------------------------------------------------------------------------------------------------------------|
+
+    Verify the deployed protection-token using the command:
+        kubectl get secret protection-token -o jsonpath="{.data.PROTECTION_TOKEN}" | base64 --decode ; echo
+{{ else if contains "LoadBalancer" .Values.service.type -}}
+
+   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        You can watch the status of by running 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ template "apifw-proxy.fullname" . }}'
+     export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ template "apifw-proxy.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+     http://$SERVICE_IP:{{ .Values.service.port -}}
+
+{{ else if contains "ClusterIP"  .Values.service.type }}
+     export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "apifw-proxy-pixi.name" . }},release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 3000
+{{- end }}
+
+*****************************************************************************************************
+*                             SECURITY WARNING!!!                                                   *
+*   Pixi is an intentionally vulnerable app and consists of a vulnerable web app and API service.   *
+*****************************************************************************************************

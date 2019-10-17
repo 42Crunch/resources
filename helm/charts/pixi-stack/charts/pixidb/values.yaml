@@ -1,8 +1,0 @@
-image:
-  repository: deadrobots/pixi
-  tag: datastore
-  pullPolicy: Always
-
-service:
-  type: ClusterIP
-  port: 27017

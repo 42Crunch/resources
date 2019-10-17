@@ -1,0 +1,109 @@
+---
+# Secure Deployment - LoadBalancer definition for 42Crunch Firewall.
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: pixi
+    role: public
+  name: pixi-secured
+spec:
+  type: LoadBalancer
+  ports:
+  - name: firewall
+    port: 443
+    targetPort: 443
+  selector:
+    app: apifirewall
+
+# Minikube Setup
+# Uncomment the following lines if you are using Minikube -DO NOT FORGET TO COMMENT THE EQUIVALENT BLOCK ABOVE
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   labels:
+#     app: pixi
+#     role: public
+#   name: pixi-secured
+# spec:
+#   type: NodePort
+#   ports:
+#   - name: firewall
+#     port: 443
+#     targetPort: 443
+#     nodePort: 30443
+#   selector:
+#     app: apifirewall
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixi-secured
+spec:
+  selector:
+    matchLabels:
+      app: apifirewall
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0        # how many pods we can add at a time
+      maxUnavailable: 1  # maxUnavailable define how many pods can be unavailable during rolling RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: apifirewall
+    spec:
+      imagePullSecrets:
+      - name: docker-registry-creds
+      containers:
+      - name: apifirewall
+        image: '42crunch/apifirewall:latest'
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 443
+        env:
+        - name: GUARDIAN_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: GUARDIAN_INSTANCE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: GUARDIAN_INSTANCE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: GUARDIAN_INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: GUARDIAN_INSTANCE_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: PROTECTION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: generic-pixi-protection-token
+              key: PROTECTION_TOKEN
+        envFrom:
+        - configMapRef:
+            name: firewall-props
+        volumeMounts:
+        - name: certs-volume
+          mountPath: /opt/guardian/conf/vhost/ssl
+          readOnly: true
+      - name: pixiapp
+        image: deadrobots/pixi:app
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8090
+      volumes:
+        - name: certs-volume
+          secret:
+            secretName: firewall-certs

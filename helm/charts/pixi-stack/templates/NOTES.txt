@@ -1,1 +1,0 @@
-Created shared configmaps and secrets.

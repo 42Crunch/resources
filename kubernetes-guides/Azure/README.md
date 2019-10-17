@@ -1,4 +1,4 @@
-![42Crunch](/kubernetes-guides/graphics/42c_logo_lighta.png?raw=true "42Crunch")
+![42Crunch](/kubernetes-guides/graphics/42c_logo.png?raw=true "42Crunch")
 
 # Deploying 42Crunch API Firewall on Azure Kubernetes Service (AKS)
 

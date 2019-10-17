@@ -1,4 +1,4 @@
-![42Crunch](/kubernetes-guides/graphics/42c_logo_lighta.png?raw=true "42Crunch")
+![42Crunch](/kubernetes-guides/graphics/42c_logo.png?raw=true "42Crunch")
 
 # Deploying 42Crunch API Firewall on Google Kubernetes Engine (GKE)
 
@@ -6,7 +6,7 @@
 
 This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall in [Google Kubernetes Service (GKE)](hhttps://cloud.google.com/kubernetes-engine/). For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
 
-The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues. 
+The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues.
 
 **We recommend that you install the Pixi API in a dedicated Kubernetes cluster, and delete the cluster once your tests are completed.** Do not leave the unprotected Pixi API running, it is vulnerable!
 

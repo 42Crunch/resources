@@ -1,4 +1,4 @@
-![42crunch.com](/kubernetes-guides/graphics/42c_logo_lighta.png?raw=true "42Crunch")
+![42crunch.com](/kubernetes-guides/graphics/42c_logo.png?raw=true "42Crunch")
 ![Minikube](/kubernetes-guides/graphics/MinikubeLogo.png?raw=true "Minikube")
 
 # Deploying 42Crunch API Firewall on Minikube

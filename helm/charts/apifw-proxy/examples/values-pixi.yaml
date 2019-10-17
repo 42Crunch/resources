@@ -1,3 +1,0 @@
-API_FW:
-  TargetServer: http://pixiapp:8090
-  ServerName: apifw-proxy-pixi.seflsigned

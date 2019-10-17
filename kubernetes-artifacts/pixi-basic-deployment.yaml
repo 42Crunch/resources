@@ -1,0 +1,110 @@
+
+---
+# Load balancer service to invoke the Pixi apps and APIs directly and test the scan capabilities.
+# Once this is deployed, edit the OASFiles and replace the hostname value by the value of the ExternalIP
+# of the load balancer
+# UNCOMMENT FOLLOW LINES WHEN USING STANDARD CLOUD PLATFORMS
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: pixiapp
+    role: public
+  name: pixi-open
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+  - name: "api"
+    port: 8090
+    targetPort: 8090
+  selector:
+    app: pixiapp
+
+# Minikube Setup
+# Uncomment the following lines if you are using Minikube -DO NOT FORGET TO COMMENT THE EQUIVALENT BLOCK ABOVE
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   labels:
+#     app: pixiapp
+#     role: public
+#   name: pixi-open
+# spec:
+#   type: NodePort
+#   ports:
+#   - name: "api"
+#     port: 8090
+#     targetPort: 8090
+#     nodePort: 30090
+#   selector:
+#     app: pixiapp
+
+---
+# the Pixi app uses a Mongo DB database to store users, pictures and other metadata.
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: pixidb
+  name: pixidb
+spec:
+  ports:
+  - name: "mongo"
+    port: 27017
+    targetPort: 27017
+  selector:
+    app: pixidb
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixidb
+spec:
+  selector:
+    matchLabels:
+      app: pixidb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pixidb
+    spec:
+      containers:
+      - name: pixidb
+        image: deadrobots/pixi:datastore
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 27017
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixi
+spec:
+  selector:
+    matchLabels:
+      app: pixiapp
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0        # how many pods we can add at a time
+      maxUnavailable: 1  # maxUnavailable define how many pods can be unavailable during rolling RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: pixiapp
+    spec:
+      containers:
+      - name: pixiapp
+        image: deadrobots/pixi:app
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8000
+          - containerPort: 8090

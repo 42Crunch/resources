@@ -1,0 +1,9 @@
+API:
+  name: petstore
+  image: deadrobots/pixi
+  tag: app
+  port: 8090
+
+API_FW:
+  TargetSchema: http
+  ServerName: pixi-secured.42crunch.test

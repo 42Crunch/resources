@@ -61,7 +61,7 @@ spec:
       - name: docker-registry-creds
       containers:
       - name: apifirewall
-        image: '42crunch/apifirewall:latest'
+        image: 'test42c/apifirewall:v0.11.0'
         imagePullPolicy: Always
         ports:
           - containerPort: 443
@@ -96,7 +96,7 @@ spec:
             name: firewall-props
         volumeMounts:
         - name: certs-volume
-          mountPath: /opt/guardian/conf/vhost/ssl
+          mountPath: /opt/guardian/conf/ssl
           readOnly: true
       - name: pixiapp
         image: deadrobots/pixi:app

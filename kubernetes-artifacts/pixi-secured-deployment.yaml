@@ -61,7 +61,7 @@ spec:
       - name: docker-registry-creds
       containers:
       - name: apifirewall
-        image: 'test42c/apifirewall:v0.11.0'
+        image: '42crunch/apifirewall:v0.11.0'
         imagePullPolicy: Always
         ports:
           - containerPort: 443

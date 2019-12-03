@@ -30,7 +30,7 @@ The 42Crunch API firewall image is located on a private DockerHub repository: an
 
 ### AKS Kubernetes cluster
 
-You must have an AKS Kubernetes cluster running, and proper credentials to deploy the artifacts to tha cluster. If you don't already have one, you can create one in 3 easy steps:
+You must have an AKS Kubernetes cluster running, and proper credentials to deploy the artifacts to that cluster. If you don't already have one, you can create one in 3 easy steps:
 
 1. Install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest).
 
@@ -52,11 +52,9 @@ You must have an AKS Kubernetes cluster running, and proper credentials to deplo
  You can use the command `az account list-locations` to list all the locations for your Azure cluster, and change the value to the one that suits you best. After a few minutes, we should have a Kubernetes environment ready for testing. 
     
 4. Setup kubectl to point to your newly created cluster
-
-4. ```shell
-az aks get-credentials --resource-group rg-42crunch --name aks-42crunch
-  ```
-
+    ```shell
+    az aks get-credentials --resource-group rg-42crunch --name aks-42crunch
+    ```
 5. Check kubectl is properly configured by running `kubectl get nodes`
 
    ```shell

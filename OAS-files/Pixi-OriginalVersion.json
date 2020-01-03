@@ -436,7 +436,7 @@
       }
     }
   },
-  "host": "pixiapp.42crunch-cloud.com:8090",
+  "host": "pixi.42crunch.test:8090",
   "basePath": "/",
   "schemes": [
     "http"

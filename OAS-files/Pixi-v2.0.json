@@ -601,7 +601,7 @@
       }
     }
   },
-  "host": "demo-42c-app.eastus.cloudapp.azure.com",
+  "host": "pixi.42crunch.test",
   "basePath": "/",
   "schemes": [
     "https"

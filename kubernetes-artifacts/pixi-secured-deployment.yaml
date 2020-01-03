@@ -1,5 +1,6 @@
 ---
 # Secure Deployment - LoadBalancer definition for 42Crunch Firewall.
+# UNCOMMENT FOLLOW LINES WHEN USING STANDARD CLOUD PLATFORMS
 
 apiVersion: v1
 kind: Service
@@ -61,7 +62,7 @@ spec:
       - name: docker-registry-creds
       containers:
       - name: apifirewall
-        image: '42crunch/apifirewall:latest'  # replace latest by proper tag in prod environments.
+        image: 'test42c/apifirewall:v0.14.0'  # replace latest by proper tag in prod environment.
         imagePullPolicy: Always
         ports:
           - containerPort: 443

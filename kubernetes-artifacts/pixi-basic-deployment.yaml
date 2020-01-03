@@ -1,8 +1,6 @@
 
 ---
 # Load balancer service to invoke the Pixi apps and APIs directly and test the scan capabilities.
-# Once this is deployed, edit the OASFiles and replace the hostname value by the value of the ExternalIP
-# of the load balancer
 # UNCOMMENT FOLLOW LINES WHEN USING STANDARD CLOUD PLATFORMS
 
 apiVersion: v1

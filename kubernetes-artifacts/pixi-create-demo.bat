@@ -16,7 +16,7 @@ kubectl create --namespace=%RUNTIME_NS% secret docker-registry docker-registry-c
 kubectl create --namespace=%RUNTIME_NS% secret tls guardiancerts --key .\etc\tls\private.key --cert .\etc\tls\cert-fullchain.pem
 kubectl create --namespace=%RUNTIME_NS% secret generic generic-pixi-protection-token --from-env-file=.\etc\secret-protection-token
 :: Config Map creation
-kubectl create --namespace=%RUNTIME_NS% configmap firewall-props --from-env-file=.\deployment.properties
+kubectl create --namespace=%RUNTIME_NS% configmap firewall-props --from-env-file=.\etc\deployment.properties
 :: Deployment (Required App/DB + storage)
 kubectl apply --namespace=%RUNTIME_NS% -f pixi-basic-deployment.yaml
 :: Deployment (Pixi + FW)

@@ -17,7 +17,7 @@ kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ./etc/tls
 kubectl create --namespace=$RUNTIME_NS secret generic generic-pixi-protection-token --from-env-file='./etc/secret-protection-token'
 # Config Map creation
 echo "===========> Creating ConfigMap"
-kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-file='./deployment.properties'
+kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-file='./etc/deployment.properties'
 # Deployment (Required App/DB + storage)
 echo "===========> Deploying unsecured pixi and database"
 kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml

@@ -61,7 +61,7 @@ spec:
       - name: docker-registry-creds
       containers:
       - name: apifirewall
-        image: '42crunch/apifirewall:v0.13.0'
+        image: '42crunch/apifirewall:latest'  # replace latest by proper tag in prod environments.
         imagePullPolicy: Always
         ports:
           - containerPort: 443

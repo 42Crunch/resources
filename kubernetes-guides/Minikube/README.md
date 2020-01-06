@@ -161,7 +161,7 @@ By default, the artifacts are deployed to a namespace called `42crunch`. If you 
 
         # Create secrets
         kubectl create --namespace=$RUNTIME_NS secret docker-registry docker-registry-creds --docker-server=$REGISTRY_SERVER --docker-username=$REGISTRY_USERNAME --docker-password=$REGISTRY_PASSWORD --docker-email=$REGISTRY_EMAIL
-        kubectl create --namespace=$RUNTIME_NS secret tls guardiancerts --key ../etc/tls/private.key --cert ../etc/tls/cert-fullchain.pem
+        kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ../etc/tls/private.key --cert ../etc/tls/cert-fullchain.pem
         kubectl create --namespace=$RUNTIME_NS secret generic protection-token --from-env-file=../etc/secret-protection-token
 
         # Config Map creation

@@ -69,7 +69,7 @@ You should now have a Kubernetes environment ready for testing. You can verify t
 
 ## Deployment artifacts
 
-The deployment involves two types of artifacts: configuration artifacts and runtime artifacts.
+The deployment involves two types of artifacts: configuration artifacts and runtime artifacts. The scripts and conf files for minikube deployment are located under `minikube-artifacts`.
 
 ### Configuration artifacts
 
@@ -116,7 +116,7 @@ In this guide, we explain the deployment using plain YAML files. You can also de
 
 ### Step 2- Configure the deployment scripts
 
-You must configure the deployment scripts to use the API firewall configuration you just created and to successfully authenticate to DockerHub.
+You must configure the deployment scripts located under `minikube-artifacts` to use the API firewall configuration you just created and to successfully authenticate to DockerHub.
 
 1. Go to edit the file `etc/secret-protection-token`.
 
@@ -135,8 +135,7 @@ You must configure the deployment scripts to use the API firewall configuration 
         REGISTRY_PASSWORD=<your_access_token>
     ```
 
-    >Remember that **only registered users** on [42Crunch Platform](https://platform.42crunch.com) have the access to download the Docker images.\
-    >If you have an existing user but cannot access the Docker image, please contact support@42crunch.com.
+    >Remember that **only registered users** on [42Crunch Platform](https://platform.42crunch.com) have the access to download the Docker images. If you have access to the 42Crunch platform but cannot access the Docker image, please open a ticket at : https://support.42crunch.com.
 
 ### Step 3 - Deploy the API Firewall
 
@@ -149,29 +148,26 @@ By default, the artifacts are deployed to a namespace called `42crunch`. If you 
   minikube
   ```
 
-2. Minikube requires a slightly different configuration for Services than other platforms (using NodePort). The required configuration is already part of the YAML deployment files, but you must enable it.
-     - Edit `kubernetes-artifacts/pixi-secured-deployment.yaml`, comment out the `LoadBalancer` `pixi-secured` definition, and uncomment the Minikube block for the `pixi-secured` underneath. Save the file.
-     - Edit `kubernetes-artifacts/pixi-basic-deployment.yaml`, comment out the `LoadBalancer` `pixi-open` definition, and uncomment the Minikube block for the `pixi-open` service underneath. Save the file.
-
-3. Depending on your environment, run either the `pixi-create-demo.sh` or `pixi-create-demo.bat` script located under `kubernetes-artifacts`  to deploy the sample configuration:
+3. Depending on your operation system, run either the `pixi-create-demo.sh` or `pixi-create-demo.bat` script located under `minikube-artifacts`  to deploy the sample configuration. The script executes the following commands:
 
     ```shell
-        # Create the 42crunch namespace - Edit the env file is you want to change it
-        kubectl create namespace $RUNTIME_NS
-
-        # Create secrets
-        kubectl create --namespace=$RUNTIME_NS secret docker-registry docker-registry-creds --docker-server=$REGISTRY_SERVER --docker-username=$REGISTRY_USERNAME --docker-password=$REGISTRY_PASSWORD --docker-email=$REGISTRY_EMAIL
-        kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ../etc/tls/private.key --cert ../etc/tls/cert-fullchain.pem
-        kubectl create --namespace=$RUNTIME_NS secret generic protection-token --from-env-file=../etc/secret-protection-token
-
-        # Config Map creation
-        kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-file='./deployment.properties'
-
-        # Deployment (Required App/DB + storage)
-        kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml
-
-        # Deployment (Pixi + FW as sidecar pod)
-        kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
+    # Create namespace
+    kubectl create namespace $RUNTIME_NS
+    ```
+# Create secrets
+    echo "===========> Creating Secrets"
+    kubectl create --namespace=$RUNTIME_NS secret docker-registry docker-registry-creds --docker-server=$REGISTRY_SERVER --docker-username=$REGISTRY_USERNAME --docker-password=$REGISTRY_PASSWORD --docker-email=$REGISTRY_EMAIL
+    kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ./etc/tls/private.key --cert ./etc/tls/cert-fullchain.pem
+    kubectl create --namespace=$RUNTIME_NS secret generic generic-pixi-protection-token --from-env-file='./etc/secret-protection-token'
+# Config Map creation
+    echo "===========> Creating ConfigMap"
+    kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-file='./etc/deployment.properties'
+# Deployment (Required App/DB + storage)
+    echo "===========> Deploying unsecured pixi and database"
+    kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml
+# Deployment (Pixi + FW)
+    echo "===========> Deploying secured API firewall"
+    kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
     ```
 
 > Should the scripts fail for any reason, you can start from a clean situation using the deletion scripts.
@@ -180,10 +176,10 @@ By default, the artifacts are deployed to a namespace called `42crunch`. If you 
 4. Once the deployment is complete, run `kubectl get pods -n 42crunch` to check that all pods are successfully running:
 
     ```shell
-        NAME                            READY   STATUS    RESTARTS   AGE
-        pixi-8c94b66b5-hq8js            1/1     Running   0          5m
-        pixi-secured-54d957c8bc-h867f   2/2     Running   0          5m
-        pixidb-755f648d47-k5pm9         1/1     Running   0          5m
+    NAME                            READY   STATUS    RESTARTS   AGE
+    pixi-8c94b66b5-hq8js            1/1     Running   0          5m
+    pixi-secured-54d957c8bc-h867f   2/2     Running   0          5m
+    pixidb-755f648d47-k5pm9         1/1     Running   0          5m
     ```
 
     You can launch the Kubernetes default dashboard to see the list of services and deployments created in the 42crunch namespace:
@@ -214,11 +210,11 @@ You can test API Firewall using the Postman collection in this repository, or ot
 
 3. Test that the setup is working by invoking http://pixi-secured.42crunch.test:30443 - You should receive a message like this one, indicating the firewall has blocked the request.
 
-   `{"status":400,"title":"request fetching","detail":"Bad Request","instance":"http://pixi-secured.42crunch.test/","uuid":"227cc698-e60d-11e9-9b1c-55b33823ae8d"}`
+   `{"status":400,"title":"request fetching","detail":"Bad Request","instance":"https://pixi-secured.42crunch.test/","uuid":"227cc698-e60d-11e9-9b1c-55b33823ae8d"}`
 
-4. Import the file `Postman/Pixi_collection.json` in Postman, and go to the newly imported Pixi project.
+4. Import the file `postman-collection/Pixi.postman_collection.json` in Postman, and go to the newly imported Pixi project.
 
-5. Create an environment variable called **42c_url**, and set its value to https://pixi-secured.42crunch.test to invoke the protected API.
+5. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** (inside an existing or new Postman environment), and set its value to https://pixi-secured.42crunch.test:30443 to invoke the protected API.
 
 6. From Postman, invoke the operation `POST  /api/register` with the following contents
 

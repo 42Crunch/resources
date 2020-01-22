@@ -32,6 +32,7 @@
         "tags": [
           "anyone"
         ],
+        "x-42c-no-authentication": true,
         "summary": "login successfully and receive json web token.",
         "parameters": [
           {
@@ -39,7 +40,7 @@
             "name": "user",
             "type": "string",
             "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
-            "minLength": 1,
+            "minLength": 5,
             "maxLength": 50,
             "required": true,
             "format": "email"
@@ -50,6 +51,7 @@
             "type": "string",
             "format": "password",
             "pattern": "^[\\w&@#!?]{4,12}$",
+            "minLength": 4,
             "maxLength": 12,
             "required": true
           }
@@ -123,8 +125,7 @@
         },
         "consumes": [
           "application/x-www-form-urlencoded"
-        ],
-        "security": []
+        ]
       }
     },
     "/api/register": {
@@ -132,6 +133,7 @@
         "tags": [
           "anyone"
         ],
+        "x-42c-no-authentication": true,
         "summary": "register for an account and receive token",
         "operationId": "register",
         "description": "user supplies email and password to register and receives a json web token.",
@@ -200,7 +202,6 @@
             }
           }
         },
-        "security": [],
         "consumes": [
           "application/json"
         ]
@@ -233,8 +234,8 @@
             "description": "successful authentication sent user information",
             "schema": {
               "type": "array",
-              "minItems": 0,
-              "maxItems": 50,
+              "minItems": 1,
+              "maxItems": 1,
               "items": {
                 "$ref": "#/definitions/UsersItem"
               }
@@ -300,7 +301,7 @@
             "description": "userobject",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserRegistrationData"
+              "$ref": "#/definitions/UserUpdateData"
             }
           },
           {
@@ -384,7 +385,7 @@
             "in": "query",
             "name": "search",
             "type": "string",
-            "pattern": "^[\\w\\s\\.@=]{1,50}$",
+            "pattern": "^[\\w\\s\\.@=]{1,100}$",
             "maxLength": 100,
             "description": "search query ?search=xxx",
             "required": true
@@ -428,7 +429,7 @@
             "access-token": []
           }
         ],
-        "operationId": "search for a specific user"
+        "operationId": "userSearch"
       }
     },
     "/api/admin/all_users": {
@@ -438,10 +439,10 @@
             "description": "",
             "schema": {
               "type": "array",
-              "minItems": 0,
+              "minItems": 1,
               "maxItems": 50,
               "items": {
-                "$ref": "#/definitions/UsersItem"
+                "$ref": "#/definitions/UsersListItem"
               }
             }
           },
@@ -496,44 +497,42 @@
   "definitions": {
     "UsersItem": {
       "type": "object",
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
         "_id": {
           "type": "number",
           "format": "integer",
           "minimum": 0,
-          "maximum": 999999,
-          "example": 1
+          "maximum": 999999
         },
         "pic": {
           "type": "string",
           "format": "uri",
           "pattern": "(\\w+:(\\/?\\/?)[^\\s]+)",
           "minLength": 0,
-          "maxLength": 200,
-          "example": 1
+          "maxLength": 200
         },
         "email": {
           "type": "string",
           "format": "email",
           "pattern": "^([a-zA-Z0-9_\\-\\.]+)(@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5}))?$",
-          "minLength": 1,
+          "minLength": 5,
           "maxLength": 50,
           "example": "email@email.com"
         },
         "password": {
           "type": "string",
           "format": "string",
-          "pattern": "^[a-zA-Z0-9&@#!?]{1,12}$",
-          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9&@#!?]{4,12}$",
+          "minLength": 4,
           "maxLength": 12,
           "example": "p@ssword1"
         },
         "name": {
           "type": "string",
           "example": "Johnny Appleseed",
-          "pattern": "(^[\\w\\s\\.]{1,50}$)",
-          "minLength": 1,
+          "pattern": "(^[\\w\\s\\.]{5,50}$)",
+          "minLength": 5,
           "maxLength": 50
         },
         "is_admin": {
@@ -544,14 +543,93 @@
           "description": "remaining balance",
           "type": "number",
           "format": "float",
-          "minimum": 0,
-          "maximum": 999999
+          "minimum": -50,
+          "maximum": 1000
+        },
+        "all_pictures": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         }
       },
       "required": [
         "email",
         "password"
       ]
+    },
+    "UsersListItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "type": "number",
+          "format": "integer",
+          "minimum": 0,
+          "maximum": 999
+        },
+        "pic": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "(\\w+:(\\/?\\/?)[^\\s]+)",
+          "minLength": 0,
+          "maxLength": 200
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "pattern": "^([a-zA-Z0-9_\\-\\.]+)(@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5}))?$",
+          "minLength": 5,
+          "maxLength": 50,
+          "example": "email@email.com"
+        },
+        "name": {
+          "type": "string",
+          "example": "Johnny Appleseed",
+          "pattern": "(^[\\w\\s\\.]{5,50}$)",
+          "minLength": 5,
+          "maxLength": 50
+        },
+        "account_balance": {
+          "description": "remaining balance",
+          "type": "number",
+          "format": "float",
+          "minimum": -50,
+          "maximum": 1000
+        }
+      },
+      "required": [
+        "email",
+        "name"
+      ]
+    },
+    "UserUpdateData": {
+      "type": "object",
+      "required": [
+        "email",
+        "name"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
+          "minLength": 4,
+          "maxLength": 50
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[\\w\\s\\.]{5,30}$",
+          "minLength": 5,
+          "maxLength": 30
+        },
+        "account_balance": {
+          "type": "number",
+          "format": "float",
+          "minimum": -50,
+          "maximum": 1000
+        }
+      }
     },
     "UserRegistrationData": {
       "type": "object",
@@ -568,7 +646,7 @@
           "type": "integer",
           "format": "int64",
           "minimum": 0,
-          "maximum": 99999999999
+          "maximum": 999
         },
         "user": {
           "type": "string",
@@ -579,13 +657,13 @@
         },
         "pass": {
           "type": "string",
-          "pattern": "^[a-zA-Z0-9&@#!?]{1,12}$",
+          "pattern": "^[a-zA-Z0-9&@#!?]{4,12}$",
           "minLength": 4,
           "maxLength": 12
         },
         "name": {
           "type": "string",
-          "pattern": "^[\\w\\s\\.]{1,50}$",
+          "pattern": "^[\\w\\s\\.]{5,30}$",
           "minLength": 5,
           "maxLength": 30
         },
@@ -595,14 +673,13 @@
         "account_balance": {
           "type": "number",
           "format": "float",
-          "minimum": 1,
+          "minimum": -50,
           "maximum": 1000
         }
       }
     }
   },
-  "host": "pixi.42crunch.test",
-  "basePath": "/",
+  "host": "pixi-open.42crunch.test",
   "schemes": [
     "https"
   ],

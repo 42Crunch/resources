@@ -167,7 +167,7 @@ You must first save the protection token in a configuration file. This file is r
 	kubectl create --namespace=$RUNTIME_NS secret generic generic-pixi-protection-token --	from-env-file='./etc/secret-protection-token'
 	# Config Map creation
 	echo "===========> Creating ConfigMap"
-  kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-	file='./etc/deployment.properties'
+  	kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-	file='./etc/deployment.properties'
 	# Deployment (Un-secured API + MongoDB)
 	echo "===========> Deploying unsecured pixi and database"
 	kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml

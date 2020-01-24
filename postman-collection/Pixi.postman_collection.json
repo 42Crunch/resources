@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "6fff49e5-6440-4f76-a2d9-b8028dcec593",
-		"name": "Pixi",
+		"_postman_id": "b23f6896-7448-4832-9b48-4ad702ea2bf6",
+		"name": "42Crunch - Deployment Guide - Pixi API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -207,21 +207,11 @@
 						"name": "Content-Type",
 						"value": "application/x-www-form-urlencoded",
 						"type": "text"
-					},
-					{
-						"key": "via-42c",
-						"value": "true",
-						"type": "text"
-					},
-					{
-						"key": "Ocp-Apim-Subscription-Key",
-						"value": "275365d441be476e8141a803f7a1f54f",
-						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "user=bernard@ping.com&pass[$ne]="
+					"raw": "user=user@pixi.com&pass[$ne]="
 				},
 				"url": {
 					"raw": "{{42c_url}}/api/login",

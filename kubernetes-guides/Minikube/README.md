@@ -236,7 +236,7 @@ We now have a running configuration with two endpoints: one that invokes the uns
 
    ![Postman-Unsecure](/kubernetes-guides/graphics/Postman-Unsecure.png)
 
-   ![Postman-Secure](/Volumes/DATA/42Crunch/MarketingDocs//kubernetes-guides/graphics/Postman-Secure.png)
+   ![Postman-Secure](/kubernetes-guides/graphics/Postman-Secure.png)
 
 7. Select the 42Crunch-Unsecure environment
 8. Invoke the operation `POST /api/register` with the following contents

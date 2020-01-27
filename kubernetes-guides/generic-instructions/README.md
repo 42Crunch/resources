@@ -322,7 +322,7 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 2. At the top-right, select the Settings icon and choose **Update Definition**
 
-   ![](/kubernetes-guides/graphics/API6- UpdateDefinition.png)
+   ![](/kubernetes-guides/graphics/API6-UpdateDefinition.png)
 
 3. Browse to the `resources/OASFiles` folder and select the `Pixi-v2.0-noadmin.json` file
 

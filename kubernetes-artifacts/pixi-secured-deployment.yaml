@@ -1,6 +1,5 @@
 ---
 # Secure Deployment - LoadBalancer definition for 42Crunch Firewall.
-# UNCOMMENT FOLLOW LINES WHEN USING STANDARD CLOUD PLATFORMS
 
 apiVersion: v1
 kind: Service
@@ -17,26 +16,6 @@ spec:
     targetPort: 443
   selector:
     app: apifirewall
-
-# Minikube Setup
-# Uncomment the following lines if you are using Minikube -DO NOT FORGET TO COMMENT THE EQUIVALENT BLOCK ABOVE
-
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   labels:
-#     app: pixi
-#     role: public
-#   name: pixi-secured
-# spec:
-#   type: NodePort
-#   ports:
-#   - name: firewall
-#     port: 443
-#     targetPort: 443
-#     nodePort: 30443
-#   selector:
-#     app: apifirewall
 
 ---
 apiVersion: apps/v1

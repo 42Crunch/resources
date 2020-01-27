@@ -1,7 +1,6 @@
 
 ---
 # Load balancer service to invoke the Pixi apps and APIs directly and test the scan capabilities.
-# UNCOMMENT FOLLOW LINES WHEN USING STANDARD CLOUD PLATFORMS
 
 apiVersion: v1
 kind: Service
@@ -19,27 +18,6 @@ spec:
     targetPort: 8090
   selector:
     app: pixiapp
-
-# Minikube Setup
-# Uncomment the following lines if you are using Minikube -DO NOT FORGET TO COMMENT THE EQUIVALENT BLOCK ABOVE
-
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   labels:
-#     app: pixiapp
-#     role: public
-#   name: pixi-open
-# spec:
-#   type: NodePort
-#   ports:
-#   - name: "api"
-#     port: 8090
-#     targetPort: 8090
-#     nodePort: 30090
-#   selector:
-#     app: pixiapp
-
 ---
 # the Pixi app uses a Mongo DB database to store users, pictures and other metadata.
 apiVersion: v1

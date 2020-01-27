@@ -2,228 +2,348 @@
 
 # Deploying 42Crunch API Firewall on a Kubernetes Cluster
 
-This document describes how to deploy 42Crunch API Firewall as a sidecar container on any Kubernetes cluster. For more information on 42Crunch Platform and API Firewall, see [42Crunch Platform documentation](https://docs.42crunch.com/latest/content/home.htm).
+This document describes how to deploy 42Crunch API Firewall as a sidecar container on an existing Kubernetes cluster.
 
-The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues. 
+The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues.
 
-**We recommend that you install the Pixi API in a dedicated Kubernetes cluster, and delete the cluster once your tests are completed.** Do not leave the unprotected Pixi API running, it is vulnerable!
+> **We recommend that you install the Pixi API in a dedicated Kubernetes cluster, and delete the cluster once your tests are completed.** Do not leave the unprotected Pixi API running in your datacenter, it is vulnerable!
 
-You also need basic understanding of [Kubernetes concepts](https://kubernetes.io/docs/concepts/) before running this guide.
+42Crunch API Firewall and Pixi require minimal resources: you can use the smallest type of nodes your cloud or IAAS provider offers to follow this guide.
 
-42Crunch API Firewall and Pixi require minimal resources, so you can use the smallest type of nodes your cloud or IAAS provider offers.
+## 42Crunch Platform Overview
+
+The 42Crunch API Security platform provides tools to quickly protect APIs from typical threats, such as mass assignment, data leakage, exception leakage, or injections as described in the [OWASP Top10 for API Security](https://apisecurity.io/encyclopedia/content/owasp/owasp-api-security-top-10.htm). The platform was built to empower developers to become key actors of API security, enabling them to address security concerns as early as possible in the API lifecycle.
+
+Typically, the platform would be used as follows:
+
+* Developers describe precisely API contracts using the OpenAPI specification format (aka Swagger). This can be done via annotations in the API implementation code or using specialized tools such as SwaggerHub or Stoplight.
+* The OpenAPI definition is imported into the 42Crunch platform and audited: the audit service analyses the definition and gives a security score from 0 to 100. The score is calculated based on how the API is secured (authentication, authorisation and transport of credentials) and how well the data is defined (parameters, headers, schemas, etc.). This only can be done manually via our SaaS console, via the developers favorite IDE or via CI/CD pipelines. The entire functionality is available via a REST API, so that bulk import and audit can be performed via scripting as well.
+* Developers improve the score by following the remediation recommendations given in the audit reports until they reach a satisfactory score (usually above 75) and have fixed all critical/high severity issues.
+* The resulting OpenAPI file now describes precisely the inputs and outputs of our API and as such can be used as a configuration [whitelist](https://42crunch.com/adopting-a-positive-security-model/) for the 42Crunch API threats protection engine (API Firewall).
 
 ## Goals
 
 This document guides you through:
 
-1. Validating connection to existing Kubernetes cluster.
-2. Deploying the unsecured API (Pixi API).
-3. Deploying the 42Crunch API firewall protecting the unsecured API.
-4. Seeing the [42Crunch Platform](https://platform.42crunch.com) in action.
+1. Validating connection to your existing Kubernetes cluster.
+2. Importing an API contract into our SaaS platform and configuring the protection.
+3. Deploying the unsecured API (Pixi API).
+4. Deploying the 42Crunch API firewall protecting the unsecured API.
+5. Testing the 42Crunch API Firewall in action.
 
 ## Prerequisites
-Before you start, ensure you have the following.
+In this guide, we deploy the 42Crunch API firewall in sidecar proxy mode (co-located in the same pod as the API) and use Kubernetes as orchestrator. Therefore, you need basic understanding of [Kubernetes concepts](https://kubernetes.io/docs/concepts/) before running this guide.
+
+Before you start, ensure you comply with the following pre-requisites:
+
+### 42Crunch resources project
+
+You need to clone the 42Crunch resources project located on Github (https://github.com/42Crunch/resources) to get a local copy of the artifacts used in this guide.
 
 ### 42Crunch platform account
 
-You must be a registered user on the [42Crunch Platform](https://platform.42crunch.com) to follow this guide. If you do not have an account, contact us at sales@42crunch.com.
+You must be a registered user on the [42Crunch Platform](https://platform.42crunch.com) to follow this guide. If you do not have an account, you can self-register at https://platform.42crunch.com/register.
 
 ### Access to 42Crunch API firewall Docker image
-The 42Crunch API firewall image is located on a private DockerHub repository: you must have been given access to it. If you are an existing platform user but cannot access the Docker image, send a mail to: support@42crunch.com.
+The 42Crunch API firewall image is located on a private DockerHub repository: an access to this repository must have been granted to you. If you are an existing platform user but cannot access the Docker image, send a mail to: support@42crunch.com.
 
 ### Kubernetes cluster
 This guide assumes that you already have a Kubernetes cluster running and you have proper credentials to deploy apps into that cluster.
 
-Before deploying the artifacts, ensure that `kubectl` is properly configured to point to the cluster you want to use. To do this, run the following:
+### Tools
 
-```shell
-eagle$ kubectl config current-context
-```
-
-For example, if you're running a GKE cluster, you should get an answer like:
-
-```shell
-eagle$ kubectl config current-context
-gke_pixi-deploy_europe-west6-a_xxxx
-```
+We recommend you install [Postman](https://www.getpostman.com/downloads/) to drive test the API. A Postman collection is provided to you in this repository.
 
 ## Deployment artifacts
-The deployment involves two types of artifacts: configuration artifacts and runtime artifacts.
+
+The deployment involves two types of artifacts: configuration artifacts and runtime artifacts. The scripts and conf files are located under `kubernetes-artifacts`.
 
 ### Configuration artifacts
+
 The following configuration artifacts are created when you execute the deployment scripts:
-- A Docker registry secret that contains the information for the DockerHub connection to pull the API firewall image.
+- A Docker registry secret that contains the information for the DockerHub connection to pull firewall images.
 - A TLS secret that contains the key-cert pair to protect the listening interface of the firewall. The key-cert pair is signed with an ephemeral CA and has been created for the hostname `pixi-secured.42crunch.test`. You can find the keys and certs under `etc/tls`.
-- A generic secret that contains the protection token identifying the firewall configuration to run.
-- A config map that is populated from the file `deployment.properties`.
+- A generic secret that contains the protection token identifying the API firewall configuration to run.
+- A config map that is populated from the file `deployment.properties`. The config map contains properties that affect how the firewall gets configured at deployment time.
 
 ### Runtime artifacts
-The deployment scripts create two deployments:
+
+The scripts create two deployments:
 - `PixiSecured`, which exposes the protected Pixi API (all API calls go through the API Firewall deployed in a sidecar mode)
-- `Pixiapp`, which exposes the original, unprotected Pixi API so that you can directly invoke the vulnerable API for testing.
+- `Pixiapp`, which exposes the original, unprotected Pixi API so that you can directly invoke the vulnerable API
 
-Both deployments are fronted by load balancers and point a Mongo database deployed in a pod called `pixidb`, exposed via a service.
+Both deployments are fronted by load balancers and point to a [MongoDB](https://www.mongodb.com/what-is-mongodb) deployed behind a service named `pixidb`.
 
-![Demo Architecture](/kubernetes-guides/graphics/GenericDeployment.jpg)
+![Demo architecture](/kubernetes-guides/graphics/GenericDeployment.jpg?raw=true "Demo architecture")
 
-## Deployment steps
+## Configuration Setup
 
-This deployment uses a specific namespace called `42crunch`. This means that you can deploy the artifacts in an existing Kubernetes cluster without overlapping other existing artifacts.
+### Import the Pixi API and generate the protection configuration
 
-If you want to change this name, edit the `kubernetes-artifacts/etc/env` file and change the namespace before you run the script.
-
-### Step 1 - Import Pixi API and generate a firewall configuration
 1. Log in to 42Crunch Platform at <https://platform.42crunch.com>
 
-2. Create an API collection called `PixiTest`.
+2. Go to **API Collections** in the main menu and click on **New Collection**, name it  PixiTest.
 
-3. Import the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`.![Import API definition](/kubernetes-guides/graphics/42c_ImportOAS.png?raw=true "Import API definition")
+3. Click on **Add Collection**.
 
-   The API should score around 87/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema).
+   ![](/kubernetes-guides/graphics/create-collection.png)
 
-4. In the main menu on the left, click **Protection** to create a firewall configuration for the API.
+4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](/kubernetes-guides/graphics/42c_ImportOAS.png?raw=true "Import API definition")
 
-5. Select the `PixiTest` API collection, and the Pixi API, and enter a name for the protection token.
-   This unique token tells the API Firewall instance which firewall configuration to run.
+   The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
+
+5. In the main menu on the left, click **Protection** to launch the protection wizard
+
+6. Select the `PixiTest` API collection, and the Pixi API, and enter a name for the protection token. This unique token is used later in this guide to configure the API Firewall.
     ![Create protection configuration](/kubernetes-guides/graphics/42c_CreateProtection.png?raw=true "Create protection configuration")
 
-6. Copy the protection token value to the clipboard. **Do not close this dialog** until you have safely saved the token value (in the next step).
+7. Copy the protection token value to the clipboard. **Do not close this dialog** until you have safely saved the value (in the next step).
    ![Token value](/kubernetes-guides/graphics/42c_TokenToClipboard.png?raw=true "token value")
 
-### Step 2- Configure the deployment scripts
-You must configure the deployment scripts to use the firewall configuration you just created and to succesfully authenticate to DockerHub.
+# Configuration Deployment
 
-1. Go to edit the file `kubernetes-artifacts/etc/secret-protection-token` located under Kubernetes-artifacts.
+## Configuring the deployment scripts
 
-2. Replace the placeholder `<your_token_value>` with the protection token you copied on the Protection tab, and save the file:
+The protection token is used by the API Firewall to retrieve its configuration from the platform. Think of it as a unique ID for the API protection configuration.
+
+You must first save the protection token in a configuration file. This file is read by the deployment scripts to create a Kubernetes secret.
+
+1. Edit  `etc/secret-protection-token` with any text editor.
+
+2. Replace the placeholder `<your_token_value>` with the protection token you copied, and save the file:
 
     ```shell
     PROTECTION_TOKEN=<your_token_value>
     ```
+3. Go to edit the file `etc/secret-docker-registry`.
 
-3. Go to edit the file ``kubernetes-artifacts/etc/secret-docker-registry`.
-
-4. Provide your credentials for DockerHub, and save the file - We recommend you use [Personal Access Tokens](https://docs.docker.com/docker-hub/access-tokens/) instead of passwords.
+4. Provide your credentials for DockerHub, and save the file. We recommend you use [Personal Access Tokens](https://docs.docker.com/docker-hub/access-tokens/) instead of passwords.
 
     ```shell
-        REGISTRY_USERNAME=<your_user>
-        REGISTRY_PASSWORD=<your_access_token>
+    REGISTRY_USERNAME=<your_user>
+    REGISTRY_PASSWORD=<your_access_token>
     ```
-    
-    >Remember that **only registered users** on [42Crunch Platform](https://platform.42crunch.com) have the access to download the Docker images.
-    >If you have an existing user but cannot access the Docker image, please contact support@42crunch.com.
-    
-    
-### Step 3 - Deploy the API Firewall
-1. Depending on your platform, run either the `pixi-create-demo.sh` or `pixi-create-demo.bat` script located under Kubernetes-artifacts to deploy the sample configuration:
+## Deploying the API Firewall
 
-   ```shell
-   # Create the 42crunch namespace - Edit the env file is you want to change it
-   kubectl create namespace $RUNTIME_NS
-   # Create secrets
-   kubectl create --namespace=$RUNTIME_NS secret docker-registry docker-registry-creds --docker-server=$REGISTRY_SERVER --docker-username=$REGISTRY_USERNAME --docker-password=$REGISTRY_PASSWORD --docker-email=$REGISTRY_EMAIL
-   kubectl create --namespace=$RUNTIME_NS secret tls guardiancerts --key ../etc/tls/private.key --cert ../etc/tls/cert-fullchain.pem
-   kubectl create --namespace=$RUNTIME_NS secret generic protection-token --from-env-file=../etc/secret-protection-token
-   # Config Map creation
-   kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-file=./deployment.properties
-   # Deployment (Required App/DB + storage)
-   kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml
-   # Deployment (Pixi + FW as sidecar pod)
-   kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
-   ```
+> *This deployment uses a specific namespace called `42crunch`. This means that you can deploy the artifacts in an existing Kubernetes cluster without overlapping other existing artifacts.*
+>*If you want to change this name, edit the `kubernetes-artifacts/etc/env` file and change the namespace before you run the script.*
 
-2. Once the deployment is complete, run `kubectl get pods -n 42crunch` to check that all pods are successfully running:
+1. Before deploying the artifacts, ensure that `kubectl` is properly configured to point to the cluster you want to use. To do this, run the following:
 
-   ```shell
-   NAME                            READY   STATUS    RESTARTS   AGE
-   pixi-8c94b66b5-hq8js            1/1     Running   0          1h
-   pixi-secured-54d957c8bc-h867f   2/2     Running   0          1h
-   pixidb-755f648d47-k5pm9         1/1     Running   0          1h
-   ```
-### Step 4 - Getting ready to test the API firewall
-You can test API Firewall using the Postman collection in this repository, or other tools like cURL or the Advanced REST Google Chrome plugin. This example uses the provided Postman collection.
+  ```shell
+  eagle$ kubectl config current-context
+  ```
+
+  For example, if you're running a GKE cluster, you should get an answer like:
+
+  ```shell
+  eagle$ kubectl config current-context
+  gke_pixi-deploy_europe-west6-a_xxxx
+  ```
+
+  
+
+2. Depending on your operating system, run either the `pixi-create-demo.sh` or `pixi-create-demo.bat` script located under `kubernetes-artifacts`  to deploy the sample configuration. The script executes the following commands:
+
+  ```shell
+  # Create namespace
+  kubectl create namespace $RUNTIME_NS
+  # Create secrets
+  echo "===========> Creating Secrets"
+  kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ./etc/tls/private.key 	--cert ./etc/tls/cert-fullchain.pem
+  kubectl create --namespace=$RUNTIME_NS secret generic generic-pixi-protection-token --	from-env-file='./etc/secret-protection-token'
+  # Config Map creation
+  echo "===========> Creating ConfigMap"
+  kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-	file='./etc/deployment.properties'
+  # Deployment (Un-secured API + MongoDB)
+  echo "===========> Deploying unsecured pixi and database"
+  kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml
+  # Deployment (Pixi + FW)
+  echo "===========> Deploying secured API firewall"
+  kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
+  ```
+
+> *Should the scripts fail for any reason, you can start from a clean situation using the deletion scripts.*
+
+3. Run `kubectl get pods -w -n 42crunch` and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from DockerHub.
+
+    ```shell
+    NAME                            READY   STATUS    RESTARTS   AGE
+    pixi-8c94b66b5-hq8js            1/1     Running   0          5m
+    pixi-secured-54d957c8bc-h867f   2/2     Running   0          5m
+    pixidb-755f648d47-k5pm9         1/1     Running   0          5m
+    ```
+
+4. Back in the SaaS platform, you can see a new entry under **Protection-Active instances**.
+   ![InstancesList](/kubernetes-guides/graphics/InstancesList.jpg)
+
+# Preparing to test the API firewall
+
+We now have a running configuration with two endpoints: one that invokes the unsecured API and the other one that invokes the secured API.
 
 1. Run `kubectl get svc -n 42crunch` to get the external IP of the `pixisecured` deployment (values shown here are placeholders):
 
    ```shell
-   NAME          TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                         
-   pixiapp       LoadBalancer   10.3.240.197   <pixi-app-ip>   8000:30540/TCP,8090:30893/TCP   
-   pixidb        ClusterIP      10.3.242.155   <none>          27017/TCP                       
-   pixisecured   LoadBalancer   10.3.245.43    <pixi-secu-ip>  443:31316/TCP                   
+   NAME           TYPE           CLUSTER-IP    EXTERNAL-IP    			PORT(S)          AGE
+   pixi-open      LoadBalancer   10.0.50.236   <pixi-open-ip>   		8090:30243/TCP   3m22s
+   pixi-secured   LoadBalancer   10.0.72.37    <pixi-secured-ip>   443:32317/TCP    3m19s
+   pixidb         ClusterIP      10.0.167.29   <none>         			27017/TCP        3m22s              
    ```
 
-2. Edit your `hosts` file, and add the `pixisecured` deployment to it. Replace the placeholders `<pixi-secu-ip>`and `<pixi-app-ip>` with the actual external IPs returned by the command above:
+2. [Edit your `hosts` file](https://support.rackspace.com/how-to/modify-your-hosts-file/) and add the `pixi-secured` and `pixi-open` services endpoints to it. Replace the placeholder `<pixi-secured-ip>` below with the actual IP returned by the command above and repeat for the `pixi-open-ip` endpoint.
 
    ```shell
-   <pixi-secu-ip> pixi-secured.42crunch.test
-   <pixi-app-ip> pixi-direct.42crunch.test
+   <pixi-secured-ip> 	pixi-secured.42crunch.test
+   <pixi-open-ip> 			pixi-open.42crunch.test
    ```
 
-3. Import the file `Postman/Pixi_collection.json` in Postman, and go to the newly imported Pixi project.
+   Save your hosts file.
 
-4. Create an environment variable called **42c_url**, and set its value to https://pixi-secured.42crunch.test to invoke the protected API, or to http://pixi-direct.42crunch.test:8090 to invoke the unprotected API directly.
-
-5. From Postman, invoke the operation `POST  /api/register` with the following contents
+3. Test the open endpoint setup by invoking http://pixi-open.42crunch.test:8090 - You should receive a message like this one, indicating you have connected to the API.
 
    ```json
    {
-     "id": 50,
-     "user": "42crunch@getme.in",
-     "pass": "hellopixi",
-     "name": "42Crunch",
-     "is_admin": false,
-     "account_balance": 1000
-   }
-   ```
-   Alternatively, you can use the following cURL command:
-   ```shell
-   curl -k -H "Content-Type:application/json" --data "{\"id\": 50, \"user\": \"42crunch@getme.in\", \"pass\": \"hellopixi\", \"name\": \"42Crunch\", \"is_admin\": false, \"account_balance\": 1000}" https://pixi-secured.42crunch.test/api/register
-   ```
-
-You should see a response similar to this. This `x-access-token` is a JWT that you must inject in a `x-access-token` header for all API calls (except login and register):
-
-   ```json
-   {
-       "message": "x-access-token: ",
-       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxx"
+     "message": "Welcome to the Pixi API, use /api/login using x-www-form-coded post data, user : email, pass : password - Make sure when you authenticate on the API you have a header called x-access-token with your token"
    }
    ```
 
-### Step 5 - Test API Firewall in action
+4. Test the secured endpoint setup by invoking https://pixi-secured.42crunch.test - You should receive a message like this one, indicating the firewall has blocked the request.
 
-42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. You can test the firewall behavior with the following requests:
+   > The API Firewall is configured with a self-signed certificate. You will have to accept an exception for the request to work properly.
 
-1. Wrong verb: the operation `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
+   `{"status":400,"title":"request fetching","detail":"Bad Request","instance":"http://pixi-secured.42crunch.test/","uuid":"227cc698-e60d-11e9-9b1c-55b33823ae8d"}`
 
-2. Wrong path: any request to a path _not_ defined in the OAS definition is blocked, try `/api/foo`, for example.
+   You can also use curl to make the same request, using the -k option to avoid the self-signed certificates issue: `curl -k https://pixi-secured.42crunch.test`
 
-3. Wrong `Content-Type`: the OpenAPI definition states that the operation `/api/register` requires input in the form of `application/json`. If you use a different value or if you do not specify the `Content-Type`, the request is blocked.
+5. Import the file `postman-collection/Pixi.postman_collection.json` in Postman using **Import>Import from File**.
 
-4. Missing a parameter that the input JSON structure requires: the schema for the operation `/api/register` specifies that the parameters `user`, `name`, `email`, and `password` are mandatory. If you leave out any of these parameters, the request is blocked.
+6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test to invoke the protected API. If you want to compare how the secured API behavior differs from the non-secured one, create another environment called **42Crunch-Unsecure** with the same **42c_url** variable, this time with a value set to http://pixi-open.42crunch.test:8090 .
 
-5. Wrong format for values: if you specify a value (such as email) in a format that does not match the schema, the request is blocked. For example, try to register a user with email `user@acme.com@presidence@elysee.fr` (you can read how this was exploited by hackers [here](https://apisecurity.io/issue-28-breaches-tchap-shopify-justdial/) ).
+   The final configuration should look like this in Postman:
 
-6. Injecting a negative balance: the 42Crunch API firewall also validates integer boundaries. If you try to invoke 'api/register' using a negative balance (-100 for example), the request is blocked.
+   ![Postman-Unsecure](/kubernetes-guides/graphics/Postman-Unsecure.png)
 
-7. The Pixi API has a MongoDB injection vulnerability that allows logging in to the application without specifying a password. You can try this by using the raw parameters `user=42crunch@getme.in&pass[$ne]=` in Postman for a login request. You will see that you can log in to the unprotected API, but the request is blocked by API Firewall on the protected API.
+   ![Postman-Secure](/kubernetes-guides/graphics/Postman-Secure.png)
 
-8. Reflected XSS attack: If you introduce a XSS attack like the example below, the request is blocked:
+7. Select the **42Crunch-Unsecure** environment
 
-   ```script
-   <script>alert('hi')</script>
-   ```
+8. Invoke the operation `POST /api/register` with the following contents
 
-### Step 6 - Viewing Transaction Logs
+	```json
+		{
+  		"id": 50,
+  		"user": "42crunch@getme.in",
+  		"pass": "hellopixi",
+  		"name": "42Crunch",
+  		"is_admin": false,
+  		"account_balance": 1000
+		}
+	```
+	
+	You should see a response similar to this. The `x-access-token` is a JWT that you must inject in an `x-access-token` header for all API calls (except login and register):
+
+  ```json
+    {
+      "message": "x-access-token: ",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxx"
+    }
+  ```
+
+Now that we know everything works, we can start testing the API Firewall.
+
+## Understanding Pixi
+
+Pixi requires to register or login users to obtain a token, token which is then used to invoke other operations. The Postman has been setup to extract the token from login or register responses and add them automatically to the **current environment**, like this:
+
+```javascript
+var jsonData = pm.response.json();
+pm.globals.set("token", jsonData.token);
+```
+
+Other operations, such getUserInfo or updateUserInfo take the value of the **token** variable set above and use it as the value of the **x-access-token** header, like this:
+
+![Token Variable](/kubernetes-guides/graphics/Postman_TokenValue.png)
+
+Make sure you always call either login or register before calling any other operations, or the request will fail at the firewall level, since the x-access-token header will be empty! When this happens, this is what you will see in the transaction logs of the API firewall .
+
+![BadAccessToken](/kubernetes-guides/graphics/BadAccessToken.png)
+
+# Blocking attacks with API Firewall
+
+42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. In this section, you send various malicious requests to the API firewall to test its behavior.
+
+## Viewing Transaction Logs
 
 Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
 
 ![](/kubernetes-guides/graphics/42c_logging.jpeg)
 
-## Clean up
+## Blocking Pixi API sample attacks
+
+You can test the API firewall behavior with the following requests:
+
+1. **Wrong verb**: the operation `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
+
+    ![Postman wrong verb](/kubernetes-guides/graphics/42c_PostmanTest01-WrongVerb.png?raw=true "Postman wrong verb")
+
+2. **Wrong path**: any request to a path _not_ defined in the OAS definition is blocked, try `/api/foo`, for example.
+
+3. **Wrong `Content-Type`**: the OpenAPI definition states that the operation `/api/register` requires input in the form of `application/json`. If you use a different value or if you do not specify the `Content-Type`, the request is blocked. The most famous attack based on crafting Content-Type value is [*CVE-2017-5638*](https://www.synopsys.com/blogs/software-security/cve-2017-5638-apache-struts-vulnerability-explained/), an issue in Apache Struts which is at the root of Equifax's and many others breaches.
+
+4. **Missing a parameter** that the input JSON structure requires: the schema for the operation `/api/register` specifies that the parameters `user`, `name`, `email`, and `password` are mandatory. If you leave out any of these parameters, the request is blocked.
+
+5. **Wrong format for string values**: if you specify a value (such as email) in a format that does not match the schema, the request is blocked. For example, try to register a user with email `user@acme.com@presidence@elysee.fr` (you can read how this was exploited by hackers [here](https://apisecurity.io/issue-28-breaches-tchap-shopify-justdial/) ).
+
+6. **Blocking out of boundaries data**: the 42Crunch API firewall also validates integer boundaries. If you try to invoke `api/register` using a negative balance (-100) for example), the request is blocked. This prevents Overflow type attacks. Similarly, strings with do not match the minLength/maxLength properties will be blocked.
+
+7. **Blocking exception leakage**: the 42Crunch APIfirewall prevents data leakage or exception leakage. If you invoke `/api/register` using a negative balance between -50 and -1 , the response will be blocked. The backend API does not properly handle negative values and returns an exception. That exception is blocked by the firewall since the schema from the OAS file does not match the actual response.
+
+8. **Blocking data leakage**: the Pixi API exposes an admin operation which lists all users within the database. This operation leaks admin status and passwords (it is a straight export from the backend database). If you invoke `API 5: Get Users List`, the response is blocked. You get an HTTP 500 error since the response is invalid.
+
+   ![API5-AdminOperation](/kubernetes-guides/graphics/API5-AdminOperation.png)
+
+9. The Pixi API has a **MongoDB injection** vulnerability that allows logging into the application without specifying a password. You can try this by using the raw parameters `user=user@acme.com&pass[$ne]=` in Postman for a login request. You will see that you can log in to the unprotected API, but the request is blocked by API Firewall on the protected API.
+
+10. **Mass assignment**:  the `API6: Mass Assignment` operation can be used to update a user record. It has a common issue (described in this [blog](https://42crunch.com/stopping_harbor_registry_attack/) ) by which a hacker with a valid token can change their role or administrative status. The OAS file does not declare is_admin as a valid input and as such this request will be blocked. Same occurs with the password. If you remove those two properties, the request will be accepted and both email and name are updated for the logged in user.
+
+   ![42c_API6BVulnerability](/kubernetes-guides/graphics/42c_API6BVulnerability.png)
+
+11. Reflected **XSS attack**: If you introduce a XSS attack like the example below in any property, the request is blocked:
+
+    ```script
+    <script>alert('hi')</script>
+    ```
+
+## Blocking admin operations
+
+You have been able previously to invoke the `API5: Get Users List` admin operation, due to the fact it's declared in the Pixi OAS file. Although we blocked the response and prevented critical data from leaking, ideally we do not want this operation to be available. As such, we are going to replace the current OAS file, then update the configuration live.
+
+1. Go to https://platform.42crunch.com and locate the Pixi API
+
+2. At the top-right, select the Settings icon and choose **Update Definition**
+
+   ![](/kubernetes-guides/graphics/API6- UpdateDefinition.png)
+
+3. Browse to the `resources/OASFiles` folder and select the `Pixi-v2.0-noadmin.json` file
+
+4. Once the file has been imported, select the **Protection** tab
+
+5. Click the **Reconfigure** button and type *confirm* to confirm the instance update
+
+6. When the instance's list refreshes, it means the re-configuration was successful.
+
+7. Back to Postman, try to invoke the `API5:Get Users list` operation. This time, the request is blocked with a 403 code, since this operation is not defined in the OpenAPI file anymore.
+
+![API5-BlockingRequest](/kubernetes-guides/graphics/API5-BlockingRequest.png)
+
+# Conclusion
+
+In this deployment guide, we have seen how the 42Crunch API firewall can be easily configured from an OAS file, with no need to write specific rules or policies and then deployed as sidecar proxy. The OAS file acts as a powerful whitelist, thanks to the audit service which helps you pinpoint and remediate security issues.
+
+# Clean up
 
 To delete all the artifacts you created, you can just delete the whole namespace with the command `kubectl delete namespace NAMESPACE`. If you used the default namespace, the command is:
 
  ```shell
     kubectl delete namespace 42crunch
  ```
-

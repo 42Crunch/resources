@@ -193,7 +193,7 @@ You must first save the protection token in a configuration file. This file is r
 
 # Preparing to test the API firewall
 
-We now have a running configuration with two endpoints: one that invokes the unsecured API and the other one that invokes the secured API. In this section, we are invoking the secured API with various payloads to showcase how it works.
+We now have a running configuration with two endpoints: one that invokes the unsecured API and the other one that invokes the secured API.
 
 1. Run `minikube service list -n 42crunch` to print the list of configured services.
 

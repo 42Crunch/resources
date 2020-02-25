@@ -133,9 +133,6 @@ You must first save the protection token in a configuration file. This file is r
     ```shell
     PROTECTION_TOKEN=<your_token_value>
     ```
-3. Go to edit the file `etc/secret-docker-registry`.
-
-    ```
 ## Deploying the API Firewall
 
 > Note: by default, the artifacts are deployed to a Kubernetes namespace called `42crunch`. If you want to change the namespace, edit the `etc/env` file and change the namespace before you run the script.

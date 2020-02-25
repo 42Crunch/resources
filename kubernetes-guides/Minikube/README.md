@@ -1,4 +1,4 @@
-![42crunch.com](/kubernetes-guides/graphics/42c_logo.png?raw=true "42Crunch")
+![42crunch.com](../graphics/42c_logo.png?raw=true "42Crunch")
 
 # Deploying 42Crunch API Firewall on Minikube
 
@@ -40,9 +40,6 @@ You need to clone the 42Crunch resources project located on Github (https://gith
 
 You must be a registered user on the [42Crunch Platform](https://platform.42crunch.com) to follow this guide. If you do not have an account, you can self-register at https://platform.42crunch.com/register.
 
-### Access to 42Crunch API firewall Docker image
-The 42Crunch API firewall image is located on a private DockerHub repository: an access to this repository must have been granted to you. If you are an existing platform user but cannot access the Docker image, send a mail to: support@42crunch.com.
-
 ### Minikube
 
 You must have Minikube running to deploy the artifacts. You can get started with Minikube in two easy steps:
@@ -83,7 +80,6 @@ The deployment involves two types of artifacts: configuration artifacts and runt
 ### Configuration artifacts
 
 The following configuration artifacts are created when you execute the deployment scripts:
-- A Docker registry secret that contains the information for the DockerHub connection to pull firewall images.
 - A TLS secret that contains the key-cert pair to protect the listening interface of the firewall. The key-cert pair is signed with an ephemeral CA and has been created for the hostname `pixi-secured.42crunch.test`. You can find the keys and certs under `etc/tls`.
 - A generic secret that contains the protection token identifying the API firewall configuration to run.
 - A config map that is populated from the file `deployment.properties`. The config map contains properties that affect how the firewall gets configured at deployment time.
@@ -96,7 +92,7 @@ The scripts create two deployments:
 
 Both deployments are fronted by load balancers and point to a [MongoDB](https://www.mongodb.com/what-is-mongodb) deployed behind a service named `pixidb`.
 
-![Demo architecture](/kubernetes-guides/graphics/42cMinikube-Pixi.png?raw=true "Demo architecture")
+![Demo architecture](../graphics/42cMinikube-Pixi.png?raw=true "Demo architecture")
 
 ## Configuration Setup
 
@@ -108,19 +104,19 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 3. Click on **Add Collection**.
 
-   ![](/kubernetes-guides/graphics/create-collection.png)
+   ![](../graphics/create-collection.png)
 
-4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](/kubernetes-guides/graphics/42c_ImportOAS.png?raw=true "Import API definition")
+4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](../graphics/42c_ImportOAS.png?raw=true "Import API definition")
 
    The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
 
 5. In the main menu on the left, click **Protection** to launch the protection wizard
 
 6. Select the `PixiTest` API collection, and the Pixi API, and enter a name for the protection token. This unique token is used later in this guide to configure the API Firewall.
-    ![Create protection configuration](/kubernetes-guides/graphics/42c_CreateProtection.png?raw=true "Create protection configuration")
+    ![Create protection configuration](./graphics/42c_CreateProtection.png?raw=true "Create protection configuration")
 
 7. Copy the protection token value to the clipboard. **Do not close this dialog** until you have safely saved the value (in the next step).
-   ![Token value](/kubernetes-guides/graphics/42c_TokenToClipboard.png?raw=true "token value")
+   ![Token value](../graphics/42c_TokenToClipboard.png?raw=true "token value")
 
 # Configuration Deployment
 
@@ -139,11 +135,6 @@ You must first save the protection token in a configuration file. This file is r
     ```
 3. Go to edit the file `etc/secret-docker-registry`.
 
-4. Provide your credentials for DockerHub, and save the file - We recommend you use [Personal Access Tokens](https://docs.docker.com/docker-hub/access-tokens/) instead of passwords.
-
-    ```shell
-        REGISTRY_USERNAME=<your_user>
-        REGISTRY_PASSWORD=<your_access_token>
     ```
 ## Deploying the API Firewall
 
@@ -189,7 +180,7 @@ You must first save the protection token in a configuration file. This file is r
 
     You can launch the Kubernetes default dashboard using `minikube dashboard` to see the list of services and deployments created in the 42crunch namespace:
 
-    ![Kubernetes console - Overview](/kubernetes-guides/graphics/42c-ArtifactsUp.png?raw=true "Kubernetes console - Overview")
+    ![Kubernetes console - Overview](../graphics/42c-ArtifactsUp.png?raw=true "Kubernetes console - Overview")
 
 # Preparing to test the API firewall
 
@@ -234,9 +225,9 @@ We now have a running configuration with two endpoints: one that invokes the uns
 
    The final configuration should look like this in Postman:
 
-   ![Postman-Unsecure](/kubernetes-guides/graphics/Postman-Unsecure.png)
+   ![Postman-Unsecure](../graphics/Postman-Unsecure.png)
 
-   ![Postman-Secure](/kubernetes-guides/graphics/Postman-Secure.png)
+   ![Postman-Secure](../graphics/Postman-Secure.png)
 
 7. Select the 42Crunch-Unsecure environment
 8. Invoke the operation `POST /api/register` with the following contents
@@ -274,11 +265,11 @@ pm.globals.set("token", jsonData.token);
 
 Other operations, such getUserInfo or updateUserInfo take the value of the **token** variable set above and use it as the value of the **x-access-token** header, like this:
 
-![Token Variable](/kubernetes-guides/graphics/Postman_TokenValue.png)
+![Token Variable](../graphics/Postman_TokenValue.png)
 
 Make sure you always call either login or register before calling any other operations, or the request will fail at the firewall level, since the x-access-token header will be empty! When this happens, this is what you will see in the transaction logs of the API firewall .
 
-![BadAccessToken](/kubernetes-guides/graphics/BadAccessToken.png)
+![BadAccessToken](../graphics/BadAccessToken.png)
 
 # Blocking attacks with API Firewall
 
@@ -288,7 +279,7 @@ Make sure you always call either login or register before calling any other oper
 
 Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
 
-![](/kubernetes-guides/graphics/42c_logging.jpeg)
+![](../graphics/42c_logging.jpeg)
 
 ## Blocking Pixi API sample attacks
 
@@ -296,7 +287,7 @@ You can test the API firewall behavior with the following requests:
 
 1. **Wrong verb**: the operation `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
 
-    ![Postman wrong verb](/kubernetes-guides/graphics/42c_PostmanTest01-WrongVerb.png?raw=true "Postman wrong verb")
+    ![Postman wrong verb](../graphics/42c_PostmanTest01-WrongVerb.png?raw=true "Postman wrong verb")
 
 2. **Wrong path**: any request to a path _not_ defined in the OAS definition is blocked, try `/api/foo`, for example.
 
@@ -312,13 +303,13 @@ You can test the API firewall behavior with the following requests:
 
 8. **Blocking data leakage**: the Pixi API exposes an admin operation which lists all users within the database. This operation leaks admin status and passwords (it is a straight export from the backend database). If you invoke `API 5: Get Users List`, the response is blocked. You get an HTTP 500 error since the response is invalid.
 
-   ![API5-AdminOperation](/kubernetes-guides/graphics/API5-AdminOperation.png)
+   ![API5-AdminOperation](../graphics/API5-AdminOperation.png)
 
 9. The Pixi API has a **MongoDB injection** vulnerability that allows logging into the application without specifying a password. You can try this by using the raw parameters `user=user@acme.com&pass[$ne]=` in Postman for a login request. You will see that you can log in to the unprotected API, but the request is blocked by API Firewall on the protected API.
 
 10. **Mass assignment**:  the `API6: Mass Assignment` operation can be used to update a user record. It has a common issue (described in this [blog](https://42crunch.com/stopping_harbor_registry_attack/) ) by which a hacker with a valid token can change their role or administrative status. The OAS file does not declare is_admin as a valid input and as such this request will be blocked. Same occurs with the password. If you remove those two properties, the request will be accepted and both email and name are updated for the logged in user.
 
-   ![42c_API6BVulnerability](/kubernetes-guides/graphics/42c_API6BVulnerability.png)
+   ![42c_API6BVulnerability](../graphics/42c_API6BVulnerability.png)
 
 11. Reflected **XSS attack**: If you introduce a XSS attack like the example below in any property, the request is blocked:
 
@@ -334,7 +325,7 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 2. At the top-right, select the Settings icon and choose **Update Definition**
 
-   ![](/kubernetes-guides/graphics/API6-UpdateDefinition.png)
+   ![](../graphics/API6-UpdateDefinition.png)
 
 3. Browse to the `resources/OASFiles` folder and select the `Pixi-v2.0-noadmin.json` file
 
@@ -346,7 +337,7 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 7. Back to Postman, try to invoke the `API5:Get Users list` operation. This time, the request is blocked with a 403 code, since this operation is not defined in the OpenAPI file anymore.
 
-![API5-BlockingRequest](/kubernetes-guides/graphics/API5-BlockingRequest.png)
+![API5-BlockingRequest](../graphics/API5-BlockingRequest.png)
 
 # Conclusion
 

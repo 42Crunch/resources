@@ -110,7 +110,7 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
    The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
 
-5. In the main menu on the left, click **Protection** to launch the protection wizard
+5. In the main menu on the left, click **Protect** to launch the protection wizard
 
 6. Select the `PixiTest` API collection, and the Pixi API, and enter a name for the protection token. This unique token is used later in this guide to configure the API Firewall.
     ![Create protection configuration](./graphics/42c_CreateProtection.png?raw=true "Create protection configuration")
@@ -218,7 +218,7 @@ We now have a running configuration with two endpoints: one that invokes the uns
 
 5. Import the file `postman-collection/Pixi.postman_collection.json` in Postman (Import->Import from File)
 
-6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test:30443 to invoke the protected API. If you want to compare how the secured API behavior differs from the non-secured one, create another environment called **42Crunch-Unsecure** with the same **42c_url** variable, this time with a value set to http://pixi-secured.42crunch.test:30990.
+6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test:30443 to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same **42c_url** variable, this time with a value set to http://pixi-secured.42crunch.test:30090.
 
    The final configuration should look like this in Postman:
 

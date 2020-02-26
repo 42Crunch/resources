@@ -1,6 +1,6 @@
-![42crunch.com](../graphics/42c_logo.png?raw=true "42Crunch")
+![42crunch.com](./graphics/42c_logo.png?raw=true "42Crunch")
 
-# Deploying 42Crunch API Firewall on Minikube
+# Evaluating 42Crunch API Firewall on Minikube
 
 This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall on Minikube. For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
 
@@ -28,7 +28,7 @@ This document guides you through:
 5. Testing the 42Crunch API Firewall in action.
 
 ## Prerequisites
-In this guide, we deploy the 42Crunch API firewall in sidecar proxy mode (co-located in the same pod as the API) and use Kubernetes as orchestrator. Therefore, you need basic understanding of [Kubernetes concepts](https://kubernetes.io/docs/concepts/) before running this guide.
+In this guide, we deploy the 42Crunch API firewall in sidecar proxy mode (co-located in the same pod as the API) and use Kubernetes as orchestrator. Therefore, you need a basic understanding of [Kubernetes concepts](https://kubernetes.io/docs/concepts/) before running this guide.
 
 Before you start, ensure you comply with the following pre-requisites:
 
@@ -44,23 +44,25 @@ You must be a registered user on the [42Crunch Platform](https://platform.42crun
 
 You must have Minikube running to deploy the artifacts. You can get started with Minikube in two easy steps:
 
-1. Install [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/). If you have not installed **kubectl** yet, the minikube instructions take through doing that as well.
-2. Run the command `minikube start` to start your minikube VM. The default Kubernetes node setup (2 vCPUS, 2 Gb RAM) is enough to run through those instructions.
+1. Install [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/). If you have not installed **kubectl** yet, the Minikube instructions take you through installing that as well.
+2. Run the command `minikube start -p 42crunch-cluster` to create a separate minikube cluster VM for this guide. The default Kubernetes node setup (2 vCPUS, 2 Gb RAM) is more than enough to run our firewall.
 
-You should get something similar to:
+You should see a startup trace similar to:
 
 >  ```txt
->  😄  minikube v1.6.2 on Darwin 10.14.6
+>  😄  [42crunch-cluster] minikube v1.6.2 on Darwin 10.14.6
 >  ✨  Automatically selected the 'hyperkit' driver (alternates: [virtualbox])
 >  🔥  Creating hyperkit VM (CPUs=2, Memory=2000MB, Disk=20000MB) ...
 >  🐳  Preparing Kubernetes v1.17.0 on Docker '19.03.5' ...
 >  🚜  Pulling images ...
->  🚀  Launching Kubernetes ...
+>  🚀  Launching Kubernetes ... 
 >  ⌛  Waiting for cluster to come online ...
->  🏄  Done! kubectl is now configured to use "minikube"
+>  🏄  Done! kubectl is now configured to use "42crunch-cluster"
 >  ```
 
-You should now have a Kubernetes environment ready for testing. You can verify this by running `minikube status`. You should obtain something similar to this:
+We recommend you make this profile the default one using : `minikube profile 42crunch-cluster`. This ensures you do not have to pass the profile name in further minikube commands.
+
+You should now have a Kubernetes environment ready for testing. You can verify this by running `minikube status `. You should obtain a response similar to this:
 
 >```text
 > host: Running
@@ -92,7 +94,7 @@ The scripts create two deployments:
 
 Both deployments are fronted by load balancers and point to a [MongoDB](https://www.mongodb.com/what-is-mongodb) deployed behind a service named `pixidb`.
 
-![Demo architecture](../graphics/42cMinikube-Pixi.png?raw=true "Demo architecture")
+![Demo architecture](./graphics/42cMinikube-Pixi.png?raw=true "Demo architecture")
 
 ## Configuration Setup
 
@@ -104,9 +106,9 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 3. Click on **Add Collection**.
 
-   ![](../graphics/create-collection.png)
+   ![](./graphics/create-collection.png)
 
-4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](../graphics/42c_ImportOAS.png?raw=true "Import API definition")
+4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](./graphics/42c_ImportOAS.png?raw=true "Import API definition")
 
    The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
 
@@ -116,7 +118,7 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
     ![Create protection configuration](./graphics/42c_CreateProtection.png?raw=true "Create protection configuration")
 
 7. Copy the protection token value to the clipboard. **Do not close this dialog** until you have safely saved the value (in the next step).
-   ![Token value](../graphics/42c_TokenToClipboard.png?raw=true "token value")
+   ![Token value](./graphics/42c_TokenToClipboard.png?raw=true "token value")
 
 # Configuration Deployment
 
@@ -124,40 +126,38 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 The protection token is used by the API Firewall to retrieve its configuration from the platform. Think of it as a unique ID for the API protection configuration.
 
-You must first save the protection token in a configuration file. This file is read by the deployment scripts to create a Kubernetes secret.
+You must save the protection token in a configuration file. This file is read by the deployment scripts to create a Kubernetes secret.
 
 1. Edit  `etc/secret-protection-token` with any text editor.
 
 2. Replace the placeholder `<your_token_value>` with the protection token you copied, and save the file:
 
-    ```shell
-    PROTECTION_TOKEN=<your_token_value>
-    ```
+```shell
+PROTECTION_TOKEN=<your_token_value>
+```
 ## Deploying the API Firewall
 
-> Note: by default, the artifacts are deployed to a Kubernetes namespace called `42crunch`. If you want to change the namespace, edit the `etc/env` file and change the namespace before you run the script.
+> Note: by default, the artifacts are deployed to the default Minikube namespace. If you want to use a custom namespace, edit the `etc/env` file and change the namespace value before you run the script.
 
-1. Before deploying the artifacts, lets ensure that `kubectl` is properly configured to point to minikube. You can confirm this by running the command `kubectl config current-context`. The output should be similar to:
+1. Before deploying the artifacts, lets ensure that `kubectl` is properly configured to point to the minikube cluster you created previously. You can confirm this by running the command `kubectl config current-context`. The output should be similar to:
 
   ```text
   $ kubectl config current-context
-  minikube
+  42crunch-cluster
   ```
 
 2. Depending on your operating system, run either the `pixi-create-demo.sh` or `pixi-create-demo.bat` script located under `minikube-artifacts`  to deploy the sample configuration. The script executes the following commands:
 
 	```shell
-	# Create namespace
-	kubectl create namespace $RUNTIME_NS
 	# Create secrets
 	echo "===========> Creating Secrets"
 	kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ./etc/tls/private.key 	--cert ./etc/tls/cert-fullchain.pem
 	kubectl create --namespace=$RUNTIME_NS secret generic generic-pixi-protection-token --	from-env-file='./etc/secret-protection-token'
 	# Config Map creation
 	echo "===========> Creating ConfigMap"
-  	kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-	file='./etc/deployment.properties'
+		kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-	file='./etc/deployment.properties'
 	# Deployment (Un-secured API + MongoDB)
-	echo "===========> Deploying unsecured pixi and database"
+  echo "===========> Deploying unsecured pixi and database"
 	kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml
 	# Deployment (Pixi + FW)
 	echo "===========> Deploying secured API firewall"
@@ -166,7 +166,7 @@ You must first save the protection token in a configuration file. This file is r
 
 > Should the scripts fail for any reason, you can start from a clean situation using the deletion scripts.
 
-3. Run `kubectl get pods -w -n 42crunch` and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from the registry.
+3. Run `kubectl get pods -w` and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from the DockerHub registry.
 
     ```shell
     NAME                            READY   STATUS    RESTARTS   AGE
@@ -175,15 +175,15 @@ You must first save the protection token in a configuration file. This file is r
     pixidb-755f648d47-k5pm9         1/1     Running   0          5m
     ```
 
-    You can launch the Kubernetes default dashboard using `minikube dashboard` to see the list of services and deployments created in the 42crunch namespace:
+You can launch the Kubernetes default dashboard using `minikube dashboard` to see the list of services and deployments created in the default namespace:
 
-    ![Kubernetes console - Overview](../graphics/42c-ArtifactsUp.png?raw=true "Kubernetes console - Overview")
+![Kubernetes console - Overview](./graphics/42c-ArtifactsUp.png?raw=true "Kubernetes console - Overview")
 
 # Preparing to test the API firewall
 
 We now have a running configuration with two endpoints: one that invokes the unsecured API and the other one that invokes the secured API.
 
-1. Run `minikube service list -n 42crunch` to print the list of configured services.
+1. Run `minikube service list`  to print the list of configured services.
 
    ```shell
    |-----------|--------------|-----------------------------|
@@ -214,20 +214,21 @@ We now have a running configuration with two endpoints: one that invokes the uns
 
 4. Test the secured endpoint setup by invoking http://pixi-secured.42crunch.test:30443 - You should receive a message like this one, indicating the firewall has blocked the request.
 
-   `{"status":400,"title":"request fetching","detail":"Bad Request","instance":"http://pixi-secured.42crunch.test/","uuid":"227cc698-e60d-11e9-9b1c-55b33823ae8d"}`
-
+   ```json
+   {"status":400,"title":"request fetching","detail":"Bad Request","instance":"http://pixi-secured.42crunch.test/","uuid":"227cc698-e60d-11e9-9b1c-55b33823ae8d"}
+   ```
 5. Import the file `postman-collection/Pixi.postman_collection.json` in Postman (Import->Import from File)
 
-6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test:30443 to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same **42c_url** variable, this time with a value set to http://pixi-secured.42crunch.test:30090.
+6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test:30443 to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same **42c_url** variable, this time with a value set to http://pixi-open.42crunch.test:30090.
 
    The final configuration should look like this in Postman:
 
-   ![Postman-Unsecure](../graphics/Postman-Unsecure.png)
+   ![Postman-Unsecure](./graphics/Postman-Unsecure.png)
 
-   ![Postman-Secure](../graphics/Postman-Secure.png)
+   ![Postman-Secure](./graphics/Postman-Secure.png)
 
-7. Select the 42Crunch-Unsecure environment
-8. Invoke the operation `POST /api/register` with the following contents
+7. Select the **42Crunch-Unsecure** environment
+8. Go to the Pixi collecton and invoke the operation `POST /api/register` with the following contents
 
 ```json
 {
@@ -262,11 +263,11 @@ pm.globals.set("token", jsonData.token);
 
 Other operations, such getUserInfo or updateUserInfo take the value of the **token** variable set above and use it as the value of the **x-access-token** header, like this:
 
-![Token Variable](../graphics/Postman_TokenValue.png)
+![Token Variable](./graphics/Postman_TokenValue.png)
 
 Make sure you always call either login or register before calling any other operations, or the request will fail at the firewall level, since the x-access-token header will be empty! When this happens, this is what you will see in the transaction logs of the API firewall .
 
-![BadAccessToken](../graphics/BadAccessToken.png)
+![BadAccessToken](./graphics/BadAccessToken.png)
 
 # Blocking attacks with API Firewall
 
@@ -276,7 +277,7 @@ Make sure you always call either login or register before calling any other oper
 
 Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
 
-![](../graphics/42c_logging.jpeg)
+![](./graphics/42c_logging.jpeg)
 
 ## Blocking Pixi API sample attacks
 
@@ -284,7 +285,7 @@ You can test the API firewall behavior with the following requests:
 
 1. **Wrong verb**: the operation `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
 
-    ![Postman wrong verb](../graphics/42c_PostmanTest01-WrongVerb.png?raw=true "Postman wrong verb")
+    ![Postman wrong verb](./graphics/42c_PostmanTest01-WrongVerb.png?raw=true "Postman wrong verb")
 
 2. **Wrong path**: any request to a path _not_ defined in the OAS definition is blocked, try `/api/foo`, for example.
 
@@ -300,13 +301,13 @@ You can test the API firewall behavior with the following requests:
 
 8. **Blocking data leakage**: the Pixi API exposes an admin operation which lists all users within the database. This operation leaks admin status and passwords (it is a straight export from the backend database). If you invoke `API 5: Get Users List`, the response is blocked. You get an HTTP 500 error since the response is invalid.
 
-   ![API5-AdminOperation](../graphics/API5-AdminOperation.png)
+   ![API5-AdminOperation](./graphics/API5-AdminOperation.png)
 
 9. The Pixi API has a **MongoDB injection** vulnerability that allows logging into the application without specifying a password. You can try this by using the raw parameters `user=user@acme.com&pass[$ne]=` in Postman for a login request. You will see that you can log in to the unprotected API, but the request is blocked by API Firewall on the protected API.
 
 10. **Mass assignment**:  the `API6: Mass Assignment` operation can be used to update a user record. It has a common issue (described in this [blog](https://42crunch.com/stopping_harbor_registry_attack/) ) by which a hacker with a valid token can change their role or administrative status. The OAS file does not declare is_admin as a valid input and as such this request will be blocked. Same occurs with the password. If you remove those two properties, the request will be accepted and both email and name are updated for the logged in user.
 
-   ![42c_API6BVulnerability](../graphics/42c_API6BVulnerability.png)
+   ![42c_API6BVulnerability](./graphics/42c_API6BVulnerability.png)
 
 11. Reflected **XSS attack**: If you introduce a XSS attack like the example below in any property, the request is blocked:
 
@@ -322,7 +323,7 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 2. At the top-right, select the Settings icon and choose **Update Definition**
 
-   ![](../graphics/API6-UpdateDefinition.png)
+   ![](./graphics/API6-UpdateDefinition.png)
 
 3. Browse to the `resources/OASFiles` folder and select the `Pixi-v2.0-noadmin.json` file
 
@@ -334,7 +335,7 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 7. Back to Postman, try to invoke the `API5:Get Users list` operation. This time, the request is blocked with a 403 code, since this operation is not defined in the OpenAPI file anymore.
 
-![API5-BlockingRequest](../graphics/API5-BlockingRequest.png)
+![API5-BlockingRequest](./graphics/API5-BlockingRequest.png)
 
 # Conclusion
 
@@ -342,15 +343,10 @@ In this evaluation guide, we have seen how the 42Crunch API firewall can be easi
 
 # Clean up
 
-To delete all the artifacts you created, you can just delete the whole namespace with the command `kubectl delete namespace NAMESPACE`. If you used the default namespace, the command is:
+To destroy all the artifacts you created, just stop and then delete the Minikube cluster you created with the commands below:
 
  ```shell
-    kubectl delete namespace 42crunch
+    minikube stop -p 42crunch-cluster
+    minikube delete -p 42crunch-cluster
  ```
 
-If you want to delete the whole minikube environment, just execute
-
-```shell
-    minikube stop
-    minikube delete
-```

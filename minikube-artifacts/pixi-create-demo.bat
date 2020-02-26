@@ -6,13 +6,10 @@
 setlocal enabledelayedexpansion
 
 for /f "delims=" %%x in (.\etc\env) do (set "%%x")
-for /f "delims=" %%x in (.\etc\secret-docker-registry) do (set "%%x")
 
 if not defined RUNTIME_NS goto end_with_error
 
-kubectl create namespace %RUNTIME_NS%
 :: Create secrets
-kubectl create --namespace=%RUNTIME_NS% secret docker-registry docker-registry-creds --docker-server="%REGISTRY_SERVER%" --docker-username="%REGISTRY_USERNAME%" --docker-password="%REGISTRY_PASSWORD%" --docker-email="%REGISTRY_EMAIL%"
 kubectl create --namespace=%RUNTIME_NS% secret tls firewall-certs --key .\etc\tls\private.key --cert .\etc\tls\cert-fullchain.pem
 kubectl create --namespace=%RUNTIME_NS% secret generic generic-pixi-protection-token --from-env-file=.\etc\secret-protection-token
 :: Config Map creation

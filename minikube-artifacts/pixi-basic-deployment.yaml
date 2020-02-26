@@ -83,5 +83,4 @@ spec:
         image: deadrobots/pixi:app
         imagePullPolicy: Always
         ports:
-          - containerPort: 8000
           - containerPort: 8090

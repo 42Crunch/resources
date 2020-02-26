@@ -173,9 +173,9 @@ kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
 
 ```shell
 	NAME                            READY   STATUS    RESTARTS   AGE
-    	pixi-8c94b66b5-hq8js            1/1     Running   0          5m
+  pixi-8c94b66b5-hq8js            1/1     Running   0          5m
  	pixi-secured-54d957c8bc-h867f   2/2     Running   0          5m
-  	pixidb-755f648d47-k5pm9         1/1     Running   0          5m
+  pixidb-755f648d47-k5pm9         1/1     Running   0          5m
 ```
 
 If you want to see/monitor the various artifacts which have been created (pods, services, deployments and secrets), you can launch the Kubernetes standard dashboard, like this:
@@ -216,23 +216,27 @@ We now have a running configuration with two endpoints: one that invokes the uns
    }
    ```
 
-4. Test the secured endpoint setup by invoking https://pixi-secured.42crunch.test - You should receive a message like this one, indicating the firewall has blocked the request (the FW is using a self-signed CA, you will most likely need to accept a security exception in your browser).
+4. Test the secured endpoint setup by invoking https://pixi-secured.42crunch.test - You should receive a message like this one, indicating the firewall has blocked the request.
+
+   > The API Firewall is configured with a self-signed certificate. You will have to accept an exception for the request to work properly.
 
    ```json
    {"status":403,"title":"request validation","detail":"Forbidden","instance":"https://pixi-secured.42crunch.test/","uuid":"60ec6862-5899-11ea-8376-2354dd014e4d"}
    ```
 
-5. Import the file `postman-collection/Pixi_collection.json` in Postman, and go to the newly imported Pixi project.
+   You can also use curl to make the same request, using the -k option to avoid the self-signed certificates issue: `curl -k https://pixi-secured.42crunch.test`
 
-6. Create  an environment variable called 42c_url inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same 42c_url variable, this time with a value set to http://pixi-open.42crunch.test:8090.
+5. Import the  `postman-collection/Pixi_collection.json` file in Postman using **Import>Import from File**.
+
+6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same 42c_url variable, this time with a value set to http://pixi-open.42crunch.test:8090.
    The final configuration should look like this in Postman:
-   
+
    ![Postman-Unsecure-Generic](./graphics/Postman-Unsecure-Generic.jpg)
-   
+
    ![Postman-Secure-Generic](/Volumes/DATA/42Crunch/Source/resources/graphics/Postman-Secure-Generic.jpg)
+
    
-   
-   
+
 7. Select the **42Crunch-Unsecure** environment
 
 8. Go to the Pixi collection you just imported and invoke the operation **POST /api/register** with the following contents:

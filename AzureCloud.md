@@ -172,9 +172,9 @@ kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
 2. Run `kubectl get pods -w -n 42crunch`  and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from the DockerHub registry.	
 
 ```shell
- 	  NAME                            READY   STATUS    RESTARTS   AGE
-    pixi-8c94b66b5-hq8js            1/1     Running   0          5m
- 		pixi-secured-54d957c8bc-h867f   2/2     Running   0          5m
+	NAME                            READY   STATUS    RESTARTS   AGE
+    	pixi-8c94b66b5-hq8js            1/1     Running   0          5m
+ 	pixi-secured-54d957c8bc-h867f   2/2     Running   0          5m
   	pixidb-755f648d47-k5pm9         1/1     Running   0          5m
 ```
 

@@ -22,8 +22,6 @@ Typically, the platform would be used as follows:
 
 ## Goals
 
-> The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues.
-
 This document guides you through:
 
 1. Getting an AKS cluster ready.

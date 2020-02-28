@@ -108,7 +108,7 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 ## Configuration Setup
 
-### Import the Pixi API and generate the protection configuration
+Import the Pixi API and generate the protection configuration
 
 1. Log in to 42Crunch Platform at <https://platform.42crunch.com>
 

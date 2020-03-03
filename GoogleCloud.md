@@ -62,7 +62,7 @@ You must have a GKE cluster running, and proper credentials to deploy the artifa
 You can use the command `gcloud compute zones list` to list all the locations available, and change the value to the one that suits you best. You can also use gcping.com to find the closest location.
     
     After a few minutes, you should have a Kubernetes environment ready for testing.
-    
+
 4. Setup kubectl to point to this new cluster
 
     ```shell
@@ -114,77 +114,77 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 ## Configuration Setup
 
-    Import the Pixi API and generate the protection configuration
+Import the Pixi API and generate the protection configuration
 
-    1. Log in to 42Crunch Platform at <https://platform.42crunch.com>
+1. Log in to 42Crunch Platform at <https://platform.42crunch.com>
 
-    2. Go to **API Collections** in the main menu and click on **New Collection**, name it  PixiTest.
+2. Go to **API Collections** in the main menu and click on **New Collection**, name it  PixiTest.
 
-    3. Click on **Add Collection**.
+3. Click on **Add Collection**.
 
-       ![Add Collection](./graphics/create-collection.png)
+   ![Add Collection](./graphics/create-collection.png)
 
-    4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](./graphics/42c_ImportOAS.png "Import API definition")
+4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](./graphics/42c_ImportOAS.png "Import API definition")
 
-       The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
+   The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
 
-    5. In the main menu on the left, click **Protect** to launch the protection wizard
+5. In the main menu on the left, click **Protect** to launch the protection wizard
 
-    6. Select the `PixiTest` API collection, and the Pixi API, and enter a name for the protection token. This unique token is used later in this guide to configure the API Firewall.
-       ![Create protection configuration](./graphics/42c_CreateProtection.png "Create protection configuration")
+6. Select the `PixiTest` API collection, and the Pixi API, and enter a name for the protection token. This unique token is used later in this guide to configure the API Firewall.
+   ![Create protection configuration](./graphics/42c_CreateProtection.png "Create protection configuration")
 
-    7. Copy the protection token value to the clipboard. **Do not close this dialog** until you have safely saved the value (in the next step).
-       ![Token value](./graphics/42c_TokenToClipboard.png "token value")
+7. Copy the protection token value to the clipboard. **Do not close this dialog** until you have safely saved the value (in the next step).
+   ![Token value](./graphics/42c_TokenToClipboard.png "token value")
 
-    # Configuration Deployment
+# Configuration Deployment
 
-    ## Configuring the deployment scripts
+## Configuring the deployment scripts
 
-    The protection token is used by the API Firewall to retrieve its configuration from the platform. Think of it as a unique ID for the API protection configuration.
+The protection token is used by the API Firewall to retrieve its configuration from the platform. Think of it as a unique ID for the API protection configuration.
 
-    You must save the protection token in a configuration file. This file is read by the deployment scripts to create a Kubernetes secret.
+You must save the protection token in a configuration file. This file is read by the deployment scripts to create a Kubernetes secret.
 
-    1. Edit  `etc/secret-protection-token` with any text editor.
+1. Edit  `etc/secret-protection-token` with any text editor.
 
-    2. Replace the placeholder `<your_token_value>` with the protection token you copied, and save the file:
+2. Replace the placeholder `<your_token_value>` with the protection token you copied, and save the file:
 
-    ```shell
-    PROTECTION_TOKEN=<your_token_value>
-    ```
+```shell
+PROTECTION_TOKEN=<your_token_value>
+```
 
-    ## Deploying the API Firewall
+## Deploying the API Firewall
 
-    >By default, the artifacts are deployed to a namespace called `42crunch`. If you want to change the namespace, edit the `etc/env` file and change the namespace value before you run the script.
+>By default, the artifacts are deployed to a namespace called `42crunch`. If you want to change the namespace, edit the `etc/env` file and change the namespace value before you run the script.
 
-    1. Depending on your environment, run either the `pixi-create-demo.sh` or `pixi-create-demo.bat` script to deploy the sample configuration:
+1. Depending on your environment, run either the `pixi-create-demo.sh` or `pixi-create-demo.bat` script to deploy the sample configuration:
 
-    ```shell
-    # Create secrets
-    kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ../etc/tls/private.key --cert ../etc/tls/cert-fullchain.pem
-    kubectl create --namespace=$RUNTIME_NS secret generic protection-token --from-env-file=../etc/secret-protection-token
-    
-    # Config Map creation
-    kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-file=./deployment.properties
-    
-    # Deployment (Required App/DB + storage)
-    kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml
-    
-    # Deployment (Pixi + FW as sidecar pod)
-    kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
-    ```
+```shell
+# Create secrets
+kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ../etc/tls/private.key --cert ../etc/tls/cert-fullchain.pem
+kubectl create --namespace=$RUNTIME_NS secret generic protection-token --from-env-file=../etc/secret-protection-token
 
-    > Should the scripts fail for any reason, you can start from a clean situation using the deletion scripts.
+# Config Map creation
+kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-file=./deployment.properties
 
-    2. Run `kubectl get pods -w -n 42crunch`  and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from the DockerHub registry.	
+# Deployment (Required App/DB + storage)
+kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml
 
-    ```shell
-    NAME                           READY   STATUS    RESTARTS   AGE
-    pixi-5c55844c9-xdlpn           1/1     Running   0          3m33s
-    pixi-secured-64c6f5f77-hbsbb   2/2     Running   0          3m32s
-    pixidb-589f8fc649-4m49t        1/1     Running   0          3m33s
-    ```
+# Deployment (Pixi + FW as sidecar pod)
+kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
+```
 
-    If you want to see/monitor the various artifacts which have been created (pods, services, deployments and secrets), you should open the [Google console](https://console.cloud.google.com/), which presents a clear view of workloads and services deployed.
+> Should the scripts fail for any reason, you can start from a clean situation using the deletion scripts.
+
+2. Run `kubectl get pods -w -n 42crunch`  and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from the DockerHub registry.	
+
+```shell
+NAME                           READY   STATUS    RESTARTS   AGE
+pixi-5c55844c9-xdlpn           1/1     Running   0          3m33s
+pixi-secured-64c6f5f77-hbsbb   2/2     Running   0          3m32s
+pixidb-589f8fc649-4m49t        1/1     Running   0          3m33s
+```
+
+If you want to see/monitor the various artifacts which have been created (pods, services, deployments and secrets), you should open the [Google console](https://console.cloud.google.com/), which presents a clear view of workloads and services deployed.
 
 ![](./graphics/42c_GKE_Workloads.jpeg)
 

@@ -54,12 +54,12 @@ You must have a GKE cluster running, and proper credentials to deploy the artifa
 3. Run the following commands to generate a minimal K8s cluster and connect to it. You must have sufficient privileges to run those commands!
 
     ```shell
-      gcloud config set project <your-project-id>
-      gcloud config set compute/zone <your-compute-zone>
-      gcloud container clusters create test-42crunch --num-nodes=1
-```
-    
- You can use the command `gcloud compute zones list` to list all the locations available, and change the value to the one that suits you best. You can also use gcping.com to find the closest location.
+    gcloud config set project <your-project-id>
+    gcloud config set compute/zone <your-compute-zone>
+    gcloud container clusters create test-42crunch --num-nodes=1
+    ```
+
+You can use the command `gcloud compute zones list` to list all the locations available, and change the value to the one that suits you best. You can also use gcping.com to find the closest location.
     
     After a few minutes, you should have a Kubernetes environment ready for testing.
     

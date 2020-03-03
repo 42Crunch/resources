@@ -112,7 +112,7 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 ![Demo architecture](./graphics/GenericDeployment.jpg?raw=true "Demo architecture")
 
-2. ## Configuration Setup
+## Configuration Setup
 
     Import the Pixi API and generate the protection configuration
 
@@ -122,19 +122,19 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
     3. Click on **Add Collection**.
 
-       ![](/Volumes/DATA/42Crunch/Source/resources/graphics/create-collection.png)
+       ![Add Collection](./graphics/create-collection.png)
 
-    4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](/Volumes/DATA/42Crunch/Source/resources/graphics/42c_ImportOAS.png "Import API definition")
+    4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](./graphics/42c_ImportOAS.png "Import API definition")
 
        The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
 
     5. In the main menu on the left, click **Protect** to launch the protection wizard
 
     6. Select the `PixiTest` API collection, and the Pixi API, and enter a name for the protection token. This unique token is used later in this guide to configure the API Firewall.
-       ![Create protection configuration](/Volumes/DATA/42Crunch/Source/resources/graphics/42c_CreateProtection.png "Create protection configuration")
+       ![Create protection configuration](./graphics/42c_CreateProtection.png "Create protection configuration")
 
     7. Copy the protection token value to the clipboard. **Do not close this dialog** until you have safely saved the value (in the next step).
-       ![Token value](/Volumes/DATA/42Crunch/Source/resources/graphics/42c_TokenToClipboard.png "token value")
+       ![Token value](./graphics/42c_TokenToClipboard.png "token value")
 
     # Configuration Deployment
 
@@ -233,11 +233,9 @@ We now have a running configuration with two endpoints: one that invokes the uns
 6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same 42c_url variable, this time with a value set to http://pixi-open.42crunch.test:8090.
    The final configuration should look like this in Postman:
 
-   ![Postman-Unsecure-Generic](/Volumes/DATA/42Crunch/Source/resources/graphics/Postman-Unsecure-Generic.jpg)
+   ![Postman-Unsecure-Generic](./graphics/Postman-Unsecure-Generic.jpg)
 
-   ![Postman-Secure-Generic](/Volumes/DATA/42Crunch/Source/resources/graphics/Postman-Secure-Generic.jpg)
-
-   
+   ![Postman-Secure-Generic](./graphics/Postman-Secure-Generic.jpg)   
 
 7. Select the **42Crunch-Unsecure** environment
 
@@ -276,11 +274,11 @@ pm.globals.set("token", jsonData.token);
 
 Other operations, such getUserInfo or updateUserInfo take the value of the **token** variable set above and use it as the value of the **x-access-token** header, like this:
 
-![Token Variable](/Volumes/DATA/42Crunch/Source/resources/graphics/Postman_TokenValue.png)
+![Token Variable](./graphics/Postman_TokenValue.png)
 
 Make sure you always call either login or register before calling any other operations, or the request will fail at the firewall level, since the x-access-token header will be empty! When this happens, this is what you will see in the transaction logs of the API firewall .
 
-![BadAccessToken](/Volumes/DATA/42Crunch/Source/resources/graphics/BadAccessToken.png)
+![BadAccessToken](./graphics/BadAccessToken.png)
 
 # Blocking attacks with API Firewall
 
@@ -290,7 +288,7 @@ Make sure you always call either login or register before calling any other oper
 
 Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
 
-![](/Volumes/DATA/42Crunch/Source/resources/graphics/42c_logging.jpeg)
+![](./graphics/42c_logging.jpeg)
 
 ## Blocking Pixi API sample attacks
 
@@ -298,7 +296,7 @@ You can test the API firewall behavior with the following requests:
 
 1. **Wrong verb**: the operation `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
 
-   ![Postman wrong verb](/Volumes/DATA/42Crunch/Source/resources/graphics/42c_PostmanTest01-WrongVerb.png "Postman wrong verb")
+   ![Postman wrong verb](./graphics/42c_PostmanTest01-WrongVerb.png "Postman wrong verb")
 
 2. **Wrong path**: any request to a path _not_ defined in the OAS definition is blocked, try `/api/foo`, for example.
 
@@ -314,13 +312,13 @@ You can test the API firewall behavior with the following requests:
 
 8. **Blocking data leakage**: the Pixi API exposes an admin operation which lists all users within the database. This operation leaks admin status and passwords (it is a straight export from the backend database). If you invoke `API 5: Get Users List`, the response is blocked. You get an HTTP 500 error since the response is invalid.
 
-   ![API5-AdminOperation](/Volumes/DATA/42Crunch/Source/resources/graphics/API5-AdminOperation.png)
+   ![API5-AdminOperation](./graphics/API5-AdminOperation.png)
 
 9. The Pixi API has a **MongoDB injection** vulnerability that allows logging into the application without specifying a password. You can try this by using the raw parameters `user=user@acme.com&pass[$ne]=` in Postman for a login request. You will see that you can log in to the unprotected API, but the request is blocked by API Firewall on the protected API.
 
 10. **Mass assignment**:  the `API6: Mass Assignment` operation can be used to update a user record. It has a common issue (described in this [blog](https://42crunch.com/stopping_harbor_registry_attack/) ) by which a hacker with a valid token can change their role or administrative status. The OAS file does not declare is_admin as a valid input and as such this request will be blocked. Same occurs with the password. If you remove those two properties, the request will be accepted and both email and name are updated for the logged in user.
 
-    ![42c_API6BVulnerability](/Volumes/DATA/42Crunch/Source/resources/graphics/42c_API6BVulnerability.png)
+    ![42c_API6BVulnerability](./graphics/42c_API6BVulnerability.png)
 
 11. Reflected **XSS attack**: If you introduce a XSS attack like the example below in any property, the request is blocked:
 
@@ -336,7 +334,7 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 2. At the top-right, select the Settings icon and choose **Update Definition**
 
-   ![](/Volumes/DATA/42Crunch/Source/resources/graphics/API6-UpdateDefinition.png)
+   ![](./graphics/API6-UpdateDefinition.png)
 
 3. Browse to the `resources/OASFiles` folder and select the `Pixi-v2.0-noadmin.json` file
 
@@ -348,7 +346,7 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 7. Back to Postman, try to invoke the `API5:Get Users list` operation. This time, the request is blocked with a 403 code, since this operation is not defined in the OpenAPI file anymore.
 
-![API5-BlockingRequest](/Volumes/DATA/42Crunch/Source/resources/graphics/API5-BlockingRequest.png)
+![API5-BlockingRequest](./graphics/API5-BlockingRequest.png)
 
 # Conclusion
 

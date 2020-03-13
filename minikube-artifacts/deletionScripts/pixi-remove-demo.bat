@@ -10,7 +10,9 @@ for /f "delims=" %%x in (..\etc\env) do (set "%%x")
 if not defined RUNTIME_NS goto end_with_error
 
 kubectl --namespace=%RUNTIME_NS% delete cm,pods,services,deployments,secrets --all
-kubectl delete namespace %RUNTIME_NS%
+if %RUNTIME_NS% neq 'default' (
+  kubectl delete namespace %RUNTIME_NS%
+)
 
 goto end
 

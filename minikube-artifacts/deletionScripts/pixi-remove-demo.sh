@@ -8,4 +8,3 @@ if [ -z "$RUNTIME_NS" ]; then
 fi
 
 kubectl --namespace=$RUNTIME_NS delete cm,pods,services,deployments,secrets --all
-kubectl delete namespace $RUNTIME_NS

@@ -196,18 +196,18 @@ We now have a running configuration with two endpoints: one that invokes the uns
 
 1. Run `kubectl get svc -n 42crunch` to get the external IP of the `pixisecured` deployment (values shown here are placeholders):
 
-   ```shell
-   NAME          TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)
-   pixiapp       LoadBalancer   10.3.240.197   <pixi-app-ip>   8000:30540/TCP,8090:30893/TCP
-   pixidb        ClusterIP      10.3.242.155   <none>          27017/TCP
-   pixisecured   LoadBalancer   10.3.245.43    <pixi-secu-ip>  443:31316/TCP
+   ``shell
+   NAME           TYPE           CLUSTER-IP     EXTERNAL-IP    	PORT(S)          AGE
+   pixi-open      LoadBalancer   10.0.110.240   <pixi-app-ip>   	8090:30445/TCP   113m
+   pixi-secured   LoadBalancer   10.0.220.184   <pixi-secu-ip>   443:32476/TCP    113m
+   pixidb         ClusterIP      10.0.222.107   <none>         	27017/TCP        113m
    ```
 
-2. Go to edit your `hosts` file, and add the `pixisecured` deployment to it. Replace the placeholder `<pixi-secu-ip>` with the actual external IP returned by the command above:
+2. Go to edit your `hosts` file, and add the `pixisecured` and `pixi-open` deployments to it. Replace the placeholders `<pixi-secu-ip>` and `<pixi-app-ip>` with the actual external IPs returned by the command above:
 
    ```shell
    <pixi-secu-ip> pixi-secured.42crunch.test
-   <pixi-app-ip> pixi-open.42crunch.test
+   <pixi-app-ip> 	pixi-open.42crunch.test
    ```
 
 3. Test the open endpoint setup by invoking http://pixi-open.42crunch.test:8090 - You should receive a message like this one, indicating you have connected to the API.
@@ -231,12 +231,13 @@ We now have a running configuration with two endpoints: one that invokes the uns
 5. Import the  `postman-collection/Pixi_collection.json` file in Postman using **Import>Import from File**.
 
 6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same 42c_url variable, this time with a value set to http://pixi-open.42crunch.test:8090.
-   The final configuration should look like this in Postman:
-
-   ![Postman-Unsecure-Generic](./graphics/Postman-Unsecure-Generic.jpg)
-
-   ![Postman-Secure-Generic](./graphics/Postman-Secure-Generic.jpg)   
-
+  
+  The final configuration should look like this in Postman:
+  
+     ![Postman-Unsecure-Generic](./graphics/Postman-Unsecure-Generic.jpg)
+  
+     ![Postman-Secure-Generic](./graphics/Postman-Secure-Generic.jpg)   
+  
 7. Select the **42Crunch-Unsecure** environment
 
 8. Go to the Pixi collection you just imported and invoke the operation **POST /api/register** with the following contents:

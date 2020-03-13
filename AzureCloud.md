@@ -201,7 +201,7 @@ We now have a running configuration with two endpoints: one that invokes the uns
    pixidb         ClusterIP      10.0.222.107   <none>         	27017/TCP        113m
    ```
 
-2. Go to edit your `hosts` file, and add the `pixi-secured` and `pixi-open` deployments to it. Replace the placeholder `<pixi-secu-ip>` with the actual external IP returned by the command above:
+2. Go to edit your `hosts` file, and add the `pixisecured` and `pixi-open` deployments to it. Replace the placeholders `<pixi-secu-ip>` and `<pixi-app-ip>` with the actual external IPs returned by the command above:
 
    ```shell
    <pixi-secu-ip> pixi-secured.42crunch.test

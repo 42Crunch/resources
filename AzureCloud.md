@@ -172,16 +172,16 @@ kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
 2. Run `kubectl get pods -w -n 42crunch`  and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from the DockerHub registry.	
 
 ```shell
-	NAME                            READY   STATUS    RESTARTS   AGE
-  pixi-8c94b66b5-hq8js            1/1     Running   0          5m
- 	pixi-secured-54d957c8bc-h867f   2/2     Running   0          5m
-  pixidb-755f648d47-k5pm9         1/1     Running   0          5m
+NAME                            READY   STATUS    RESTARTS   AGE
+ pixi-8c94b66b5-hq8js            1/1     Running   0          5m
+ pixi-secured-54d957c8bc-h867f   2/2     Running   0          5m
+ pixidb-755f648d47-k5pm9         1/1     Running   0          5m
 ```
 
 If you want to see/monitor the various artifacts which have been created (pods, services, deployments and secrets), you can launch the Kubernetes standard dashboard, like this:
 
 ```shell 
-	az aks browse --resource-group rg-42crunch --name aks-42crunch
+az aks browse --resource-group rg-42crunch --name aks-42crunch
 ```
 
 Then, change the default namespace to 42crunch to browse all artifacts.
@@ -195,17 +195,17 @@ We now have a running configuration with two endpoints: one that invokes the uns
 1. Run `kubectl get svc -n 42crunch` to get the external IP of the `pixisecured` deployment (values shown here are placeholders):
 
    ```shell
-   NAME          TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)
-   pixiapp       LoadBalancer   10.3.240.197   <pixi-app-ip>   8000:30540/TCP,8090:30893/TCP
-   pixidb        ClusterIP      10.3.242.155   <none>          27017/TCP
-   pixisecured   LoadBalancer   10.3.245.43    <pixi-secu-ip>  443:31316/TCP
+   NAME           TYPE           CLUSTER-IP     EXTERNAL-IP    	PORT(S)          AGE
+   pixi-open      LoadBalancer   10.0.110.240   <pixi-app-ip>   	8090:30445/TCP   113m
+   pixi-secured   LoadBalancer   10.0.220.184   <pixi-secu-ip>   443:32476/TCP    113m
+   pixidb         ClusterIP      10.0.222.107   <none>         	27017/TCP        113m
    ```
 
-2. Go to edit your `hosts` file, and add the `pixisecured` deployment to it. Replace the placeholder `<pixi-secu-ip>` with the actual external IP returned by the command above:
+2. Go to edit your `hosts` file, and add the `pixi-secured` and `pixi-open` deployments to it. Replace the placeholder `<pixi-secu-ip>` with the actual external IP returned by the command above:
 
    ```shell
    <pixi-secu-ip> pixi-secured.42crunch.test
-   <pixi-app-ip> pixi-open.42crunch.test
+   <pixi-app-ip>  pixi-open.42crunch.test
    ```
 
 3. Test the open endpoint setup by invoking http://pixi-open.42crunch.test:8090 - You should receive a message like this one, indicating you have connected to the API.

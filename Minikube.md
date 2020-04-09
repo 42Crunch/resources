@@ -60,7 +60,7 @@ You should see a startup trace similar to:
 >  🏄  Done! kubectl is now configured to use "42crunch-cluster"
 >  ```
 
-We recommend you make this profile the default one using : `minikube profile 42crunch-cluster`. This ensures you do not have to pass the profile name in further minikube commands.
+*We recommend you make this profile the default one using : `minikube profile 42crunch-cluster`. This ensures you do not have to pass the profile name in further minikube commands.*
 
 You should now have a Kubernetes environment ready for testing. You can verify this by running `minikube status `. You should obtain a response similar to this:
 
@@ -186,20 +186,21 @@ We now have a running configuration with two endpoints: one that invokes the uns
 1. Run `minikube service list`  to print the list of configured services.
 
    ```shell
-   |-----------|--------------|-----------------------------|
-   | NAMESPACE |     NAME     |             URL             |
-   |-----------|--------------|-----------------------------|
-   | 42crunch  | pixi-open    | http://192.168.99.103:30090 |
-   | 42crunch  | pixi-secured | http://192.168.99.103:30443 |
-   | 42crunch  | pixidb       | No node port                |
-   |-----------|--------------|-----------------------------|                  
+   |-----------|--------------|--------------|----------------------------|
+   | NAMESPACE |     NAME     | TARGET PORT  |            URL             |
+   |-----------|--------------|--------------|----------------------------|
+   | default   | kubernetes   | No node port |                            |
+   | default   | pixi-open    | api/8090     | http://192.168.64.13:30090 |
+   | default   | pixi-secured | firewall/443 | http://192.168.64.13:30443 |
+   | default   | pixidb       | No node port |														 |
+   |-----------|--------------|--------------|----------------------------|               
    ```
 
-2. [Edit your `hosts` file](https://support.rackspace.com/how-to/modify-your-hosts-file/) and add the `pixi-secured` and `pixi-open` services endpoints to it. Replace the placeholder `<pixi-secured-ip>` below with the actual IP returned by the command above (in our case `192.168.99.103`) and repeat for the pixi-open-ip endpoint.
+2. [Edit your `hosts` file](https://support.rackspace.com/how-to/modify-your-hosts-file/) and add the `pixi-secured` and `pixi-open` services endpoints to it. Replace the placeholder `<pixi-secured-ip>` below with the actual IP returned by the command above (in our case `192.168.64.13`) and repeat for the pixi-open-ip endpoint.
 
    ```shell
    <pixi-secured-ip> 	pixi-secured.42crunch.test
-   <pixi-open-ip> 		pixi-open.42crunch.test
+   <pixi-open-ip> 			pixi-open.42crunch.test
    ```
 
    Save your hosts file.

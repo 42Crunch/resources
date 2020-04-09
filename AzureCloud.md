@@ -51,20 +51,15 @@ You must have an AKS Kubernetes cluster running, and proper credentials to deplo
 
 2. Run the command `az login` to log into your Azure account.
 
-3. Run the following commands to generate a minimal K8s cluster and connect to it. You must have sufficient privileges to run those commands! You can use the command `az account list-locations` to list all the locations for your Azure cluster, and change the value to the one that suits you best. Here, we are using eastus.
+3. Run the following commands to generate a minimal K8s cluster and connect to it. You must have sufficient privileges to run those commands! You can use the command `az account list-locations` to list all the locations for your Azure cluster, and change the value to the one that suits you best. Here, we are using *eastus*.
 
     ```shell
     az group create --name rg-42crunch --location eastus
-    az aks create \
-        --resource-group rg-42crunch 
-        --name aks-42crunch \
-        --node-count 1 \
-        --enable-addons monitoring \
-        --generate-ssh-key
+    az aks create --resource-group rg-42crunch --name aks-42crunch --node-count 1 --enable-addons monitoring --node-vm-size Standard_D2s_v3 
     ```
     
     After a few minutes, you should have a Kubernetes environment ready for testing. 
-
+    
 4. Setup kubectl to point to your newly created cluster
     ```shell
     az aks get-credentials --resource-group rg-42crunch --name aks-42crunch
@@ -81,13 +76,21 @@ You must have an AKS Kubernetes cluster running, and proper credentials to deplo
   $ kubectl config current-context
   aks-42crunch
   ```
+### Azure Marketplace API Firewall 
+
+The default setup in this guide is using our API firewall image hosted on DockerHub. If you want to use an API firewall hosted on your own container registry on Azure cloud, follow these steps:
+
+1. Go to https://azuremarketplace.microsoft.com/en-us/marketplace/apps/42crunch1580391915541.42crunch_api_firewall_container?tab=Overview and click Get it Now.
+2. Choose an existing or setup a new container registry and subscribe - Make sure to use the automatic updates option so that new versions of API Firewall are automatically published to your registry.
+3. Note the image name for example: `myregistry.azurecr.io/42crunch158039xxxx/apifirewall:latest`
+
 ### Tools
 
 We recommend you install [Postman](https://www.getpostman.com/downloads/) to drive test the API. A Postman collection is provided to you in this repository.
 
 ## Deployment artifacts
 
-The deployment involves two types of artifacts: configuration artifacts and runtime artifacts. The scripts and conf files for minikube deployment are located under `kubernetes-artifacts`.
+The deployment involves two types of artifacts: configuration artifacts and runtime artifacts. The scripts and conf files for Azure deployment are located under the `kubernetes-artifacts` folder.
 
 ### Configuration artifacts
 
@@ -142,9 +145,22 @@ You must save the protection token in a configuration file. This file is read by
 
 2. Replace the placeholder `<your_token_value>` with the protection token you copied, and save the file:
 
-```shell
-PROTECTION_TOKEN=<your_token_value>
-```
+   ```shell
+   PROTECTION_TOKEN=<your_token_value>
+   ```
+
+3. If you have subscribed to the API Firewall container offer on the Azure marketplace, edit the pixi-secured-deployment.yaml file and look for this section:
+
+   ```yaml
+   spec:
+     containers:
+     - name: apifirewall
+       image: '42crunch/apifirewall:latest'  
+   ```
+
+4. Replace `42crunch/apifirewall:latest` by the value you noted at the beginning of this guide, for example `myregistry.azurecr.io/42crunch158039xxxx/apifirewall:latest` and save the file.
+
+> You will need to establish an integration between your Azure AKS cluster and your Azure container registry following these instructions: https://docs.microsoft.com/en-us/azure/aks/cluster-container-registry-integration. 
 
 ## Deploying the API Firewall
 

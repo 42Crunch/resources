@@ -52,7 +52,7 @@ spec:
     spec:
       containers:
       - name: pixidb
-        image: deadrobots/pixi:datastore
+        image: 42crunch/pixi:datastore
         imagePullPolicy: Always
         ports:
           - containerPort: 27017
@@ -79,7 +79,7 @@ spec:
     spec:
       containers:
       - name: pixiapp
-        image: deadrobots/pixi:app
+        image: 42crunch/pixi:app_v2
         imagePullPolicy: Always
         ports:
           - containerPort: 8090

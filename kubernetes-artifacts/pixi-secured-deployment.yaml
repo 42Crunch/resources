@@ -65,7 +65,7 @@ spec:
           mountPath: /opt/guardian/conf/ssl
           readOnly: true
       - name: pixiapp
-        image: deadrobots/pixi:app
+        image: 42crunch/pixi:app_v2
         imagePullPolicy: Always
       volumes:
         - name: certs-volume

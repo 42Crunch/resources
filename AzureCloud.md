@@ -2,6 +2,7 @@
 
 # Deploying 42Crunch API Firewall on Azure Kubernetes Service (AKS)
 
+[TOC]
 ## Introduction
 
 This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall in [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/services/kubernetes-service/). For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
@@ -237,7 +238,13 @@ We now have a running configuration with two endpoints: one that invokes the uns
    > The API Firewall is configured with a self-signed certificate. You will have to accept an exception for the request to work properly.
 
    ```json
-   {"status":403,"title":"request validation","detail":"Forbidden","instance":"https://pixi-secured.42crunch.test/","uuid":"60ec6862-5899-11ea-8376-2354dd014e4d"}
+   {
+       "status": 404,
+       "title": "path mapping",
+       "detail": "Not Found",
+       "instance": "https://pixi-secured.42crunch.test/",
+       "uuid": "c07ec70e-9a00-11ea-xxxx-1f92a4422262"
+   }
    ```
 
    You can also use curl to make the same request, using the -k option to avoid the self-signed certificates issue: `curl -k https://pixi-secured.42crunch.test`
@@ -311,7 +318,7 @@ You can test the API firewall behavior with the following requests:
 
 1. **Wrong verb**: the operation `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
 
-   ![Postman wrong verb](./graphics/42c_PostmanTest01-WrongVerb.png "Postman wrong verb")
+   ![Postman wrong verb](./graphics/42c_PostmanTest01-WrongVerb.jpg "Postman wrong verb")
 
 2. **Wrong path**: any request to a path _not_ defined in the OAS definition is blocked, try `/api/foo`, for example.
 
@@ -359,9 +366,9 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 6. When the instance's list refreshes, it means the re-configuration was successful.
 
-7. Back to Postman, try to invoke the `API5:Get Users list` operation. This time, the request is blocked with a 403 code, since this operation is not defined in the OpenAPI file anymore.
+7. Back to Postman, try to invoke the `API5:Get Users list` operation. This time, the request is blocked with a 404 code, since this operation is not defined in the OpenAPI file anymore.
 
-![API5-BlockingRequest](./graphics/API5-BlockingRequest.png)
+![API5-BlockingRequest](./graphics/API5-BlockingRequest.jpg)
 
 # Conclusion
 

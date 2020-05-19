@@ -2,4 +2,4 @@
 
 # Create secrets
 echo "===========> Creating AWS Secrets "
-aws secretsmanager create-secret --name pixi-fw-token2 --secret-string `cat etc/secret-protection-token`
+aws secretsmanager create-secret --name pixi-fw-token --secret-string `cat etc/secret-protection-token`

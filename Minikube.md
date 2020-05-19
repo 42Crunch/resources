@@ -2,6 +2,8 @@
 
 # Evaluating 42Crunch API Firewall on Minikube
 
+[TOC]
+
 This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall on Minikube. For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
 
 ## Platform Overview
@@ -196,7 +198,7 @@ We now have a running configuration with two endpoints: one that invokes the uns
    |-----------|--------------|--------------|----------------------------|               
    ```
 
-2. [Edit your `hosts` file](https://support.rackspace.com/how-to/modify-your-hosts-file/) and add the `pixi-secured` and `pixi-open` services endpoints to it. Replace the placeholder `<pixi-secured-ip>` below with the actual IP returned by the command above (in our case `192.168.64.13`) and repeat for the pixi-open-ip endpoint.
+2. [Edit your `hosts` file](https://support.rackspace.com/how-to/modify-your-hosts-file/) and add the `pixi-secured` and `pixi-open` services endpoints to it. Replace the placeholder `<pixi-secured-ip>` below with the actual IP returned by the command above (in our case `192.168.64.13`) and repeat for the `pixi-open-ip` endpoint.
 
    ```shell
    <pixi-secured-ip> 	pixi-secured.42crunch.test
@@ -286,7 +288,7 @@ You can test the API firewall behavior with the following requests:
 
 1. **Wrong verb**: the operation `Register` is defined to use `POST`, try calling it with `GET` or other verbs, and see how requests are blocked.
 
-    ![Postman wrong verb](./graphics/42c_PostmanTest01-WrongVerb.png?raw=true "Postman wrong verb")
+    ![Postman wrong verb](./graphics/42c_PostmanTest01-WrongVerb.jpg?raw=true "Postman wrong verb")
 
 2. **Wrong path**: any request to a path _not_ defined in the OAS definition is blocked, try `/api/foo`, for example.
 
@@ -334,9 +336,9 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 6. When the instance's list refreshes, it means the re-configuration was successful.
 
-7. Back to Postman, try to invoke the `API5:Get Users list` operation. This time, the request is blocked with a 403 code, since this operation is not defined in the OpenAPI file anymore.
+7. Back to Postman, try to invoke the `API5:Get Users list` operation. This time, the request is blocked with a 404 code, since this operation is not defined in the OpenAPI file anymore.
 
-![API5-BlockingRequest](./graphics/API5-BlockingRequest.png)
+![API5-BlockingRequest](./graphics/API5-BlockingRequest.jpg)
 
 # Conclusion
 

@@ -73,7 +73,7 @@ Import the Pixi API and generate the protection configuration
 
 # Deployment Setup
 
-For simplicity, the pixi app, the pixi db and the FW have been deployed in the same Fargate task. 
+For simplicity, the pixi app, the pixi db and the Firewall have been deployed in the same Fargate task. 
 
 ## Protection Token Setup
 
@@ -95,7 +95,7 @@ You must save the protection token in a configuration file. This file is read by
 
    > This assumes you're are using the CLI to create the files. You can create those  secrets through different means than this script.
 
-2. Note the ARN value of the **pixi-fw-token** secret. You will need it later to configure the API FW task.
+2. Note the ARN value of the **pixi-fw-token** secret. You will need it later to configure the API Firewall task.
 
    ```JSON
    {
@@ -161,7 +161,7 @@ You need to make the following changes to the `task.json` file that was shared w
    | LISTEN_PORT               | Port the API Firewall listens on                             | 443                                        |
    | LISTEN_SSL_CERT           | Name of API Firewall certificate file (in PEM format). The whole certificate chain must be stored in this file (CA, Intermediate CA, cert) - Must be present on filesystem and match the names used when building the firewall image. | firewall-cert.pem                          |
    | LISTEN_SSL_KEY            | Name of API Firewall private key file (in PEM format) - Must be present on filesystem and match the names used when building the firewall image. | firewall-key.pem                           |
-   | PRESERVE_HOST             | API FW passes Host header unchanged to back-end              | On                                         |
+   | PRESERVE_HOST             | API Firewall passes Host header unchanged to back-end        | On                                         |
    | TARGET_URL                | Backend URL the API Firewall proxies requests to. Since the Pixi API runs in the same Task, we can use localhost over HTTP | http://localhost:8090                      |
    | SERVER_NAME               | External host name used to invoke APIs (for example apis.acme.com or 42c-fw-lb-xxxx.elb.eu-west-1.amazonaws.com) - API Firewall makes sure that all calls come with that value in the Host header. | 42c-fw-lb-xxxx.elb.eu-west-1.amazonaws.com |
    | TIMEOUT_IN                | How long (in seconds) API Firewall waits for a TCP packet from the client to arrive before closing the connection. | 30                                         |
@@ -235,21 +235,21 @@ secrets": [
 
 ## Deploying the API Firewall
 
-Once the task has been configured and saved, you can create a service from this task, configuring AWS network components to make the FW reachable.
+Once the task has been configured and saved, you can create a service from this task, configuring AWS network components to make the Firewall reachable.
 
 When creating the service from the task: 
 
-* You can use a network LB to expose the FW, with a 443 target
+* You can use a network LB to expose the Firewall, with a 443 target
 
 * You will need to put HTTPS/443 as inbound rule for the security group
 
 * You will need to authorize access to secrets from the Fargate task (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data-secrets.html)
 
-* When the FW starts it will need to connect to **protection.42crunch.com:8001** - You may need to open access to this hostname that in your firewall / network rules.
+* When the Firewall starts it needs to connect to **protection.42crunch.com:8001** - You may need to open access to this hostname  in your firewall / network rules.
 
   > They are many ways to deploy this setup, which will vary depending on your existing application architecture.  For example, you could use a application LB and terminate TLS at that level, or just do TCP load balancing in a network LB on port 443 so that the API Firewall terminates SSL.
 
-# Getting ready to test the firewall
+# Getting ready to test the API firewall
 
 1. Test the secured endpoint setup by invoking the hostname you have set, for example: https://42c-fw-lb-xxxx.elb.eu-west-1.amazonaws.com/ - You should receive a message like this one, indicating the firewall has blocked the request.
 

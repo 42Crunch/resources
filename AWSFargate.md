@@ -8,7 +8,7 @@
 
 This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall in AWS Fargate. For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
 
-> The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues. **We recommend that you install the Pixi API in a dedicated Kubernetes cluster, and delete the cluster once your tests are completed.** Do not leave the unprotected Pixi API running, it is vulnerable!
+> The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues.
 >
 
 ## Platform Overview
@@ -79,7 +79,7 @@ For simplicity, the pixi app, the pixi db and the FW have been deployed in the s
 
 The protection token is used by the API Firewall to retrieve its configuration from the platform. Think of it as a unique ID for the API protection configuration.
 
-You must save the protection token in a configuration file. This file is read by the deployment scripts to create a Kubernetes secret.
+You must save the protection token in a configuration file. This file is read by the deployment scripts to create a secret in AWS SecretsManager.
 
 1. Edit  `etc/secret-protection-token` with any text editor.
 

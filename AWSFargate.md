@@ -266,7 +266,7 @@ You can also use curl to make the same request (using the -k option to avoid the
 3. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to the value of SERVER_NAME  to invoke the protected API (for example 42c-fw-lb-xxxx.elb.eu-west-1.amazonaws.com).
    The final configuration should look like this in Postman:
 
-![Postman-Secure-Generic](/Volumes/DATA/42Crunch/Source/resources/graphics/Postman-Secure-Generic.jpg)
+![Postman-Secure-Generic](./graphics/Postman-Secure-Generic.jpg)
 
 8. Go to the Pixi collection you just imported and invoke the operation **POST /api/register** with the following contents:
 
@@ -303,11 +303,11 @@ pm.globals.set("token", jsonData.token);
 
 Other operations, such getUserInfo or updateUserInfo take the value of the **token** variable set above and use it as the value of the **x-access-token** header, like this:
 
-![Token Variable](/Volumes/DATA/42Crunch/Source/resources/graphics/Postman_TokenValue.png)
+![Token Variable](./graphics/Postman_TokenValue.png)
 
 Make sure you always call either login or register before calling any other operations, or the request will fail at the firewall level, since the x-access-token header will be empty! When this happens, this is what you will see in the transaction logs of the API firewall .
 
-![BadAccessToken](/Volumes/DATA/42Crunch/Source/resources/graphics/BadAccessToken.png)
+![BadAccessToken](./graphics/BadAccessToken.png)
 
 # Blocking attacks with API Firewall
 
@@ -317,7 +317,7 @@ Make sure you always call either login or register before calling any other oper
 
 Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
 
-![](/Volumes/DATA/42Crunch/Source/resources/graphics/42c_logging.jpeg)
+![](./graphics/42c_logging.jpeg)
 
 ## Blocking Pixi API sample attacks
 
@@ -341,13 +341,13 @@ You can test the API firewall behavior with the following requests:
 
 8. **Blocking data leakage**: the Pixi API exposes an admin operation which lists all users within the database. This operation leaks admin status and passwords (it is a straight export from the backend database). If you invoke `API 5: Get Users List`, the response is blocked. You get an HTTP 500 error since the response is invalid.
 
-   ![API5-AdminOperation](/Volumes/DATA/42Crunch/Source/resources/graphics/API5-AdminOperation.png)
+   ![API5-AdminOperation](./graphics/API5-AdminOperation.png)
 
 9. The Pixi API has a **MongoDB injection** vulnerability that allows logging into the application without specifying a password. You can try this by using the raw parameters `user=user@acme.com&pass[$ne]=` in Postman for a login request. You will see that you can log in to the unprotected API, but the request is blocked by API Firewall on the protected API.
 
 10. **Mass assignment**:  the `API6: Mass Assignment` operation can be used to update a user record. It has a common issue (described in this [blog](https://42crunch.com/stopping_harbor_registry_attack/) ) by which a hacker with a valid token can change their role or administrative status. The OAS file does not declare is_admin as a valid input and as such this request will be blocked. Same occurs with the password. If you remove those two properties, the request will be accepted and both email and name are updated for the logged in user.
 
-    ![42c_API6BVulnerability](/Volumes/DATA/42Crunch/Source/resources/graphics/42c_API6BVulnerability.png)
+    ![42c_API6BVulnerability](./graphics/42c_API6BVulnerability.png)
 
 11. Reflected **XSS attack**: If you introduce a XSS attack like the example below in any property, the request is blocked:
 
@@ -363,7 +363,7 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
 2. At the top-right, select the Settings icon and choose **Update Definition**
 
-   ![](/Volumes/DATA/42Crunch/Source/resources/graphics/API6-UpdateDefinition.png)
+   ![](./graphics/API6-UpdateDefinition.png)
 
 3. Browse to the `resources/OASFiles` folder and select the `Pixi-v2.0-noadmin.json` file
 

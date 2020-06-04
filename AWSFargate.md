@@ -1,12 +1,12 @@
 ![42Crunch](./graphics/42c_logo.png?raw=true "42Crunch")
 
-# Deploying 42Crunch API Firewall on AWS Fargate
+# Deploying 42Crunch API Firewall on Amazon ECS with Fargate
 
 [TOC]
 
 ## Introduction
 
-This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall in AWS Fargate. For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
+This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall in AWS ECS with Fargate. For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
 
 > The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues.
 >
@@ -31,7 +31,7 @@ This document guides you through:
 3. Testing the API Firewall
 
 ## Prerequisites
-In this guide, we deploy the 42Crunch API firewall in sidecar proxy mode (co-located in the same pod as the API) and use AWS Fargate as container orchestrator.
+In this guide, we deploy the 42Crunch API firewall in sidecar proxy mode (co-located in the same pod as the API) and use AWS ECS on top of Fargate as container orchestrator.
 
 Before you start, ensure you comply with the following pre-requisites:
 
@@ -91,9 +91,9 @@ You must save the protection token in a configuration file. This file is read by
 
 ### Create the Protection Token secret
 
-1. Use the `create-aws-secrets.sh` script the protection-token to the AWS secrets manager. This script assumes you're logged in to AWS CLI and have enough permissions to create the resources.
+1. Use the `create-aws-secrets.sh` script to push the protection-token to  AWS secrets manager. This script assumes you're logged into the AWS CLI and have enough permissions to create the resources.
 
-   > This assumes you're are using the CLI to create the files. You can create those  secrets through different means than this script.
+   > This assumes you're are using the CLI to create the files. You can create those  secrets through different means than this script, for example the AWS Console.
 
 2. Note the ARN value of the **pixi-fw-token** secret. You will need it later to configure the API Firewall task.
 

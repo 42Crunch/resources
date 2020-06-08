@@ -47,18 +47,18 @@ You must be a registered user on the [42Crunch Platform](https://platform.42crun
 You must have Minikube running to deploy the artifacts. You can get started with Minikube in two easy steps:
 
 1. Install [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/). If you have not installed **kubectl** yet, the Minikube instructions take you through installing that as well.
-2. Run the command `minikube start -p 42crunch-cluster` to create a separate minikube cluster VM for this guide. The default Kubernetes node setup (2 vCPUS, 2 Gb RAM) is more than enough to run our firewall.
+2. Run the command `minikube start -p 42crunch-cluster` to create a separate minikube cluster VM for this guide. The default Kubernetes node setup (2 vCPUS, 2 Gb RAM) is more than enough to run our firewall in evaluation mode.
 
 You should see a startup trace similar to:
 
 >  ```txt
->  😄  [42crunch-cluster] minikube v1.6.2 on Darwin 10.14.6
->  ✨  Automatically selected the 'hyperkit' driver (alternates: [virtualbox])
->  🔥  Creating hyperkit VM (CPUs=2, Memory=2000MB, Disk=20000MB) ...
->  🐳  Preparing Kubernetes v1.17.0 on Docker '19.03.5' ...
->  🚜  Pulling images ...
->  🚀  Launching Kubernetes ... 
->  ⌛  Waiting for cluster to come online ...
+>  😄  [42crunch-cluster] minikube v1.11.0 on Darwin 10.14.6
+>  ✨  Using the hyperkit driver based on existing profile
+>  👍  Starting control plane node 42crunch-cluster in cluster 42crunch-cluster
+>  🔄  Restarting existing hyperkit VM for "42crunch-cluster" ...
+>  🎁  Preparing Kubernetes v1.18.3 on CRI-O 1.17.1 ...
+>  🔎  Verifying Kubernetes components...
+>  🌟  Enabled addons: default-storageclass, storage-provisioner
 >  🏄  Done! kubectl is now configured to use "42crunch-cluster"
 >  ```
 
@@ -215,10 +215,10 @@ We now have a running configuration with two endpoints: one that invokes the uns
    }
    ```
 
-4. Test the secured endpoint setup by invoking http://pixi-secured.42crunch.test:30443 - You should receive a message like this one, indicating the firewall has blocked the request.
+4. Test the secured endpoint setup by invoking https://pixi-secured.42crunch.test:30443 - You should receive a message like this one, indicating the firewall has blocked the request.
 
    ```json
-   {"status":400,"title":"request fetching","detail":"Bad Request","instance":"http://pixi-secured.42crunch.test/","uuid":"227cc698-e60d-11e9-9b1c-55b33823ae8d"}
+   {"status":404,"title":"path mapping","detail":"Not Found","instance":"https://pixi-secured.42crunch.test:30443/","uuid":"570cab59-bb80-41c9-a46d-2783faefd1bc"}
    ```
 5. Import the file `postman-collection/Pixi.postman_collection.json` in Postman (Import->Import from File)
 
@@ -231,6 +231,7 @@ We now have a running configuration with two endpoints: one that invokes the uns
    ![Postman-Secure](./graphics/Postman-Secure.png)
 
 7. Select the **42Crunch-Unsecure** environment
+
 8. Go to the Pixi collecton and invoke the operation `POST /api/register` with the following contents
 
 ```json
@@ -255,6 +256,16 @@ You should see a response similar to this. The `x-access-token` is a JWT that yo
 
 Now that we know everything works, we can start testing the API Firewall.
 
+# Blocking attacks with API Firewall
+
+42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. In this section, you send various malicious requests to the API firewall to test its behavior.
+
+## Viewing Transaction Logs
+
+Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
+
+![](./graphics/42c_logging.jpeg)
+
 ## Understanding Pixi
 
 Pixi requires to register or login users to obtain a token, token which is then used to invoke other operations. The Postman has been setup to extract the token from login or register responses and add them automatically to the **current environment**, like this:
@@ -271,16 +282,6 @@ Other operations, such getUserInfo or updateUserInfo take the value of the **tok
 Make sure you always call either login or register before calling any other operations, or the request will fail at the firewall level, since the x-access-token header will be empty! When this happens, this is what you will see in the transaction logs of the API firewall .
 
 ![BadAccessToken](./graphics/BadAccessToken.png)
-
-# Blocking attacks with API Firewall
-
-42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. In this section, you send various malicious requests to the API firewall to test its behavior.
-
-## Viewing Transaction Logs
-
-Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
-
-![](./graphics/42c_logging.jpeg)
 
 ## Blocking Pixi API sample attacks
 

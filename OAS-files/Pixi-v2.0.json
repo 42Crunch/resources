@@ -691,11 +691,6 @@
       "description": "Most operations need to pass a user token retrieved calling /api/login"
     }
   },
-  "security": [
-    {
-      "access-token": []
-    }
-  ],
   "produces": [
     "application/json"
   ]

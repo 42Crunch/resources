@@ -61,7 +61,7 @@ Import the Pixi API and generate the protection configuration
 
 4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](./graphics/42c_ImportOAS.png?raw=true "Import API definition")
 
-   The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
+   The API should score 94/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
 
 5. In the main menu on the left, click **Protect** to launch the protection wizard
 
@@ -292,6 +292,16 @@ You can also use curl to make the same request (using the -k option to avoid the
 
 Now that we know everything works, we can start testing the API Firewall.
 
+# Blocking attacks with API Firewall
+
+42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. In this section, you send various malicious requests to the API firewall to test its behavior.
+
+## Viewing Transaction Logs
+
+Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
+
+![](./graphics/42c_logging.jpeg)
+
 ## Understanding Pixi
 
 Pixi requires to register or login users to obtain a token, token which is then used to invoke other operations. The Postman has been setup to extract the token from login or register responses and add them automatically to the **current environment**, like this:
@@ -309,15 +319,7 @@ Make sure you always call either login or register before calling any other oper
 
 ![BadAccessToken](./graphics/BadAccessToken.png)
 
-# Blocking attacks with API Firewall
 
-42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. In this section, you send various malicious requests to the API firewall to test its behavior.
-
-## Viewing Transaction Logs
-
-Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
-
-![](./graphics/42c_logging.jpeg)
 
 ## Blocking Pixi API sample attacks
 

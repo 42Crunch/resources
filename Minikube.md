@@ -112,7 +112,7 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](./graphics/42c_ImportOAS.png?raw=true "Import API definition")
 
-   The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
+   The API should score around 94/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies you can use it as-is to configure our firewall.
 
 5. In the main menu on the left, click **Protect** to launch the protection wizard
 
@@ -220,7 +220,7 @@ We now have a running configuration with two endpoints: one that invokes the uns
    ```json
    {"status":404,"title":"path mapping","detail":"Not Found","instance":"https://pixi-secured.42crunch.test:30443/","uuid":"570cab59-bb80-41c9-a46d-2783faefd1bc"}
    ```
-5. Import the file `postman-collection/Pixi.postman_collection.json` in Postman (Import->Import from File)
+5. Import the file `postman-collection/Pixi.postman_collection.json` in Postman (using`Import->Import from File`)
 
 6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test:30443 to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same **42c_url** variable, this time with a value set to http://pixi-open.42crunch.test:30090.
 
@@ -232,7 +232,7 @@ We now have a running configuration with two endpoints: one that invokes the uns
 
 7. Select the **42Crunch-Unsecure** environment
 
-8. Go to the Pixi collecton and invoke the operation `POST /api/register` with the following contents
+8. Go to the Pixi collection and invoke the operation `POST /api/register` with the following contents:
 
 ```json
 {

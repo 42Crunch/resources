@@ -85,6 +85,12 @@ The default setup in this guide is using our API firewall image hosted on Docker
 2. Choose an existing or setup a new container registry and subscribe - Make sure to use the automatic updates option so that new versions of API Firewall are automatically published to your registry.
 3. Note the image name for example: `myregistry.azurecr.io/42crunch158039xxxx/apifirewall:latest`
 
+### Running as-root
+
+The API Firewall is started by the `root` user. The initial process as root reads the configuration and then forks child processes which will serve the requests. Those child processes run under the `guardian` user, which has no admin privileges nor can this user read the configuration or log files. 
+
+Make sure that your Kubernetes environment allows for this container to start processes as root.
+
 ### Tools
 
 We recommend you install [Postman](https://www.getpostman.com/downloads/) to drive test the API. A Postman collection is provided to you in this repository.

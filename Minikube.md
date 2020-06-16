@@ -42,12 +42,12 @@ You need to clone the 42Crunch resources project located on Github (https://gith
 
 You must be a registered user on the [42Crunch Platform](https://platform.42crunch.com) to follow this guide. If you do not have an account, you can self-register at https://platform.42crunch.com/register.
 
-### Minikube
+### Minikube cluster
 
-You must have Minikube running to deploy the artifacts. You can get started with Minikube in two easy steps:
+You must have a Minikube cluster running to deploy the artifacts. You can get started with Minikube in two easy steps:
 
 1. Install [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/). If you have not installed **kubectl** yet, the Minikube instructions take you through installing that as well.
-2. Run the command `minikube start -p 42crunch-cluster` to create a separate minikube cluster VM for this guide. The default Kubernetes node setup (2 vCPUS, 2 Gb RAM) is more than enough to run our firewall in evaluation mode.
+2. Run the command `minikube start -p 42crunch-cluster` to create a separate minikube cluster  for this guide. The default Kubernetes node setup (2 vCPUS, 2 Gb RAM) is more than enough to run our firewall in evaluation mode.
 
 You should see a startup trace similar to:
 
@@ -187,6 +187,13 @@ You can launch the Kubernetes default dashboard using `minikube dashboard` to se
 
 ![Kubernetes console - Overview](./graphics/42c-ArtifactsUp.png?raw=true "Kubernetes console - Overview")
 
+#### Troubleshooting
+
+If the container does not start, look at the logs using `kubectl logs`. The two main reasons for failure are:
+
+- The protection token is wrong. This will be clearly indicated in the logs.
+- The connection from your machine/laptop to the 42Crunch SaaS platform is blocked by your network firewall. You will need to add  an outgoing rule to your firewall, as mentioned in the prerequisites.
+
 # Preparing to test the API firewall
 
 We now have a running configuration with two endpoints: one that invokes the unsecured API and the other one that invokes the secured API.
@@ -224,7 +231,13 @@ We now have a running configuration with two endpoints: one that invokes the uns
 4. Test the secured endpoint setup by invoking https://pixi-secured.42crunch.test:30443 - You should receive a message like this one, indicating the firewall has blocked the request.
 
    ```json
-   {"status":404,"title":"path mapping","detail":"Not Found","instance":"https://pixi-secured.42crunch.test:30443/","uuid":"570cab59-bb80-41c9-a46d-2783faefd1bc"}
+   {
+     "status": 404,
+     "title": "path mapping",
+     "detail": "Not Found",
+     "instance": "https://pixi-secured.42crunch.test:30443/",
+     "uuid": "570cab59-bb80-41c9-a46d-2783faefd1bc"
+   }
    ```
 5. Import the file `postman-collection/Pixi.postman_collection.json` in Postman (using`Import->Import from File`)
 
@@ -305,11 +318,11 @@ You can test the API firewall behavior with the following requests:
 
 5. **Wrong format for string values**: if you specify a value (such as email) in a format that does not match the schema, the request is blocked. For example, try to register a user with email `user@acme.com@presidence@elysee.fr` (you can read how this was exploited by hackers [here](https://apisecurity.io/issue-28-breaches-tchap-shopify-justdial/) ).
 
-6. **Blocking out of boundaries data**: the 42Crunch API firewall also validates integer boundaries. If you try to invoke `api/register` using a negative balance (-100) for example), the request is blocked. This prevents Overflow type attacks. Similarly, strings with do not match the minLength/maxLength properties will be blocked.
+6. **Blocking out of boundaries data**: the 42Crunch API firewall also validates integer boundaries. If you try to invoke `api/register` using a negative balance (-100) for example), the request is blocked. This prevents Overflow type attacks.  Similarly, requests with strings which do not match the minLength/maxLength constraints are blocked.
 
 7. **Blocking exception leakage**: the 42Crunch APIfirewall prevents data leakage or exception leakage. If you invoke `/api/register` using a negative balance between -50 and -1 , the response will be blocked. The backend API does not properly handle negative values and returns an exception. That exception is blocked by the firewall since the schema from the OAS file does not match the actual response.
 
-8. **Blocking data leakage**: the Pixi API exposes an admin operation which lists all users within the database. This operation leaks admin status and passwords (it is a straight export from the backend database). If you invoke `API 5: Get Users List`, the response is blocked. You get an HTTP 500 error since the response is invalid.
+8. **Blocking data leakage**: the Pixi API exposes an admin operation which lists all users within the database. This operation leaks admin status and passwords (it is a straight export from the backend database). If you invoke `API 5: Get Users List`, the response is blocked. You get an HTTP 502 error since the response from the back-end is invalid.
 
    ![API5-AdminOperation](./graphics/API5-AdminOperation.png)
 
@@ -335,11 +348,11 @@ You have been able previously to invoke the `API5: Get Users List` admin operati
 
    ![](./graphics/API6-UpdateDefinition.png)
 
-3. Browse to the `resources/OASFiles` folder and select the `Pixi-v2.0-noadmin.json` file
+3. Browse to the `resources/OASFiles` folder and select the `Pixi-v2.0-noadmin.json` file.
 
-4. Once the file has been imported, select the **Protection** tab
+4. Once the file has been imported, select the **Protection** tab.
 
-5. Click the **Reconfigure** button and type *confirm* to confirm the instance update
+5. Click the **Reconfigure** button and type *confirm* to confirm the instance update.
 
 6. When the instance's list refreshes, it means the re-configuration was successful.
 

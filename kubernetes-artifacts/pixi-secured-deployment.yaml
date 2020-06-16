@@ -5,9 +5,12 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: pixi
-    role: public
-  name: pixi-secured
+    app.kubernetes.io/name: pixi-secured-svc
+    app.kubernetes.io/version: "v2"
+    app.kubernetes.io/component: firewall-service
+    app.kubernetes.io/part-of: pixiapp
+    app.kubernetes.io/managed-by: kubectl
+  name: pixi-secured-svc
 spec:
   type: LoadBalancer
   ports:
@@ -21,7 +24,13 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pixi-secured
+  labels:
+    app.kubernetes.io/name: pixi-secured-fw
+    app.kubernetes.io/version: "v2"
+    app.kubernetes.io/component: firewall
+    app.kubernetes.io/part-of: pixiapp
+    app.kubernetes.io/managed-by: kubectl
+  name: pixi-secured  
 spec:
   selector:
     matchLabels:
@@ -52,6 +61,18 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        - name: GUARDIAN_INSTANCE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: GUARDIAN_INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: GUARDIAN_INSTANCE_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName       
         - name: PROTECTION_TOKEN
           valueFrom:
             secretKeyRef:

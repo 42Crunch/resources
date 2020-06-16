@@ -68,8 +68,8 @@ You must have an AKS Kubernetes cluster running, and proper credentials to deplo
 5. Check kubectl is properly configured by running `kubectl get nodes`
 
    ```shell
-   NAME                              STATUS   ROLES   AGE   VERSION
-   aks-nodepool1-xxxxx-vmss000000   	Ready    agent   11m   v1.14.8
+   NAME                                STATUS   ROLES   AGE   VERSION
+   aks-nodepool1-xxxxxxxx-vmss000000   Ready    agent   27m   v1.15.11
    ```
 6. Ensure that `kubectl` is properly configured to point to the cluster you defined previously. You can confirm this by running the command `kubectl config current-context`. The output should be similar to:
 
@@ -90,6 +90,12 @@ The default setup in this guide is using our API firewall image hosted on Docker
 The API Firewall is started by the `root` user. The initial process as root reads the configuration and then forks child processes which will serve the requests. Those child processes run under the `guardian` user, which has no admin privileges nor can this user read the configuration or log files. 
 
 Make sure that your Kubernetes environment allows for this container to start processes as root.
+
+### SaaS platform connection
+
+When the API firewall starts, it connects to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your firewall configuration authorizes this connections. 
+
+> The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
 
 ### Tools
 
@@ -156,7 +162,7 @@ You must save the protection token in a configuration file. This file is read by
    PROTECTION_TOKEN=<your_token_value>
    ```
 
-3. If you have subscribed to the API Firewall container offer on the Azure marketplace, edit the pixi-secured-deployment.yaml file and look for this section:
+3. If you have subscribed to the API Firewall container offering from the Azure marketplace, edit the `pixi-secured-deployment.yaml` file and look for this section:
 
    ```yaml
    spec:
@@ -201,6 +207,8 @@ NAME                            READY   STATUS    RESTARTS   AGE
  pixidb-755f648d47-k5pm9         1/1     Running   0          5m
 ```
 
+#### Kubernetes dashboard
+
 If you want to see/monitor the various artifacts which have been created (pods, services, deployments and secrets), you can launch the Kubernetes standard dashboard, like this:
 
 ```shell 
@@ -218,10 +226,10 @@ We now have a running configuration with two endpoints: one that invokes the uns
 1. Run `kubectl get svc -n 42crunch` to get the external IP of the `pixisecured` deployment (values shown here are placeholders):
 
    ```shell
-   NAME           TYPE           CLUSTER-IP     EXTERNAL-IP    	PORT(S)          AGE
-   pixi-open      LoadBalancer   10.0.110.240   <pixi-app-ip>   	8090:30445/TCP   113m
-   pixi-secured   LoadBalancer   10.0.220.184   <pixi-secu-ip>   443:32476/TCP    113m
-   pixidb         ClusterIP      10.0.222.107   <none>         	27017/TCP        113m
+   NAME               TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)          
+   pixi-open          LoadBal..   		10.0.94.87     <pixi-app-ip>   8090:30800/TCP   
+   pixi-secured-svc   LoadBal..   		10.0.148.121   <pixi-secu-ip>  443:32547/TCP    
+   pixidb             ClusterIP      10.0.247.78    <none>          27017/TCP        
    ```
 
 2. Go to edit your `hosts` file, and add the `pixisecured` and `pixi-open` deployments to it. Replace the placeholders `<pixi-secu-ip>` and `<pixi-app-ip>` with the actual external IPs returned by the command above:
@@ -255,9 +263,11 @@ We now have a running configuration with two endpoints: one that invokes the uns
 
    You can also use curl to make the same request, using the -k option to avoid the self-signed certificates issue: `curl -k https://pixi-secured.42crunch.test`
 
-5. Import the  `postman-collection/Pixi_collection.json` file in Postman using **Import>Import from File**.
+#### Postman Setup
 
-6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same 42c_url variable, this time with a value set to http://pixi-open.42crunch.test:8090.
+1. Import the  `postman-collection/Pixi_collection.json` file in Postman using **Import>Import from File**.
+
+2. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same 42c_url variable, this time with a value set to http://pixi-open.42crunch.test:8090.
    The final configuration should look like this in Postman:
 
    ![Postman-Unsecure-Generic](./graphics/Postman-Unsecure-Generic.jpg)
@@ -289,7 +299,17 @@ We now have a running configuration with two endpoints: one that invokes the uns
 	}
 ```
 
-Now that we know everything works, we can start testing the API Firewall.
+Now that we know everything works, we can start testing the API Firewall with specific attacks.
+
+# Blocking attacks with API Firewall
+
+42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. In this section, you send various malicious requests to the API firewall to test its behavior.
+
+## Viewing Transaction Logs
+
+Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
+
+![](./graphics/42c_logging.jpeg)
 
 ## Understanding Pixi
 
@@ -308,17 +328,7 @@ Make sure you always call either login or register before calling any other oper
 
 ![BadAccessToken](./graphics/BadAccessToken.png)
 
-# Blocking attacks with API Firewall
-
-42Crunch API Firewall validates API requests and responses according to the OpenAPI definition of the protected API. In this section, you send various malicious requests to the API firewall to test its behavior.
-
-## Viewing Transaction Logs
-
-Whenever a request/response is blocked, transaction logs are automatically published to the 42Crunch platform. You can access the transaction logs viewer from the API protection tab. For each entry, you can view details information about the request and response step, as well as each step latency.
-
-![](./graphics/42c_logging.jpeg)
-
-## Blocking Pixi API sample attacks
+## Blocking Pixi API attacks
 
 You can test the API firewall behavior with the following requests:
 
@@ -334,11 +344,11 @@ You can test the API firewall behavior with the following requests:
 
 5. **Wrong format for string values**: if you specify a value (such as email) in a format that does not match the schema, the request is blocked. For example, try to register a user with email `user@acme.com@presidence@elysee.fr` (you can read how this was exploited by hackers [here](https://apisecurity.io/issue-28-breaches-tchap-shopify-justdial/) ).
 
-6. **Blocking out of boundaries data**: the 42Crunch API firewall also validates integer boundaries. If you try to invoke `api/register` using a negative balance (-100) for example), the request is blocked. This prevents Overflow type attacks. Similarly, strings with do not match the minLength/maxLength properties will be blocked.
+6. **Blocking out of boundaries data**: the 42Crunch API firewall also validates integer boundaries. If you try to invoke `api/register` using a negative balance (-100) for example), the request is blocked. This prevents Overflow type attacks.  Similarly, requests with strings which do not match the minLength/maxLength constraints are blocked.
 
 7. **Blocking exception leakage**: the 42Crunch APIfirewall prevents data leakage or exception leakage. If you invoke `/api/register` using a negative balance between -50 and -1 , the response will be blocked. The backend API does not properly handle negative values and returns an exception. That exception is blocked by the firewall since the schema from the OAS file does not match the actual response.
 
-8. **Blocking data leakage**: the Pixi API exposes an admin operation which lists all users within the database. This operation leaks admin status and passwords (it is a straight export from the backend database). If you invoke `API 5: Get Users List`, the response is blocked. You get an HTTP 500 error since the response is invalid.
+8. **Blocking data leakage**: the Pixi API exposes an admin operation which lists all users within the database. This operation leaks admin status and passwords (it is a straight export from the backend database). If you invoke `API 5: Get Users List`, the response is blocked. You get an HTTP 502 error since the response from the back-end is invalid.
 
    ![API5-AdminOperation](./graphics/API5-AdminOperation.png)
 
@@ -346,7 +356,7 @@ You can test the API firewall behavior with the following requests:
 
 10. **Mass assignment**:  the `API6: Mass Assignment` operation can be used to update a user record. It has a common issue (described in this [blog](https://42crunch.com/stopping_harbor_registry_attack/) ) by which a hacker with a valid token can change their role or administrative status. The OAS file does not declare is_admin as a valid input and as such this request will be blocked. Same occurs with the password. If you remove those two properties, the request will be accepted and both email and name are updated for the logged in user.
 
-    ![42c_API6BVulnerability](./graphics/42c_API6BVulnerability.png)
+   ![42c_API6BVulnerability](./graphics/42c_API6BVulnerability.png)
 
 11. Reflected **XSS attack**: If you introduce a XSS attack like the example below in any property, the request is blocked:
 

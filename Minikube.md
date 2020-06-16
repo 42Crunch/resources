@@ -73,6 +73,12 @@ You should now have a Kubernetes environment ready for testing. You can verify t
 > kubeconfig: Configured
 >```
 
+### SaaS platform connection
+
+When the API firewall starts, it connects to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your firewall configuration authorizes this connection. 
+
+> The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
+
 ### Tools
 
 We recommend you install [Postman](https://www.getpostman.com/downloads/) to drive test the API. A Postman collection is provided to you in this repository.

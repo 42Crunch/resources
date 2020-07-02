@@ -64,7 +64,7 @@ We recommend you install [Postman](https://www.getpostman.com/downloads/) to dri
 
 ## Deployment artifacts
 
-The deployment involves two types of artifacts: configuration artifacts and runtime artifacts. The scripts and conf files for minikube deployment are located under `kubernetes-artifacts`.
+The deployment involves two types of artifacts: configuration artifacts and runtime artifacts. The scripts and conf files for Kubernetes deployment are located under `kubernetes-artifacts`.
 
 ### Configuration artifacts
 

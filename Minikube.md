@@ -187,9 +187,9 @@ You can launch the Kubernetes default dashboard using `minikube dashboard` to se
 
 ![Kubernetes console - Overview](./graphics/42c-ArtifactsUp.png?raw=true "Kubernetes console - Overview")
 
-#### Troubleshooting
+### Troubleshooting
 
-If the container does not start, look at the logs using `kubectl logs`. The two main reasons for failure are:
+If the container does not start, look at the apifirewall container logs using `kubectl logs`. The two main reasons for failure are:
 
 - The protection token is wrong. This will be clearly indicated in the logs.
 - The connection from your machine/laptop to the 42Crunch SaaS platform is blocked by your network firewall. You will need to add  an outgoing rule to your firewall, as mentioned in the prerequisites.

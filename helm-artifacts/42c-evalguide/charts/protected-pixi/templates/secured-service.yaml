@@ -1,0 +1,16 @@
+# Secure Deployment - LoadBalancer definition for 42Crunch Firewall.
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+{{ include "protected-pixi.labels" . | indent 4 }}
+  name: {{ .Release.Name }}-secured-service
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+  - name: firewall
+    port: {{ .Values.apifirewall.svc_listen_port | default 443 }}
+    targetPort: {{ .Values.apifirewall.pod_listen_port | default 8443 }}
+  selector:
+    app: {{ .Release.Name }}-apifirewall

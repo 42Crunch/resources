@@ -1,0 +1,39 @@
+# Default values for 42c-evalguide.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: 42crunch/apifirewall
+  version: latest
+  pullPolicy: Always
+
+apifirewall:
+  log_level: debug
+  # Using this domain + release name as server name
+  domain: 42crunch.test
+  # Transaction logs can be shipped to the PLATFORM or kept in FILES
+  log_destination: PLATFORM
+  # The port API Firewall pod listens on - Default is 8443
+  pod_listen_port: 8443
+  # The port API Firewall service listens on - Default is 443
+  svc_listen_port: 443
+  # Pass the value of Host unchanged
+  preserve_host: Off
+  # Time to wait for incoming traffic (secs)
+  client_timeout: 60
+  # Time before a connection to back-end is recycled
+  keep_alive_timeout: 60
+  # URL for back-end API
+  backend_api_url: http://localhost:8090
+  #The name of the cert API firewall used for TLS configuration (PEM format)
+  firewall_tls_cert: tls.crt
+  # The name of the private key API firewall used for TLS configuration (PEM format)
+  firewall_tls_key: tls.key
+  # Protection_token 
+  # protection_token: foo
+
+pixiapp:
+  repository: 42crunch/pixi
+  version: app_v2
+  pullPolicy: IfNotPresent
+  listen_port: 8090
+  replicas: 2

@@ -28,8 +28,7 @@ apifirewall:
   firewall_tls_cert: tls.crt
   # The name of the private key API firewall used for TLS configuration (PEM format)
   firewall_tls_key: tls.key
-  # Protection_token 
-  # protection_token: foo
+ 
 
 pixiapp:
   repository: 42crunch/pixi

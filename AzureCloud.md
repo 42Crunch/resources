@@ -275,9 +275,9 @@ We now have a running configuration with two endpoints: one that invokes the uns
    ![Postman-Secure-Generic](./graphics/Postman-Secure-Generic.jpg)
 
 
-7. Select the **42Crunch-Unsecure** environment
+3. Select the **42Crunch-Unsecure** environment
 
-8. Go to the Pixi collection you just imported and invoke the operation **POST /api/register** with the following contents:
+4. Go to the Pixi collection you just imported and invoke the operation **POST /api/register** with the following contents:
 
     ```json
     {

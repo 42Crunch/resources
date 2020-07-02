@@ -105,27 +105,27 @@ The main chart is called `42c-evalguide`. At install time, it creates all the ar
 
 1. Log in to 42Crunch Platform at <https://platform.42crunch.com>
 
-2. Go to **API Collections** in the main menu and click on **New Collection**, name it  PixiTest.
+2. Go to **API Collections** in the main menu and click on **New Collection**, name it PixiTest.
 
 3. Click on **Add Collection**.
 
    ![](./graphics/create-collection.png)
 
-4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](./graphics/42c_ImportOAS.png?raw=true "Import API definition")
+4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.
 
-   The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
+![Import API definition](./graphics/42c_ImportOAS.png?raw=true "Import API definition")
+
+   The API should score around 94/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
 
 5. In the main menu on the left, click **Protect** to launch the protection wizard
 
 6. Select the `PixiTest` API collection, and the Pixi API, and enter a name for the protection token. This unique token is used later in this guide to configure the API Firewall.
-    ![Create protection configuration](./graphics/42c_CreateProtection.png?raw=true "Create protection configuration")
+   ![Create protection configuration](./graphics/42c_CreateProtection.png?raw=true "Create protection configuration")
 
 7. Copy the protection token value to the clipboard. **Do not close this dialog** until you have safely saved the value (in the next step).
    ![Token value](./graphics/42c_TokenToClipboard.png?raw=true "token value")
 
 # Configuration Deployment
-
-
 
 > *This deployment uses a specific namespace called `42crunch`. This means that you can deploy the artifacts in an existing Kubernetes cluster without overlapping other existing artifacts.*
 >*If you want to change this name, change the value of the **--namespace** parameter passed to Helm below.*
@@ -170,17 +170,17 @@ We now have a running configuration with two endpoints: one that invokes the uns
 1. Run `kubectl get svc -n 42crunch` to get the external IP of the `pixisecured` deployment (values shown here are placeholders):
 
    ```shell
-   NAME                        TYPE           CLUSTER-IP     EXTERNAL-IP     	 PORT(S)         
-   evalguide-open-service      LoadBalancer   10.0.228.131   <pixi-open-ip>   	 8090:32410/TCP
+   NAME                        TYPE           CLUSTER-IP     EXTERNAL-IP     	PORT(S)         
+   evalguide-open-service      LoadBalancer   10.0.228.131   <pixi-open-ip>   	8090:32410/TCP
    evalguide-secured-service   LoadBalancer   10.0.85.77     <pixi-secured-ip>  443:30025/TCP
-   pixidb                      ClusterIP      10.0.254.59    <none>          	 27017/TCP
+   pixidb                      ClusterIP      10.0.254.59    <none>          	27017/TCP
    ```
 
 2. [Edit your `hosts` file](https://support.rackspace.com/how-to/modify-your-hosts-file/) and add the `pixi-secured` and `pixi-open` services endpoints to it. Replace the placeholder `<pixi-secured-ip>` below with the actual IP returned by the command above and repeat for the `pixi-open-ip` endpoint.
 
    ```shell
    <pixi-secured-ip> 	pixi-secured.42crunch.test
-   <pixi-open-ip> 			pixi-open.42crunch.test
+   <pixi-open-ip> 	pixi-open.42crunch.test
    ```
 
    Save your hosts file.

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-pixidb
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-pixidb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-pixidb
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-pixidb
+        image: {{ .Values.pixidb.repository }}:{{ .Values.pixidb.version }}
+        imagePullPolicy: {{ .Values.pixidb.pullPolicy | quote }}
+        ports:
+          - containerPort: {{ .Values.pixidb.listen_port | default 27017 }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-pixi-open
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-pixiapp
+  replicas: {{ .Values.pixiapp.replicas }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-pixiapp
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-pixiapp
+        image: {{ .Values.pixiapp.repository }}:{{ .Values.pixiapp.version }}
+        imagePullPolicy: {{ .Values.pixiapp.pullPolicy | quote }}
+        ports:
+          - containerPort: {{ .Values.pixiapp.listen_port | default 8090 }}

@@ -1,0 +1,35 @@
+# Load balancer service to invoke the Pixi apps and APIs directly and test the scan capabilities.
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  name: {{ .Release.Name }}-open-service
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+  - name: "api"
+    port: {{ .Values.pixiapp.listen_port | default 8090 }}
+    targetPort: {{ .Values.pixiapp.listen_port | default 8090 }}
+  selector:
+    app: {{ .Release.Name }}-pixiapp
+---
+# the Pixi app uses a Mongo DB database to store users, pictures and other metadata.
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: pixidb
+  name: pixidb
+spec:
+  ports:
+  - name: "mongo"
+    port: {{ .Values.pixidb.listen_port | default 27017 }}
+    targetPort: {{ .Values.pixidb.listen_port | default 27017 }}
+  selector:
+    app: {{ .Release.Name }}-pixidb

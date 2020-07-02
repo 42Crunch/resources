@@ -1,0 +1,18 @@
+# Default values for 42c-evalguide.
+# Declare variables to be passed into your templates.
+
+deployment:
+  namespace: 42crunch
+
+pixiapp:
+  repository: 42crunch/pixi
+  version: app_v2
+  pullPolicy: IfNotPresent
+  listen_port: 8090
+  replicas: 1
+
+pixidb:
+  repository: 42crunch/pixi
+  version: datastore
+  pullPolicy: IfNotPresent
+  listen_port: 27017

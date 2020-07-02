@@ -132,15 +132,15 @@ The main chart is called `42c-evalguide`. At install time, it creates all the ar
 
 1. Before deploying the artifacts, ensure that `kubectl` is properly configured to point to the cluster you want to use. To do this, run the following:
 
-  ```shell
-  kubectl config current-context
-  ```
-  For example, if you're running a GKE cluster, you should get an answer like:
+   ```shell
+   kubectl config current-context
+   ```
+   For example, if you're running a GKE cluster, you should get an answer like:
 
-  ```shell
-  kubectl config current-context
-  gke_pixi-deploy_europe-west6-a_xxxx
-  ```
+   ```shell
+   kubectl config current-context
+   gke_pixi-deploy_europe-west6-a_xxxx
+   ```
 
 2. Install the Helm chart, passing the protection token you copied above as a parameter, like this: 
 
@@ -272,8 +272,6 @@ Make sure you always call either login or register before calling any other oper
 
 ![BadAccessToken](./graphics/BadAccessToken.png)
 
-
-
 ## Blocking Pixi API sample attacks
 
 You can test the API firewall behavior with the following requests:
@@ -338,9 +336,10 @@ In this deployment guide, we have seen how the 42Crunch API firewall can be easi
 
 # Clean up
 
-To delete all the artifacts you created, just delete the whole namespace with the command `kubectl delete namespace NAMESPACE`. If you used the default namespace from the etc/env file, the command is:
+To delete all the artifacts you created, just uninstall the release and  delete the namespace:
 
  ```shell
+    helm uninstall evalguide
     kubectl delete namespace 42crunch
  ```
 

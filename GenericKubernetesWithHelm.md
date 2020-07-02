@@ -135,7 +135,6 @@ The main chart is called `42c-evalguide`. At install time, it creates all the ar
   ```shell
   kubectl config current-context
   ```
-
   For example, if you're running a GKE cluster, you should get an answer like:
 
   ```shell
@@ -154,15 +153,14 @@ The main chart is called `42c-evalguide`. At install time, it creates all the ar
 3. Run `kubectl get pods -w -n 42crunch`  and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from the DockerHub registry.	
 
    ```shell
-  NAME                                      READY   STATUS        RESTARTS   AGE
-	evalguide-pixi-open-c75c48977-wtkww       1/1     Running       0          5m2s
-	evalguide-pixi-secured-648b86dcb8-8xpkv   2/2     Running       0          34s
-	evalguide-pixidb-68f7fbf6c8-bhftt         1/1     Running       0          5m2s
+   NAME                                      READY   STATUS        RESTARTS   AGE
+   evalguide-pixi-open-c75c48977-wtkww       1/1     Running       0          5m2s
+   evalguide-pixi-secured-648b86dcb8-8xpkv   2/2     Running       0          34s
+   evalguide-pixidb-68f7fbf6c8-bhftt         1/1     Running       0          5m2s
    ```
 
-1. Back in the SaaS platform, you can see a new entry under **Protection-Active instances**. Note the ServerName value, which is composed of the release name **evalguide** and **pixi.test** domain. 
+4. Back in the SaaS platform, you can see a new entry under **Protection-Active instances**. Note the ServerName value, which is composed of the release name **evalguide** and **pixi.test** domain. 
    ![InstancesList](./graphics/InstancesList.jpg)
-   
    
 
 # Preparing to test the API firewall

@@ -1,0 +1,17 @@
+# In addition to the main audit score, there are two sub-scores
+# which can be used to impose additional restrictions on audited API.
+#
+# These are "security" and "data" scores.  Maximum possible value for
+# "security" score is 30 and the maximum value for "data" score is 70.
+#
+# One or both of these values can be specified in fail_on section.
+# 
+# Configuration in this example will result in two additional failures
+# in audit of 'petstore.yaml' as this APIs "data" score is lower than 70
+# and its security score is lower than 30
+
+audit:
+  fail_on:
+    score:
+      data: 70
+      security: 30

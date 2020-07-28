@@ -1,0 +1,12 @@
+# All issues reported by the audit have one of the five severity levels,
+# which are: critical, high, medium, low and info
+#
+# It is possible to specify which is the maximum allowed serverity level
+# for any of the reported issues.
+#
+# If the audit discovers an issue with severity level whch equal or higher to
+# the configured one, it will result in a failure.
+
+audit:
+  fail_on:
+    severity: medium

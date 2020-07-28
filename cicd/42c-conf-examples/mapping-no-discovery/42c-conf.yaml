@@ -1,0 +1,24 @@
+# This example shows how to 'map' files to existing APIs already
+# created on 42Crunch Platform.
+#
+# Mapping is useful if you wish to preserve API IDs across 
+# audit runs, because when files found through the discovery
+# process are uploaded to the 42Crunch Platform they will
+# always get new API IDs. 
+#
+# To configure a mapping for an OpenAPI file you need to know
+# 42Cunch Platform API ID to map file to.
+#
+# Mapping can be combined with discovery, which is 
+# enabled by default. However if you wish to disable
+# discovery, you can do it by setting "discovery: false"
+# as shown below.
+#
+# This will result in 'petstore.json' uploaded to the platform updating 
+# API ID e7cd62ce-1ee9-4320-af33-8bd9519c6f48 its contents.
+# The 'petstore.yaml' will not be uploaded to the platform at all.
+
+audit:
+  mapping:
+    petstore.json: e7cd62ce-1ee9-4320-af33-8bd9519c6f48
+  discovery: false

@@ -1,0 +1,25 @@
+# All issues reported by the audit have IDs which uniquely identify
+# each issue.
+#
+# It is possible to specify one or more issue IDs which, if encountered
+# during the audit will cause a failure.
+#
+# Each entry in issue_id section is a regular expression which is
+# used to check issue IDs reported by the audit.
+# 
+# In case of the example below, these falures will be reported:
+#
+#  Found issue "v3-global-security"
+#  Found issue "v3-response-schema-undefined"
+#  Found issue "v3-schema-array-maxitems"
+#  Found issue "v3-schema-numerical-max"
+#  Found issue "v3-schema-numerical-min"
+#  Found issue "v3-schema-object-additionalproperties-true"
+#  Found issue "v3-schema-string-maxlength"
+#  Found issue "v3-schema-string-pattern"
+
+audit:
+  fail_on:
+    issue_id:
+      - v3-global-security
+      - ".*schema.*"

@@ -1,0 +1,13 @@
+# Trying to audit a file which does not fully conform to the OpenAPI
+# specification will result in a falure.
+#
+# For example if the file being checked does not have "paths" attribute,
+# which is required by specification, the failure
+# "The OpenAPI definition is not valid" will be reported.
+#
+# This check however can be disabled by setting "invalid_contract" to false
+# as shown below.
+
+audit:
+  fail_on:
+    invalid_contract: false

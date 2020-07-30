@@ -10,7 +10,7 @@
 # if you want to preserve API UUIDs across separate audit runs.  
 #
 # To configure the mapping, you must know the API UUID of the existing API
-# in 42Cunch Platform (you can check it in the API summary on 
+# in 42Crunch Platform (you can check it in the API summary on 
 # the platform). You list the filenames and the corresponding API UUIDs 
 # in the 'mapping' section.
 #

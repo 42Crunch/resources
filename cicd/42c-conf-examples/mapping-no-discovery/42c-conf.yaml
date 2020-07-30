@@ -16,13 +16,13 @@
 # useful if you want to preserve API UUIDs across separate audit runs.  
 #
 # To configure the mapping, you must know the API UUID of the existing API
-# in 42Cunch Platform (you can check it in the API summary on 
+# in 42Crunch Platform (you can check it in the API summary on 
 # the platform). You list the filenames and the corresponding API UUIDs 
 # in the 'mapping' section. To switch off the discovery phase for any
 # unmapped files, specify 'discovery: false', as shown below.
 #
 # In this example, the sample 'petstore.json' is uploaded to the platform, 
-# updating the API with the API UUID 'e7cd62ce-1ee9-4320-af33-8bd9519c6f48'
+# updating the API with the UUID 'e7cd62ce-1ee9-4320-af33-8bd9519c6f48'
 # with its contents. The sample 'petstore.yaml' is not uploaded to 
 # the platform at all.
 

@@ -1,5 +1,5 @@
-# The audit score is split in two categories, Security and Data validation. The maximum score
-# for Security is 30 points and for Data validation 70 points. Together, they form 
+# The audit score is split in two categories, security and data validation. The maximum score
+# for security is 30 points and 70 points for data validation. Together, they form 
 # the overall audit score, maximum 100 points.
 #
 # With most plugins, you can set the minimum audit score that API definitions must reach

@@ -2,7 +2,7 @@
 # the OpenAPI Specification (OAS) is reported as a failure.
 #
 # For example, the sample 'petstore.json' in this example does not have the 'paths' attribute defined,
-# which is something that the OAS requiresth. Trying to audit this file results in the report
+# which is something that the OAS requires. Trying to audit this file results in the report
 # "The OpenAPI definition is not valid".
 #
 # You can switch this off by setting 'invalid_contract' to 'false',

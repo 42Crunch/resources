@@ -1,6 +1,6 @@
 # Deploying 42Crunch API Firewall on Kubernetes
 
-This directory contains various guides and artefacts to guide you through deploying 42Crunch API Firewall. It is organized as follows:
+This directory contains various guides and artifacts to guide you through deploying 42Crunch API Firewall. It is organized as follows:
 
 1. A list of Getting Started guides (as Markdown files) customized for various Kubernetes cloud offerings, including Azure Cloud and Google Cloud as well as Minikube for development purposes.
 2. `minikube-artifacts`: The scripts and deployment files you use exclusively as part of the Minikube guide.

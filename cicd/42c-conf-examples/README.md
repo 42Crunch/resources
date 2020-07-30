@@ -10,7 +10,7 @@ This directory contains examples on each option for fine-tuning the CI/CD integr
 - `fail_on-scores`: Specify minimum audit scores that APIs must reach in data validation and security.
 - `fail_on-severity`: Specify maximum allowed severity for found issues.
 - `mapping-and-discovery`: Map API files to your existing APIs in 42Crunch Platform.
-- `mapping-no-discovery`: Switch off the discovery phase except for specifically mapped API files.
+- `mapping-no-discovery`: Switch off the discovery phase and only audit specifically mapped API files.
 
 Each example also comes with sample files (and directories where applicable) to make it easier to understand and test them in practice.
 

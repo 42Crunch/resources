@@ -1,5 +1,5 @@
 # This example shows how to switch off discovering any new API files and 
-# only include the API files you have specifically mapped to existing 
+# only audit the API files you have specifically mapped to existing 
 # APIs in 42Crunch Platform.
 #
 # Discovery phase is enabled by default, otherwise the CI/CD integration

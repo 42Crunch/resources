@@ -1,4 +1,4 @@
-# This example shows how to map discovered API files to APIs you already have
+# This example shows how to map API files in your repository to APIs you already have
 # in another API collection in 42Crunch Platform.
 #
 # When the CI/CD integration plugin starts, it begins with cleaning the 

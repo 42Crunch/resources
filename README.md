@@ -12,7 +12,7 @@ The directory provides examples on each option you can add to the configuration 
 
 For more details, see [CI/CD integration](https://docs.42crunch.com/latest/content/concepts/ci_cd_integration.htm).
 
-##Deployment resources
+## Deployment resources
 
 The `deployment` directory contains various guides and artefacts to guide you through deploying 42Crunch API Firewall. It is organized as follows:
 

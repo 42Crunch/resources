@@ -21,7 +21,7 @@ The `deployment` directory contains various guides and artefacts to guide you th
 3. `kubernetes-artifacts`: The scripts and deployment files you use as part of all other Getting Started guides.
 4. `helm-artifacts`: A set of Helm charts you can use to deploy API Firewall in sidecar mode.
 5. `OAS-files`: The OpenAPI definitions for the sample Pixi API you protect in the Getting Started guides.
-6. `Postman-collection`: A Postman collection that lets you to easily invoke the Pixi API used for testing.
+6. `postman-collection`: A Postman collection that lets you to easily invoke the Pixi API used for testing.
 
 Choose your deployment guide and get started!
 

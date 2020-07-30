@@ -1,14 +1,17 @@
-# In addition to the main audit score, there are two sub-scores
-# which can be used to impose additional restrictions on audited API.
+# The audit score is split in two categories, Security and Data validation. The maximum score
+# for Security is 30 points and for Data validation 70 points. Together, they form 
+# the overall audit score, maximum 100 points.
 #
-# These are "security" and "data" scores.  Maximum possible value for
-# "security" score is 30 and the maximum value for "data" score is 70.
-#
-# One or both of these values can be specified in fail_on section.
+# With most plugins, you can set the minimum audit score that API definitions must reach
+# when you add the task to your CI/CD pipeline. 
+
+# You can use the Security and Data validation categories to impose 
+# additional restrictions on the audited APIs. Just specify a minimum score for one or both of them
+# in the 'fail_on' section, as below.
 # 
-# Configuration in this example will result in two additional failures
-# in audit of 'petstore.yaml' as this APIs "data" score is lower than 70
-# and its security score is lower than 30
+# In this example, the sample 'petstore.json' will result in two additional failures
+# as the API scores less in data validation than the 70 points specified in 'data'
+# and less in security than the 30 points specified in 'security'.
 
 audit:
   fail_on:

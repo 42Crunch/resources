@@ -1,11 +1,11 @@
-# All issues reported by the audit have one of the five severity levels,
-# which are: critical, high, medium, low and info
+# All security risks that the security audit reports also indicate how severe the issue is. 
+# There are five severity levels: critical, high, medium, low, and info.
 #
-# It is possible to specify which is the maximum allowed serverity level
-# for any of the reported issues.
+# You can specify how severe issues should cause the task to fail. Just add the severity level
+# you want to the 'fail_on' section. 
 #
-# If the audit discovers an issue with severity level whch equal or higher to
-# the configured one, it will result in a failure.
+# If the audit discovers any issue where severity equals or  is higher
+# than what you configured, the issue is reported as a failure.
 
 audit:
   fail_on:

@@ -1,23 +1,25 @@
-# This example shows how to 'map' files to existing APIs already
-# created on 42Crunch Platform.
+# This example shows how to map discovered API files to APIs you already have
+# in another API collection in 42Crunch Platform.
 #
-# Mapping is useful if you wish to preserve API IDs across 
-# audit runs, because when files found through the discovery
-# process are uploaded to the 42Crunch Platform they will
-# always get new API IDs. 
+# When the CI/CD integration plugin starts, it begins with cleaning the 
+# API collection you have defined it to use. That is why the mapping 
+# must be done to another API collection.
 #
-# To configure a mapping for an OpenAPI file you need to know
-# 42Cunch Platform API ID to map file to.
+# The plugin uploads any APIs it finds during the discovery phase
+# to 42Crunch Platform, so the APIs always get new API UUIDs. Mapping is useful 
+# if you want to preserve API UUIDs across separate audit runs.  
 #
-# Mapping can be combined with discovery, which is 
-# enabled by default. However, any files listed in
-# mapping section will be ignored by discovery process.
+# To configure the mapping, you must know the API UUID of the existing API
+# in 42Cunch Platform (you can check it in the API summary on 
+# the platform). You list the filenames and the corresponding API UUIDs 
+# in the 'mapping' section.
 #
-# In this example 'petstore.json' file will be uploaded to the platform
-# updating API ID e7cd62ce-1ee9-4320-af33-8bd9519c6f48 with its contents.
+# In this example, the sample 'petstore.json' file is mapped and is uploaded
+# to the platform updating the API with the UUID 'e7cd62ce-1ee9-4320-af33-8bd9519c6f48' 
+# with its contents.
 #
-# The 'petstore.yaml' found through the discovery process will be uploaded
-# to the platform getting a new API ID.
+# On the other hand, the sample 'petstore.yaml' found in the discovery phase is uploaded
+# to the platform as a new API, getting a new API UUID.
 
 audit:
   mapping:

@@ -1,11 +1,11 @@
-# Trying to audit a file which does not fully conform to the OpenAPI
-# specification will result in a falure.
+# By default, an API definition that does not fully conform to 
+# the OpenAPI Specification (OAS) is reported as a failure.
 #
-# For example if the file being checked does not have "paths" attribute,
-# which is required by specification, the failure
-# "The OpenAPI definition is not valid" will be reported.
+# For example, the sample 'petstore.json' in this example does not have the 'paths' attribute defined,
+# which is something that the OAS requiresth. Trying to audit this file results in the report
+# "The OpenAPI definition is not valid".
 #
-# This check however can be disabled by setting "invalid_contract" to false
+# You can switch this off by setting 'invalid_contract' to 'false',
 # as shown below.
 
 audit:

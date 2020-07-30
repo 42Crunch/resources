@@ -1,18 +1,18 @@
 # This example shows how the OpenAPI files can be discovered
-# based on their filenames. In particular, it will look for
-# all files with json, yaml and yml extensions in all directories
-# with the exception of the 'foo/' directory. All files in 'foo/' will
+# based on their filenames. The discovery phase will look for
+# all files with '.json', '.yaml', and '.yml' extensions in all directories,
+# except in the 'foo/' directory. All files in 'foo/' will
 # be ignored regardless of their extension.
 #
-# The 'search' list must contain inclusion patterns followed by exclusion
-# patterns. Each exclusion pattern must start with ! (exclamation mark).
-# Format of the pattern is a glob expression, similar to format of .gitignore.
+# The 'search' list must contain inclusion patterns followed by any exclusion
+# patterns. Each exclusion pattern must start with '!' (exclamation mark).
+# Format of the pattern is a glob expression, similar to format in '.gitignore'.
 #
-# The result of the OpenAPi disovery in this folder will be as follows:
+# The result of this example and its samples is as follows:
 #
-# Discovered: petstore.yaml, bar/petstore.json 
+# 'Discovered: petstore.yaml, bar/petstore.json '
 #
-# Files in 'foo/' will not be discovered.
+# Files in 'foo/' are not discovered.
 
 audit:
   discovery:

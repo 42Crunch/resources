@@ -6,7 +6,7 @@ The resources include guides, samples files, and examples that you can modify as
 
 ## CI/CD resources
 
-The `cicd/42c-conf-examples` contains examples on fine-tuning the CI/CD integration of API Contract Security Audit using the configuration file `42c-conf.yaml`. 
+The `cicd/42c-conf-examples` directory contains examples on fine-tuning the CI/CD integration of API Contract Security Audit using the configuration file `42c-conf.yaml`. 
 
 The directory provides examples on each option you can add to the configuration file to change how the integration plugin behaves. Pick the ones you like and compile them into a configuration file of your own.
 

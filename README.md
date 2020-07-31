@@ -1,12 +1,28 @@
-# Deploying 42Crunch API Firewall on Kubernetes
+# 42Crunch resources 
 
-This repository contains various guides and artefacts to guide you through deploying 42Crunch API Firewall. It is organized as follows:
+This repository offers various resources that you can use to get to know and configure 42Crunch Platform and its functions.
 
-1. A list of Getting Started guides customized for various Kubernetes cloud offerings, including Azure Cloud and Google Cloud as well as Minikube for development purposes. There is also a generic guide (generic-kubernetes) you can use for other Kubernetes deployments, including custom on-premises deployments. Once a Kubernetes cluster is up and running, the steps to deploy and manage 42Crunch API Firewall are basically the same regardless of the environment.
-2. minikube-artifacts: the scripts and deployment files you use exclusively as part of the Minikube guide.
-3. kubernetes-artifacts: the scripts and deployment files you use as part of all other Getting Started guides.
-4. helm-artifacts: a set of Helm charts you can use to deploy API Firewall in sidecar mode.
-5. OAS-files: the OpenAPI definitions for the sample Pixi API you protect in the Getting Started guides.
-6. Postman-collection: a Postman collection that lets you to easily invoke the Pixi API used for testing.
+The resources include guides, samples files, and examples that you can modify as needed. Just clone the repository and use what you need!
 
-Clone this repo,  choose your deployment guide and get started!
+## CI/CD resources
+
+The `cicd/42c-conf-examples` directory contains examples on fine-tuning the CI/CD integration of API Contract Security Audit using the configuration file `42c-conf.yaml`. 
+
+The directory provides examples on each option you can add to the configuration file to change how the integration plugin behaves. Pick the ones you like and compile them into a configuration file of your own.
+
+For more details, see [CI/CD integration](https://docs.42crunch.com/latest/content/concepts/ci_cd_integration.htm).
+
+## API Firewall resources
+
+The `firewall-deployment` directory contains various guides and artifacts to guide you through deploying 42Crunch API Firewall. It is organized as follows:
+
+1. A list of Getting Started guides (as Markdown files) customized for various Kubernetes cloud offerings, including Azure Cloud and Google Cloud as well as Minikube for development purposes.
+2. `minikube-artifacts`: The scripts and deployment files you use exclusively as part of the Minikube guide.
+3. `kubernetes-artifacts`: The scripts and deployment files you use as part of all other Getting Started guides.
+4. `helm-artifacts`: A set of Helm charts you can use to deploy API Firewall in sidecar mode.
+5. `OAS-files`: The OpenAPI definitions for the sample Pixi API you protect in the Getting Started guides.
+6. `postman-collection`: A Postman collection that lets you to easily invoke the Pixi API used for testing.
+
+Choose your deployment guide and get started!
+
+For more details, see [API Protection](https://docs.42crunch.com/latest/content/concepts/api_protection.htm) and [API Firewall](https://docs.42crunch.com/latest/content/concepts/api_firewall.htm).

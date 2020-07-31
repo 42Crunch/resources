@@ -1,22 +1,30 @@
-# This example shows how to 'map' files to existing APIs already
-# created on 42Crunch Platform.
+# This example shows how to switch off discovering any new API files and 
+# only audit the API files you have specifically mapped to existing 
+# APIs in 42Crunch Platform.
 #
-# Mapping is useful if you wish to preserve API IDs across 
-# audit runs, because when files found through the discovery
-# process are uploaded to the 42Crunch Platform they will
-# always get new API IDs. 
+# Discovery phase is enabled by default, otherwise the CI/CD integration
+# plugin would not find any API files to audit. However, if you map the
+# filenames of the API definitions that you want to include to
+# the API UUIDs in the platform, you can exclude any other files.
 #
-# To configure a mapping for an OpenAPI file you need to know
-# 42Cunch Platform API ID to map file to.
+# When the plugin starts, it begins with cleaning the 
+# API collection you have defined it to use. That is why the mapping 
+# must be done to another API collection.
 #
-# Mapping can be combined with discovery, which is 
-# enabled by default. However if you wish to disable
-# discovery, you can do it by setting "discovery: false"
-# as shown below.
+# The plugin uploads any APIs it finds during the discovery phase
+# to 42Crunch Platform, so the APIs always get new API UUIDs. Mapping is also 
+# useful if you want to preserve API UUIDs across separate audit runs.  
 #
-# This will result in 'petstore.json' uploaded to the platform updating 
-# API ID e7cd62ce-1ee9-4320-af33-8bd9519c6f48 its contents.
-# The 'petstore.yaml' will not be uploaded to the platform at all.
+# To configure the mapping, you must know the API UUID of the existing API
+# in 42Crunch Platform (you can check it in the API summary on 
+# the platform). You list the filenames and the corresponding API UUIDs 
+# in the 'mapping' section. To switch off the discovery phase for any
+# unmapped files, specify 'discovery: false', as shown below.
+#
+# In this example, the sample 'petstore.json' is uploaded to the platform, 
+# updating the API with the UUID 'e7cd62ce-1ee9-4320-af33-8bd9519c6f48'
+# with its contents. The sample 'petstore.yaml' is not uploaded to 
+# the platform at all.
 
 audit:
   mapping:

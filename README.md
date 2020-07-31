@@ -12,9 +12,9 @@ The directory provides examples on each option you can add to the configuration 
 
 For more details, see [CI/CD integration](https://docs.42crunch.com/latest/content/concepts/ci_cd_integration.htm).
 
-## Deployment resources
+## API Firewall resources
 
-The `deployment` directory contains various guides and artifacts to guide you through deploying 42Crunch API Firewall. It is organized as follows:
+The `firewall-deployment` directory contains various guides and artifacts to guide you through deploying 42Crunch API Firewall. It is organized as follows:
 
 1. A list of Getting Started guides (as Markdown files) customized for various Kubernetes cloud offerings, including Azure Cloud and Google Cloud as well as Minikube for development purposes.
 2. `minikube-artifacts`: The scripts and deployment files you use exclusively as part of the Minikube guide.

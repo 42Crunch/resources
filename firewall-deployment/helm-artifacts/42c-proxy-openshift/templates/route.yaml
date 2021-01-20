@@ -1,0 +1,19 @@
+# Secure Deployment - LoadBalancer definition for 42Crunch Firewall.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    labels: {{ include "42c-proxy.labels" . | nindent 4 }}
+    name: {{ .Release.Name }}-secured-route
+  name: {{ .Release.Name }}-secured-route
+spec:
+  host: {{ .Values.apifirewall.server_name | quote}}
+  port:
+    targetPort: firewall
+  tls:
+    termination: passthrough
+  to:
+    kind: Service
+    name: {{ .Release.Name }}-secured-service
+    weight: 100
+  wildcardPolicy: None

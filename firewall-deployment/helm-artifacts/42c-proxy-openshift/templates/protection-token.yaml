@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-protection-token
+  labels: {{ include "42c-proxy.labels" . | nindent 4 }}
+type: Opaque
+data:
+  PROTECTION_TOKEN: {{ .Values.apifirewall.protection_token | b64enc | quote }}

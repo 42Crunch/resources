@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-apifirewall
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-apifirewall
+  replicas: {{ .Values.apifirewall.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0        # how many pods we can add at a time
+      maxUnavailable: 1  # maxUnavailable define how many pods can be unavailable during rolling RollingUpdate
+  template:
+    metadata:
+      labels: {{ include "42c-proxy.labels" . | nindent 8 }}
+        app: {{ .Release.Name }}-apifirewall
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-apifirewall
+        image: {{ .Values.image.repository }}:{{ .Values.image.version }}
+        args: ["-platform", "protection.us.42crunch.cloud:8001"]
+        command: ["/bin/squire"]
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        livenessProbe:
+          httpGet:
+            path: /hc
+            port: 8880
+        readinessProbe:
+          httpGet:
+            path: /hc
+            port: 8880
+        ports:
+          - containerPort: {{ .Values.apifirewall.pod_listen_port | default 8443 }}
+        env:
+        - name: GUARDIAN_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: GUARDIAN_INSTANCE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: GUARDIAN_INSTANCE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: GUARDIAN_INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: GUARDIAN_INSTANCE_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: PROTECTION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-protection-token
+              key: PROTECTION_TOKEN    
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-configmap
+        volumeMounts:
+        - name: certs-volume
+          mountPath: /opt/guardian/conf/ssl
+          readOnly: true    
+      volumes:
+      - name: certs-volume
+        secret:
+          secretName: {{ .Release.Name }}-firewall-tls

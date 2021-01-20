@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  labels: {{ include "42c-proxy.labels" . | nindent 4 }}
+data:
+  LOG_LEVEL: {{ .Values.apifirewall.log_level | quote }}
+  LOG_DESTINATION: {{ .Values.apifirewall.log_destination | quote }}
+  SERVER_NAME: {{ .Values.apifirewall.server_name | quote}}
+  LISTEN_PORT: {{ .Values.apifirewall.pod_listen_port | default "8443" | quote }}
+  LISTEN_SSL_CERT: {{ .Values.apifirewall.firewall_tls_cert | quote }}
+  LISTEN_SSL_KEY:  {{ .Values.apifirewall.firewall_tls_key | quote }}
+  TIMEOUT_IN: {{ .Values.apifirewall.client_timeout | quote }}
+  TIMEOUT_KEEPALIVE: {{ .Values.apifirewall.keep_alive_timeout | quote }}
+  PRESERVE_HOST: {{ .Values.apifirewall.preserve_host | default "Off" | quote }}
+  TARGET_URL: {{ .Values.apifirewall.backend_api_url | quote }}

@@ -20,7 +20,7 @@ spec:
       containers:
       - name: {{ .Release.Name }}-apifirewall
         image: {{ .Values.image.repository }}:{{ .Values.image.version }}
-        args: ["-platform", "protection.us.42crunch.cloud:8001"]
+        args: ["-platform", "protection.42crunch.com:8001"]
         command: ["/bin/squire"]
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         livenessProbe:

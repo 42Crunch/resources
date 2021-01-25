@@ -2,6 +2,7 @@
 
 image:
   repository: 42crunch/apifirewall
+  # replace with named version in production
   version: latest
   pullPolicy: Always
 
@@ -29,5 +30,5 @@ apifirewall:
   firewall_tls_key: tls.key
   # Load Balancer Type
   loadBalancerType: LoadBalancer
-  # External Traffic Policy
+  # External Traffic Policy - Using local so that original client IP shows up in logs.
   trafficPolicy: Local

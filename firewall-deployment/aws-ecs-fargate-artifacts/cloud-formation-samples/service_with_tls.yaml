@@ -1,0 +1,177 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy a 42Crunch API Firewall listening on TLS port, from custom image embedding TLS certs.
+Parameters:
+  StackName:
+    Type: String
+    Default: xliic-cluster
+  ServiceName:
+    Type: String
+    Default: 42c-apifirewall-tls
+  ApiFirewallImage:
+    Type: String
+    Default: '749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:1.0.1-tls'
+  ApiFirewallLogLevel:
+    Type: String
+    Default: warn
+  ApiFirewallLogDestination:
+    Type: String
+    Default: STDOUT
+  ApiFirewallTargetUrl:
+    Type: String
+    Default: https://api.weathermap.org
+  ApiFirewallProtectionToken:
+    Type: String
+    Default: 'arn:aws:secretsmanager:eu-west-1:749000XXXXXX:secret:42c-protection-token-vwGqc8'
+Resources:
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ecs-tasks.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: AllowReadSecrets
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref ApiFirewallProtectionToken
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Join ['-', [!Ref 'AWS::StackName', !Ref 'ServiceName']]
+      Memory: 2048
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !GetAtt 'ECSTaskExecutionRole.Arn'
+      ContainerDefinitions:
+        - Name: apifirewall
+          Memory: 1024
+          MemoryReservation: 256
+          Image: !Ref 'ApiFirewallImage'
+          PortMappings:
+            - ContainerPort: 8443
+              Protocol: tcp
+          entryPoint:
+            - "/bin/squire"
+          command:
+            - "-platform"
+            - protection.us.42crunch.cloud:8001     
+          HealthCheck:
+            Retries: 2
+            Command:
+              - CMD-SHELL
+              - echo $'GET /hc HTTP/1.0\r\n\r\n' | nc 127.0.0.1 8880
+            Timeout: 2
+            Interval: 30
+            StartPeriod: 5
+          Essential: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'LogGroup'
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: 42crunch
+          Environment:
+            - name: GUARDIAN_INSTANCE_NAME
+              value: !Ref 'ServiceName'
+            - name: GUARDIAN_NODE_NAME
+              value:
+                Fn::ImportValue: !Join [':', [!Ref 'StackName', 'ClusterName']]
+            - name: LISTEN_PORT
+              value: '8443'
+            - name: LISTEN_SSL_CERT
+              value: firewall-cert.pem
+            - name: LISTEN_SSL_KEY
+              value: firewall-key.pem
+            - name: LOG_DESTINATION
+              value: !Ref 'ApiFirewallLogDestination'
+            - name: LOG_LEVEL
+              value: !Ref 'ApiFirewallLogLevel'
+            - name: PRESERVE_HOST
+              value: 'Off'
+            - name: SERVER_NAME
+              value:
+                Fn::ImportValue: !Join [':', [!Ref 'StackName', 'ExternalHostname']]
+            - name: TARGET_URL
+              value: !Ref 'ApiFirewallTargetUrl'
+            - name: TIMEOUT_IN
+              value: '60'
+            - name: TIMEOUT_KEEPALIVE
+              value: '15'
+          Ulimits:
+            - Name: nofile
+              SoftLimit: 65536
+              HardLimit: 65536
+          MountPoints:
+            - ReadOnly: false
+              ContainerPath: /opt/guardian/logs
+              SourceVolume: guardian-logs
+          Secrets:
+            - Name: PROTECTION_TOKEN
+              ValueFrom: !Ref 'ApiFirewallProtectionToken'
+      Volumes:
+        - name: 'guardian-logs'
+
+  # The service. The service is a resource which allows you to run multiple
+  # copies of a type of task, and gather up their logs and metrics, as well
+  # as monitor the number of running tasks and replace any that have crashed
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Ref 'ServiceName'
+      Cluster:
+        Fn::ImportValue: !Join [':', [!Ref 'StackName', 'ClusterName']]
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DesiredCount: 1
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - Fn::ImportValue: !Join [':', [!Ref 'StackName', 'FargateContainerSecurityGroup']]
+          Subnets:
+            - Fn::ImportValue: !Join [':', [!Ref 'StackName', 'PrivateSubnet']]
+      TaskDefinition: !Ref 'TaskDefinition'
+      LoadBalancers:
+        - ContainerName: 'apifirewall'
+          ContainerPort: 8443
+          TargetGroupArn: !Ref 'TargetGroup'
+
+  # A target group. This is used for keeping track of all the tasks, and
+  # what IP addresses / port numbers they have. You can query it yourself,
+  # to use the addresses yourself, but most often this target group is just
+  # connected to an application load balancer, or network load balancer, so
+  # it can automatically distribute traffic across all the targets.
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Protocol: TCP
+      Port: 8443
+      TargetType: ip
+      VpcId:
+        Fn::ImportValue: !Join [':', [!Ref 'StackName', 'VPCId']]
+      HealthCheckEnabled: true
+      HealthCheckProtocol: TCP
+
+  PublicLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref 'TargetGroup'
+          Type: 'forward'
+      LoadBalancerArn:
+        Fn::ImportValue: !Join [':', [!Ref 'StackName', 'PublicLoadBalancer']]
+      Port: 443
+      Protocol: TCP

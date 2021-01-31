@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-IMAGE_TAG='42cpoc/pixi_fw:0.0.1'
+IMAGE_TAG='749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:1.0.1-tls'
 
 # Retrieve secrets
 echo "===========> Docker build"

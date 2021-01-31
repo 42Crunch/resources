@@ -51,7 +51,7 @@ Make sure that your Kubernetes environment allows for this container to start pr
 
 ### SaaS platform connection
 
-When the API firewall starts, it connects to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your firewall configuration authorizes this connections. 
+When the API firewall starts, it connects to the platform at **[protection.42crunch.com](protection.42crunch.com/)** or **[protection.us.42crunch.cloud](protection.us.42crunch.cloud)**, on port **8001**. Make sure your firewall configuration authorizes this connection.
 
 > The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
 
@@ -63,7 +63,7 @@ We recommend you install [Postman](https://www.getpostman.com/downloads/) to dri
 
 Import the Pixi API and generate the protection configuration
 
-1. Log in to 42Crunch Platform at <https://platform.42crunch.com>
+1. Log in to 42Crunch Platform
 
 2. Go to **API Collections** in the main menu and click on **New Collection**, name it  PixiTest.
 
@@ -107,19 +107,19 @@ You must save the protection token in a configuration file. This file is read by
 
    > This assumes you're are using the CLI to create the files. You can create those  secrets through different means than this script, for example the AWS Console.
 
-2. Note the ARN value of the **pixi-fw-token** secret. You will need it later to configure the API Firewall task.
+2. Note the ARN value of the **42c-protection-token** secret. You will need it later to configure the API Firewall task.
 
    ```JSON
    {
-       "ARN": "arn:aws:secretsmanager:eu-west-1:749000xxxxx:secret:pixi-fw-token-OLHpnL",
-       "Name": "pixi-fw-token",
-       "VersionId": "7fe79bc2-xxxx-4969-a2cc-7c9f6fe38433"
+       "ARN": "arn:aws:secretsmanager:eu-west-1:749000XXXXX:secret:42c-protection-token-vwGqc8",
+       "Name": "42c-protection-token",
+       "VersionId": "34510b7c-a396-4e00-a9cc-4816c5ee4c9c"
    }
    ```
 
 ## TLS Setup
 
-API firewall only works in TLS mode. The TLS configuration files (including private key) must be placed on the file system (inside the docker image). API Firewall expects to find the TLS configuration files under `/opt/guardian/conf/ssl`.  
+When TLS is used, TLS configuration files (including private key) must be placed on the file system (inside the docker image). API Firewall expects to find the TLS configuration files under `/opt/guardian/conf/ssl`.  
 
 > API Firewall also support PKCS#11 - In this case, you need to use PKCS URI instead of file names https://tools.ietf.org/html/rfc7512 - 
 
@@ -144,17 +144,30 @@ openssl req \
 
 and respond to the setup questions. You can use any CN you want for the purpose of this guide, like **42crunch-firewall.local**.
 
-## Build POC Image
+## Build Firewall Image
 
-Use the `build.sh` script to build a Docker image which adds the cert/key pair you created previously to the base 42Crunch API firewall image.
+1. Edit the `build.sh` script and set the proper tag name.
 
-Then, publish this image to your AWS container registry and record the image name, as per those instructions: https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html.
+```
+#!/bin/bash
+set -e
 
-# API Firewall Task configuration 
+IMAGE_TAG='749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:pixi-tls'
 
-You need to make the following changes to the `task.json` file that was shared with you.
+# Retrieve secrets
+echo "===========> Docker build"
+docker build . -t $IMAGE_TAG
+```
 
-1. apifirewall image value needs to be changed to point to the  image created above:
+2. Use the script to build a Docker image which adds the cert/key pair you created previously to the base 42Crunch API firewall image. 
+
+3. Publish this image to your AWS container registry and record the image name, as per those instructions: https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html.
+
+# API Firewall Deployment 
+
+You need to now edit the sample task provided according to your setup. 
+
+1. The apifirewall image value needs to be changed to point to the  image created above, for example:
 
    ```JSON
    {
@@ -171,7 +184,8 @@ You need to make the following changes to the `task.json` file that was shared w
    | GUARDIAN_INSTANCE_NAME    | Unique instance name. Used in logs and UI                    | aws-fargate-instance                       |
    | GUARDIAN_NODE_NAME        | Unique node name (system/cluster the container runs on). Used in logs and UI | aws-fargate-node                           |
    | LISTEN_PORT               | Port the API Firewall listens on                             | 443                                        |
-   | LISTEN_SSL_CERT           | Name of API Firewall certificate file (in PEM format). The whole certificate chain must be stored in this file (CA, Intermediate CA, cert) - Must be present on filesystem and match the names used when building the firewall image. | firewall-cert.pem                          |
+   | LISTEN_NO_TLS             | If this variable is present, the firewall starts in non-TLS mode. The LISTEN_SSL directives will be ignored. | enabled                                    |
+   | LISTEN_SSL_CERT           | Name of API Firewall certificate file (in PEM format). The whole certificate chain must be stored in this file (CA, Intermediate CA, cert) - Must be present on filesystem and match the names used when building the firewall image | firewall-cert.pem                          |
    | LISTEN_SSL_KEY            | Name of API Firewall private key file (in PEM format) - Must be present on filesystem and match the names used when building the firewall image. | firewall-key.pem                           |
    | PRESERVE_HOST             | API Firewall passes Host header unchanged to back-end        | On                                         |
    | TARGET_URL                | Backend URL the API Firewall proxies requests to. Since the Pixi API runs in the same Task, we can use localhost over HTTP | http://localhost:8090                      |
@@ -180,10 +194,10 @@ You need to make the following changes to the `task.json` file that was shared w
    | TIMEOUT_KEEPALIVE         | How long API Firewall waits for any subsequent requests from the client before closing the connection. By default, the value is in seconds. To define the timeout in milliseconds, add `ms` after the value. | 5                                          |
    | LOG_DESTINATION           | Destination of transaction logs (FILES/PLATFORM)             | PLATFORM                                   |
    | LOG_LEVEL                 | Debug level (warn/info/notice/debug/trace5)                  | warn                                       |
-
-   Those values are part of the environment configuration of the API Firewall container setup:
-
-   ```json
+   
+Those values are part of the environment configuration of the API Firewall container setup:
+   
+```json
    "environment": [
            {
              "name": "GUARDIAN_INSTANCE_NAME",
@@ -234,13 +248,13 @@ You need to make the following changes to the `task.json` file that was shared w
              "value": "5"
            }
    ```
-
+   
 3. Set the **PROTECTION_TOKEN** value from the secret created earlier - Use the ARN obtained via the AWS CLI. 
 
 ```
 secrets": [
   {
-    "valueFrom": "arn:aws:secretsmanager:eu-west-1:749000xxxxx:secret:pixi-fw-token-xxxxx",
+    "valueFrom": "arn:aws:secretsmanager:eu-west-1:749000XXXXX:secret:42c-protection-token-vwGqc8",
      "name": "PROTECTION_TOKEN"
   }
 ```
@@ -251,15 +265,15 @@ Once the task has been configured and saved, you can create a service from this 
 
 When creating the service from the task: 
 
-* You can use a network LB to expose the Firewall, with a 443 target
+* You can use a network LB to expose the Firewall, with a 443 listening target
 
-* You will need to put HTTPS/443 as inbound rule for the security group
+* You will need to add HTTPS/443 as inbound rule to the security group the task is attached to
 
 * You will need to authorize access to secrets from the Fargate task (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data-secrets.html)
 
-* When the Firewall starts it needs to connect to **protection.42crunch.com:8001** - You may need to open access to this hostname  in your firewall / network rules.
+* When the API Firewall starts, it needs to connect to **protection.42crunch.com:8001** - You may need to open access to this hostname  in your firewall / network rules.
 
-  > They are many ways to deploy this setup, which will vary depending on your existing application architecture.  For example, you could use a application LB and terminate TLS at that level, or just do TCP load balancing in a network LB on port 443 so that the API Firewall terminates SSL.
+  > There are many ways to deploy this setup, which will vary depending on your existing application architecture.  For example, you could use a application LB and terminate TLS at that level, or just do TCP load balancing in a network LB on port 443 so that the API Firewall terminates SSL.
 
 # Getting ready to test the API firewall
 

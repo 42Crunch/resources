@@ -1,6 +1,13 @@
+:: 
+:: THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+:: EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+:: OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+:: 
+:: Author: 42Crunch
+:: 42Crunch Support - support@42crunch.com
+
 :: Name: pixi-create-demo.bat
 :: Purpose: Create the demo environement on K8S platform
-:: Author: 42Crunch
 
 @echo off
 setlocal enabledelayedexpansion

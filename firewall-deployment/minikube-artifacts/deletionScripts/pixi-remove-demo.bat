@@ -1,6 +1,14 @@
-:: Name: pixi-remove-demo.bat
-:: Purpose: Remove all the component created on the K8S cluster
+:: 
+:: THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+:: EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+:: OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+:: 
 :: Author: 42Crunch
+:: 42Crunch Support - support@42crunch.com
+
+:: Name: pixi-remove-demo.bat
+:: Purpose: Remove all the components created on the K8S cluster
+
 
 @echo off
 setlocal enabledelayedexpansion

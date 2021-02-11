@@ -9,7 +9,7 @@ Parameters:
     Default: 42c-apifirewall
   ApiFirewallImage:
     Type: String
-    Default: '749000819274.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:v1.0.1-preview'
+    Default: '749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:v1.0.1-preview'
   ApiFirewallLogLevel:
     Type: String
     Default: warn
@@ -21,7 +21,7 @@ Parameters:
     Default: http://localhost:8090
   ApiFirewallProtectionToken:
     Type: String
-    Default: 'arn:aws:secretsmanager:eu-west-1:749000819274:secret:42c-pixiapi-token-iZo6WE'
+    Default: 'arn:aws:secretsmanager:eu-west-1:749000XXXXXX:secret:42c-pixiapi-token-iZo6WE'
 Resources:
   ECSTaskExecutionRole:
     Type: AWS::IAM::Role

@@ -76,7 +76,7 @@
                 "token": {
                   "type": "string",
                   "pattern": "^([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_\\-\\+\\/=]{4,})",
-                  "maxLength": 700
+                  "maxLength": 1000
                 }
               },
               "required": [
@@ -165,7 +165,7 @@
                 "token": {
                   "type": "string",
                   "pattern": "^([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_\\-\\+\\/=]{4,})",
-                  "maxLength": 700
+                  "maxLength": 1000
                 }
               }
             }
@@ -226,7 +226,7 @@
             "required": true,
             "type": "string",
             "pattern": "^([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_\\-\\+\\/=]{4,})",
-            "maxLength": 700
+            "maxLength": 1000
           }
         ],
         "responses": {
@@ -310,7 +310,7 @@
             "type": "string",
             "required": true,
             "pattern": "^([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_\\-\\+\\/=]{4,})",
-            "maxLength": 700
+            "maxLength": 1000
           }
         ],
         "responses": {
@@ -379,7 +379,7 @@
             "type": "string",
             "required": true,
             "pattern": "^([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_\\-\\+\\/=]{4,})",
-            "maxLength": 700
+            "maxLength": 1000
           },
           {
             "in": "query",
@@ -480,7 +480,7 @@
             "type": "string",
             "required": true,
             "pattern": "^([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_=]{4,})\\.([a-zA-Z0-9_\\-\\+\\/=]{4,})",
-            "maxLength": 700
+            "maxLength": 1000
           }
         ],
         "summary": "Returns the list of ALL users. Must be admin to call.",

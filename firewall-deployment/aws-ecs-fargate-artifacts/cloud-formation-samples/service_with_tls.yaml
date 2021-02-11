@@ -50,6 +50,7 @@ Resources:
     Properties:
       Family: !Join ['-', [!Ref 'AWS::StackName', !Ref 'ServiceName']]
       Memory: 2048
+      Cpu: 1024
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE

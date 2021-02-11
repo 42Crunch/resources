@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Deploy a 42Crunch API Firewall listening on non-TLS port
 Parameters:
-  StackName:
+  ClusterStackName:
     Type: String
-    Default: xliic-cluster
+    Default: pixi-cluster
   ServiceName:
     Type: String
     Default: 42c-apifirewall
@@ -18,10 +18,10 @@ Parameters:
     Default: STDOUT
   ApiFirewallTargetUrl:
     Type: String
-    Default: https://api.weathermap.org
+    Default: http://localhost:8090
   ApiFirewallProtectionToken:
     Type: String
-    Default: 'arn:aws:secretsmanager:eu-west-1:749000819274:secret:42c-protection-token-vwGqc8'
+    Default: 'arn:aws:secretsmanager:eu-west-1:749000819274:secret:42c-pixiapi-token-iZo6WE'
 Resources:
   ECSTaskExecutionRole:
     Type: AWS::IAM::Role
@@ -41,7 +41,6 @@ Resources:
               - Effect: Allow
                 Action: secretsmanager:GetSecretValue
                 Resource: !Ref ApiFirewallProtectionToken
-
   LogGroup:
     Type: AWS::Logs::LogGroup
 
@@ -56,6 +55,31 @@ Resources:
         - FARGATE
       ExecutionRoleArn: !GetAtt 'ECSTaskExecutionRole.Arn'
       ContainerDefinitions:
+        - Name: pixidb
+          Image: '42crunch/pixi:datastore'
+          PortMappings:
+            - ContainerPort: 2707
+              Protocol: tcp
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'LogGroup'
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: 42crunch
+        - Name: pixiapp
+          Image: '42crunch/pixi:app_local'
+          PortMappings:
+            - ContainerPort: 8090
+              Protocol: tcp
+          DependsOn:
+            - ContainerName: pixidb
+              Condition: START
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'LogGroup'
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: 42crunch
         - Name: apifirewall
           Memory: 1024
           MemoryReservation: 256
@@ -88,7 +112,7 @@ Resources:
               value: !Ref 'ServiceName'
             - name: GUARDIAN_NODE_NAME
               value:
-                Fn::ImportValue: !Join [':', [!Ref 'StackName', 'ClusterName']]
+                Fn::ImportValue: !Join [':', [!Ref 'ClusterStackName', 'ClusterName']]
             - name: LISTEN_PORT
               value: '8080'
             - name: LISTEN_NO_TLS
@@ -101,7 +125,7 @@ Resources:
               value: 'Off'
             - name: SERVER_NAME
               value:
-                Fn::ImportValue: !Join [':', [!Ref 'StackName', 'ExternalHostname']]
+                Fn::ImportValue: !Join [':', [!Ref 'ClusterStackName', 'ExternalHostname']]
             - name: TARGET_URL
               value: !Ref 'ApiFirewallTargetUrl'
             - name: TIMEOUT_IN
@@ -130,7 +154,7 @@ Resources:
     Properties:
       ServiceName: !Ref 'ServiceName'
       Cluster:
-        Fn::ImportValue: !Join [':', [!Ref 'StackName', 'ClusterName']]
+        Fn::ImportValue: !Join [':', [!Ref 'ClusterStackName', 'ClusterName']]
       LaunchType: FARGATE
       DeploymentConfiguration:
         MaximumPercent: 200
@@ -139,9 +163,9 @@ Resources:
       NetworkConfiguration:
         AwsvpcConfiguration:
           SecurityGroups:
-            - Fn::ImportValue: !Join [':', [!Ref 'StackName', 'FargateContainerSecurityGroup']]
+            - Fn::ImportValue: !Join [':', [!Ref 'ClusterStackName', 'FargateContainerSecurityGroup']]
           Subnets:
-            - Fn::ImportValue: !Join [':', [!Ref 'StackName', 'PrivateSubnet']]
+            - Fn::ImportValue: !Join [':', [!Ref 'ClusterStackName', 'PrivateSubnet']]
       TaskDefinition: !Ref 'TaskDefinition'
       LoadBalancers:
         - ContainerName: 'apifirewall'
@@ -160,7 +184,7 @@ Resources:
       Port: 8080
       TargetType: ip
       VpcId:
-        Fn::ImportValue: !Join [':', [!Ref 'StackName', 'VPCId']]
+        Fn::ImportValue: !Join [':', [!Ref 'ClusterStackName', 'VPCId']]
       HealthCheckEnabled: true
       HealthCheckProtocol: TCP
 
@@ -171,6 +195,6 @@ Resources:
         - TargetGroupArn: !Ref 'TargetGroup'
           Type: 'forward'
       LoadBalancerArn:
-        Fn::ImportValue: !Join [':', [!Ref 'StackName', 'PublicLoadBalancer']]
+        Fn::ImportValue: !Join [':', [!Ref 'ClusterStackName', 'PublicLoadBalancer']]
       Port: 8080
       Protocol: TCP

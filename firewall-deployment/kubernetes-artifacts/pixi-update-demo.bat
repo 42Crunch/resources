@@ -1,6 +1,10 @@
-:: Name: pixi-update-demo.bat
-:: Purpose: Update the secret and Guardian container deployment on K8S platform
+:: 
+:: THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+:: EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+:: OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+:: 
 :: Author: 42Crunch
+:: 42Crunch Support - support@42crunch.com
 
 @echo off
 setlocal enabledelayedexpansion

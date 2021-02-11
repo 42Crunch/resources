@@ -1,6 +1,13 @@
 
----
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# 
+# 42Crunch Support - support@42crunch.com
+
 # Load balancer service to invoke the Pixi apps and APIs directly and test the scan capabilities.
+---
 
 apiVersion: v1
 kind: Service
@@ -23,7 +30,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     app: pixidb
   name: pixidb

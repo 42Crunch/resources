@@ -1,6 +1,6 @@
 ![42Crunch](./graphics/42c_logo.png?raw=true "42Crunch")
 
-# Deploying 42Crunch API Firewall on Amazon ECS with Fargate
+# 42Crunch API Firewall on Amazon ECS with Fargate (Tasks)
 
 [TOC]
 
@@ -46,8 +46,6 @@ You must be a registered user on the [42Crunch Platform](https://platform.42crun
 ### Running as-root
 
 The API Firewall is started by the `root` user. The initial process as root reads the configuration and then forks child processes which will serve the requests. Those child processes run under the `guardian` user, which has no admin privileges nor can this user read the configuration or log files. 
-
-Make sure that your Kubernetes environment allows for this container to start processes as root.
 
 ### SaaS platform connection
 
@@ -195,8 +193,9 @@ You need to now edit the sample task provided according to your setup.
    | LOG_DESTINATION           | Destination of transaction logs (FILES/PLATFORM)             | PLATFORM                                   |
    | LOG_LEVEL                 | Debug level (warn/info/notice/debug/trace5)                  | warn                                       |
    
+
 Those values are part of the environment configuration of the API Firewall container setup:
-   
+
 ```json
    "environment": [
            {
@@ -247,8 +246,8 @@ Those values are part of the environment configuration of the API Firewall conta
              "name": "TIMEOUT_KEEPALIVE",
              "value": "5"
            }
-   ```
-   
+```
+
 3. Set the **PROTECTION_TOKEN** value from the secret created earlier - Use the ARN obtained via the AWS CLI. 
 
 ```

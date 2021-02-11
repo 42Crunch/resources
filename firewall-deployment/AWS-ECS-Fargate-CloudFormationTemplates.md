@@ -135,7 +135,7 @@ aws cloudformation deploy --template-file cluster-vpc.yaml --stack-name pixi-clu
 
 Once deployed, open the AWS console and notethe value of ExternalHostname. This hostname will be used to invoke the API.
 
-![img](file:///Volumes/DATA/42Crunch/Source/resources/firewall-deployment/graphics/aws-cluster-stack-outputs.png?lastModify=1613065868)
+![img](./graphics/aws-cluster-stack-outputs.png)
 
 # API Firewall Deployment 
 

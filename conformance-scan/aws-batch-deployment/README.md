@@ -56,7 +56,9 @@ The scan-job template admits the following additional parameters:
 
 ### Launching a job
 
-Once the job definition has been installed, you can launch a job using the sample json file:
+Once the job definition has been installed, you can launch a job using a json file, with this command: `aws batch submit-job --cli-input-json file://job.json` 
+
+The JSON file looks like this.
 
 ```json
 {

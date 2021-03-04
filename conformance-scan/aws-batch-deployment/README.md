@@ -1,9 +1,12 @@
 # On-Premises Conformance Scan Deployment
 
-42Crunch Conformance Scan can be run locally in the new version of the 42Crunch platform. This document describes how to run the conformance scan as 
+42Crunch Conformance Scan can be run on-premises in the new version of the 42Crunch API Security platform. 
 
-The simplest way to run the on-premises scan engine is to use Docker, for example:
-`docker run -e SCAN_TOKEN=<replace with your token value> -e PLATFORM_SERVICE=services.us.42crunch.cloud:8001 42crunch/scand-agent:latest`
+The simplest way to run the on-premises scan engine is to use Docker:
+
+```shell
+docker run -e SCAN_TOKEN=<replace with your token value> -e PLATFORM_SERVICE=services.us.42crunch.cloud:8001 42crunch/scand-agent:latest
+```
 
 However, many customers have asked us to run the scan on demand in a batch environment. We have developed two ways to achieve that:
 
@@ -11,16 +14,16 @@ a. Leveraging [AWS Batch](https://docs.aws.amazon.com/batch/latest/userguide/Bat
 
 b. Leveraging [Kubernetes jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/).
 
-This document focuses on AWS Batch.
+This document focuses on AWS Batch deployment.
 
 ## AWS Batch using Cloud Formation Templates
 
 This sample has two main files:
 
-1. `cluster-vpc-batch.yaml`: this create a infrastructure to execute the batch job
+1. `cluster-vpc-batch.yaml`: this creates a infrastructure to execute the batch job
 2. `scan-job.yaml`: this creates the job definition as well as the job queue.
 
-> Those two files are meant to illustrate how to deplyment can be done. They need to be adapted to your environment, especially the VPC setup, which creates network definitions and security groups.
+> Those two files are meant to illustrate how to deployment can be done. They need to be adapted to your environment, especially the VPC setup, which creates network definitions and security groups.
 
 You need to first deploy the infrastructure:
 
@@ -28,7 +31,7 @@ You need to first deploy the infrastructure:
 aws cloudformation deploy --template-file cluster-vpc-batch.yaml --stack-name job-stack
 ```
 
-Then, you need to define the JobQueue and compute environment (which in this case is Fargate) - Note that the stack-name created above (job-stack) needs to be passed as the NetworkStackName  parameter (as several infrastructure/security resources are referenced in this template)
+Next, you need to define the JobQueue and compute environment, which in this case is Fargate - Note that the stack-name created above (**job-stack**) needs to be passed as the NetworkStackName  parameter (as several infrastructure/security resources are referenced in this template).
 
 ```shell
 aws cloudformation deploy --template-file scan-job.yaml --stack-name scan-job --parameter-overrides NetworkStackName=job-stack  --capabilities CAPABILITY_NAMED_IAM

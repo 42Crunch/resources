@@ -1,0 +1,13 @@
+{
+    "jobName": "scan-test-job",
+    "jobQueue": "42c-scan-queue",
+    "jobDefinition": "42c-scan-job-def",
+    "containerOverrides": {
+        "environment": [
+            {
+                "name": "SCAN_TOKEN",
+                "value": "scan-token-goes-here"
+            }
+        ]
+    }
+}

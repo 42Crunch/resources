@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "AWS CloudFormation Sample Template Managed Single Batch Job Queue:
+  This template demonstrates the usage of simple Job Queue and EC2 style Compute
+  Environment.  **WARNING** You will be billed for the AWS resources used if you
+  create a stack from this template."
+Parameters:
+  NetworkStackName:
+    Type: String
+  Image:
+    Type: String
+    # Update with the Docker image. You can use images in the Docker Hub registry or specify other repositories (repository-url/image:tag).
+    Default: 42crunch/scand-agent:latest
+  JobDefinitionName:
+    Type: String
+    # update with the name of the service
+    Default: 42c-scan-job-def
+  JobQueueName:
+    Type: String
+    # update with the name of the service
+    Default: 42c-scan-queue
+  ComputeEnvironmentName:
+    Type: String
+    Default: 42c-scan-compute-env    
+Resources:
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ecs-tasks.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+  BatchServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: batch.amazonaws.com
+            Action: sts:AssumeRole  
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole
+  JobDefinition:
+    Type: AWS::Batch::JobDefinition
+    Properties:
+      Type: container
+      JobDefinitionName: !Ref 'JobDefinitionName'
+      PlatformCapabilities:
+      - FARGATE
+      ContainerProperties:
+        ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+        ResourceRequirements:
+        - Type: MEMORY
+          Value: 512
+        - Type: VCPU
+          Value: 0.25
+        Image: !Ref Image
+        Environment:
+        - Name: PLATFORM_SERVICE
+          Value: services.us.42crunch.cloud:8001
+        Command: []
+      RetryStrategy:
+        Attempts: 1
+  JobQueue:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      JobQueueName: !Ref 'JobQueueName'
+      Priority: 1
+      ComputeEnvironmentOrder:
+        - Order: 1
+          ComputeEnvironment:
+            Ref: ComputeEnvironment
+  ComputeEnvironment:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      ComputeEnvironmentName: !Ref 'ComputeEnvironmentName'
+      Type: MANAGED
+      ComputeResources: 
+        Type: FARGATE
+        MaxvCpus: 2
+        Subnets:
+          - Fn::ImportValue: !Join [':', [!Ref 'NetworkStackName', 'PrivateSubnet']]
+        SecurityGroupIds:
+          - Fn::ImportValue: !Join [':', [!Ref 'NetworkStackName', 'FargateContainerSecurityGroup']]
+      ServiceRole:
+        Ref: BatchServiceRole
+Outputs:
+  ComputeEnvironmentArn:
+    Value:
+      Ref: ComputeEnvironment
+  JobQueueArn:
+    Value:
+      Ref: JobQueue
+  JobDefinitionArn:
+    Value:
+      Ref: JobDefinition

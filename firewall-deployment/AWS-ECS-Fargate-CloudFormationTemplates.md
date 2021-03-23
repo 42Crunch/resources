@@ -191,7 +191,7 @@ You can also use curl to make the same request (using the -k option to avoid the
 
 2. Import the  `postman-collection/Pixi_collection.json` file in Postman using **Import>Import from File**.
 
-3. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to the hostname you just tested I (for example http://pixi-publi-1l02bnyoe1vom-3709e1770cf8bce1.elb.eu-west-1.amazonaws.com:8080).
+3. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to the hostname you just tested (for example http://pixi-publi-1l02bnyoe1vom-3709e1770cf8bce1.elb.eu-west-1.amazonaws.com:8080).
    The final configuration should look like this in Postman:
 
 ![Postman-Secure-Generic](./graphics/Postman-Secure-Generic.jpg)

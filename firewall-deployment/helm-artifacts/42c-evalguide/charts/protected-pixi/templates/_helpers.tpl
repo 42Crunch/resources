@@ -67,7 +67,7 @@ Create the name of the service account to use
 Generate certificates for API Firewall
 */}}
 {{- define "firewall-gen-certs" -}}
-{{- $cn := printf "%s.%s" .Release.Name .Values.apifirewall.domain -}}
+{{- $cn := printf "%s.%s" "pixi-secured" .Values.apifirewall.domain -}}
 {{- $ca := genCA "demo-ca" 30 -}}
 {{- $cert := genSignedCert $cn nil nil 30 $ca -}}
 tls.crt: {{ $cert.Cert | b64enc }}

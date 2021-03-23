@@ -24,6 +24,8 @@ spec:
       - name: {{ .Release.Name }}-apifirewall
         image: {{ .Values.image.repository }}:{{ .Values.image.version }} # replace latest by proper tag in prod environment.
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        args: ["-platform", {{ .Values.platform.url | quote }}]
+        command: ["/bin/squire"]
         ports:
           - containerPort: {{ .Values.apifirewall.pod_listen_port | default 8443 }}
         env:

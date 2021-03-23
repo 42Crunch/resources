@@ -1,5 +1,7 @@
 # Default values for 42c-evalguide.
 # Declare variables to be passed into your templates.
+platform:
+  url: protection.42crunch.com:8001
 
 image:
   repository: 42crunch/apifirewall
@@ -7,7 +9,7 @@ image:
   pullPolicy: Always
 
 apifirewall:
-  log_level: debug
+  log_level: warn
   # Using this domain + release name as server name
   domain: 42crunch.test
   # Transaction logs can be shipped to the PLATFORM or kept in FILES

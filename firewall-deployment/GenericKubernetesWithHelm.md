@@ -55,7 +55,7 @@ The API Firewall is started by the `root` user. The initial process as root read
 
 ### Access to DockerHub 
 
-Images are pulled from DockerHub. Make sure the Kubernetes cluster can reach that. Otherwise, get the docker images from DockerHub, store them in your registry of choice and edit both values.yaml files (one for each deployment) to point to the proper registry, for example:
+Images are pulled from DockerHub. Make sure your Kubernetes cluster can reach it. Otherwise, get the docker images from DockerHub, store them in your registry of choice and edit both `values.yaml` files (one for each deployment) to point to the proper registry, for example:
 
 ```yaml
 image:
@@ -65,9 +65,16 @@ image:
 
 ### SaaS platform connection
 
-When the API firewall starts, it connects to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your firewall configuration authorizes this connections. 
+When the API firewall starts, it connects by default to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your network firewall configuration authorizes this connection. 
 
 > The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
+
+If your company is hosted on a different 42Crunch SaaS instance, you can edit the `firewall-deployment/helm-artifacts/42c-evalguide/charts/protected-pixi/values.yaml`file and override this entry:
+
+```yaml
+platform:
+  url: protection.42crunch.com:8001
+```
 
 ### Tools
 
@@ -115,7 +122,7 @@ The main chart is called `42c-evalguide`. At install time, it creates all the ar
 
 ![Import API definition](./graphics/42c_ImportOAS.png?raw=true "Import API definition")
 
-   The API should score around 94/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
+The API should score around 94/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
 
 5. In the main menu on the left, click **Protect** to launch the protection wizard
 
@@ -159,9 +166,8 @@ The main chart is called `42c-evalguide`. At install time, it creates all the ar
    evalguide-pixidb-68f7fbf6c8-bhftt         1/1     Running       0          5m2s
    ```
 
-4. Back in the SaaS platform, you can see a new entry under **Protection-Active instances**. Note the ServerName value, which is composed of the release name **evalguide** and **pixi.test** domain. 
+4. Back in the SaaS platform, you can see a new entry under **Protection-Active instances**. Note the ServerName value. 
    ![InstancesList](./graphics/InstancesList.jpg)
-   
 
 # Preparing to test the API firewall
 
@@ -170,17 +176,17 @@ We now have a running configuration with two endpoints: one that invokes the uns
 1. Run `kubectl get svc -n 42crunch` to get the external IP of the `pixisecured` deployment (values shown here are placeholders):
 
    ```shell
-   NAME                        TYPE           CLUSTER-IP     EXTERNAL-IP     	PORT(S)         
-   evalguide-open-service      LoadBalancer   10.0.228.131   <pixi-open-ip>   	8090:32410/TCP
-   evalguide-secured-service   LoadBalancer   10.0.85.77     <pixi-secured-ip>  443:30025/TCP
-   pixidb                      ClusterIP      10.0.254.59    <none>          	27017/TCP
+   NAME                        TYPE           CLUSTER-IP     EXTERNAL-IP             
+   evalguide-open-service      LoadBalancer   10.0.228.131   <pixi-open-ip> 
+   evalguide-secured-service   LoadBalancer   10.0.85.77     <pixi-secured-ip>  
+   pixidb                      ClusterIP      10.0.254.59    <none>         
    ```
 
 2. [Edit your `hosts` file](https://support.rackspace.com/how-to/modify-your-hosts-file/) and add the `pixi-secured` and `pixi-open` services endpoints to it. Replace the placeholder `<pixi-secured-ip>` below with the actual IP returned by the command above and repeat for the `pixi-open-ip` endpoint.
 
    ```shell
    <pixi-secured-ip> 	pixi-secured.42crunch.test
-   <pixi-open-ip> 	pixi-open.42crunch.test
+   <pixi-open-ip> 			pixi-open.42crunch.test
    ```
 
    Save your hosts file.
@@ -198,20 +204,14 @@ We now have a running configuration with two endpoints: one that invokes the uns
    > The API Firewall is configured with a self-signed certificate. You will have to accept an exception for the request to work properly.
 
    ```json
-   {
-       "status": 404,
-       "title": "path mapping",
-       "detail": "Not Found",
-       "instance": "https://pixi-secured.42crunch.test/",
-       "uuid": "c07ec70e-9a00-11ea-xxxx-1f92a4422262"
-   }
+   {"status":404,"title":"path mapping","detail":"Not Found","uuid":"628d7d3c-dd77-471a-8246-62885c71893b"}
    ```
-
+   
    You can also use curl to make the same request, using the -k option to avoid the self-signed certificates issue: `curl -k https://pixi-secured.42crunch.test`
+   
+5. Import the  `postman-collection/Pixi_collection.json` file in Postman using **Import>Import from File**.
 
-5. Import the  `postman-collection/Pixi.postman_collection.json` file in Postman using **Import>Import from File**.
-
-6. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to https://pixi-secured.42crunch.test to invoke the protected API. Create another environment called **42Crunch-Unsecure** with the same 42c_url variable, this time with a value set to http://pixi-open.42crunch.test:8090.
+6. Import the `42Crunch-Secure.json` and `42Crunch-Unsecure.json` environment files using **Import>Import from File**.
 
    The final configuration should look like this in Postman:
 
@@ -219,22 +219,22 @@ We now have a running configuration with two endpoints: one that invokes the uns
 
    ![Postman-Secure](./graphics/Postman-Secure-Generic.jpg)
 
-7. Select the **42Crunch-Unsecure** environment
+7. Select the **42Crunch-Secure** environment
 
 8. Invoke the operation `POST /api/register` with the following contents
 
-	```json
-		{
+  ```json
+  	{
   		"id": 50,
   		"user": "42crunch@getme.in",
   		"pass": "hellopixi",
   		"name": "42Crunch",
   		"is_admin": false,
   		"account_balance": 1000
-		}
-	```
-	
-	You should see a response similar to this. The `x-access-token` is a JWT that you must inject in an `x-access-token` header for all API calls (except login and register):
+  	}
+  ```
+
+  You should see a response similar to this. The `x-access-token` is a JWT that you must inject in an `x-access-token` header for all API calls (except login and register):
 
   ```json
     {

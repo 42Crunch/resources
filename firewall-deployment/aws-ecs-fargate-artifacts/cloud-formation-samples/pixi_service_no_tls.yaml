@@ -7,9 +7,12 @@ Parameters:
   ServiceName:
     Type: String
     Default: 42c-apifirewall
+  PlatformFirewallEndpoint:
+    Type: String
+    Default: 'protection.42crunch.com:8001'  
   ApiFirewallImage:
     Type: String
-    Default: '749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:v1.0.1-preview'
+    Default: '749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:v1.0.4'
   ApiFirewallLogLevel:
     Type: String
     Default: warn
@@ -91,7 +94,7 @@ Resources:
             - "/bin/squire"
           command:
             - "-platform"
-            - protection.us.42crunch.cloud:8001  
+            - !Ref 'PlatformFirewallEndpoint'  
           HealthCheck:
             Retries: 2
             Command:

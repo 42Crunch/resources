@@ -53,7 +53,7 @@ In these instructions, we assume you have pushed the 42Crunch firewall image to 
 
 ### SaaS platform connection
 
-When the API firewall starts, it connects to the platform at **[protection.42crunch.com](protection.42crunch.com/)** (community site) or **[protection.us.42crunch.cloud](protection.us.42crunch.cloud)** (production setup) on port **8001**. Make sure your network firewall configuration authorizes this connection.
+When the API firewall starts, it connects to the platform at `protection.42crunch.com` (community site) or `protection.<your_platform_url>` (production deployments) on port **8001**. Make sure your network firewall configuration authorizes this connection.
 
 > The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
 
@@ -87,7 +87,7 @@ Import the Pixi API and generate the protection configuration
 
 # Deployment Setup
 
-For simplicity, the pixi app, the pixi db and the Firewall have been grouped into the same Fargate task and the firewall runs in HTTP mode, on port **8080** ( those settings can be changed within the sample CloudFormation templates, if you want).
+For simplicity, the pixi app, the pixi db and the Firewall have been grouped into the same task and the firewall runs in HTTP mode, on port **8080** ( those settings can be changed within the sample CloudFormation templates, if you want).
 
 ## Protection Token Setup
 
@@ -133,7 +133,7 @@ You can deploy it using this command:
 aws cloudformation deploy --template-file cluster-vpc.yaml --stack-name pixi-cluster
 ```
 
-Once deployed, open the AWS console and notethe value of ExternalHostname. This hostname will be used to invoke the API.
+Once deployed, open the AWS console and note the value of ExternalHostname. This hostname will be used to invoke the API.
 
 ![img](./graphics/aws-cluster-stack-outputs.png)
 
@@ -148,10 +148,18 @@ You need to now edit the sample CloudFormation template provided according to yo
    ...
      ApiFirewallImage:
        Type: String
-       Default: '749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:v1.0.1-preview'
+       Default: '749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:v1.0.4'
    ```
 
-2. Set the **PROTECTION_TOKEN** value from the secret created earlier - Use the ARN obtained via the AWS CLI. 
+2. The platform protection endpoint needs to be changed according to the platform you are using 
+
+   ```yaml
+   PlatformFirewallEndpoint:
+       Type: String
+       Default: 'protection.42crunch.com:8001'
+   ```
+
+3. Set the **PROTECTION_TOKEN** value from the secret created earlier - Use the ARN obtained via the AWS CLI. 
 
 ```yaml
 	Parameters:

@@ -21,7 +21,7 @@ spec:
   ports:
   - name: firewall
     port: 443
-    targetPort: 443
+    targetPort: 8443
   selector:
     app: apifirewall
 
@@ -55,8 +55,10 @@ spec:
       - name: apifirewall
         image: '42crunch/apifirewall:latest'  # replace latest by proper tag in prod environment.
         imagePullPolicy: Always
+        args: ["-platform", "protection.42crunch.com:8001"]
+        command: ["/bin/squire"]
         ports:
-          - containerPort: 443
+          - containerPort: 8443
         env:
         - name: GUARDIAN_NODE_NAME
           valueFrom:

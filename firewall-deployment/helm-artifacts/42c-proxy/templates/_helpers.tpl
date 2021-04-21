@@ -68,7 +68,7 @@ Generate certificates for API Firewall
 {{- define "firewall-gen-certs" -}}
 {{- $cn := printf "%s" .Values.apifirewall.server_name -}}
 {{- $ca := genCA "demo-ca" 30 -}}
-{{- $cert := genSignedCert $cn nil nil 30 $ca -}}
+{{- $cert := genSignedCert $cn nil (list $cn) 30 $ca -}}
 tls.crt: {{ $cert.Cert | b64enc }}
 tls.key: {{ $cert.Key | b64enc }}
 {{- end -}}

@@ -18,7 +18,7 @@ metadata:
   name: pixi-secured-svc
 spec:
   type: LoadBalancer
-  loadBalancerIP: 13.94.170.55
+  # loadBalancerIP: 
   ports:
   - name: firewall
     port: 443

@@ -9,5 +9,7 @@
 # as shown below.
 
 audit:
-  fail_on:
-    invalid_contract: false
+  branches:
+    main:
+      fail_on:
+        invalid_contract: false

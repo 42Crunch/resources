@@ -1,26 +1,32 @@
-# This example shows how to map API files in your repository to APIs you already have
-# in another API collection in 42Crunch Platform.
+# This example shows how to map API files in your repository to APIs you
+# already have in 42Crunch Platform.
 #
-# When the CI/CD integration plugin starts, it begins with cleaning the 
-# API collection you have defined it to use. That is why the mapping 
-# must be done to another API collection.
+# When the CI/CD plugin starts, it creates an API collection in 42Crunch Platform
+# using the name of the repository and branch directly from your source control.
 #
 # The plugin uploads any APIs it finds during the discovery phase
-# to 42Crunch Platform, so the APIs always get new API UUIDs. Mapping is useful 
-# if you want to preserve API UUIDs across separate audit runs.  
+# into this API collection On subsequent runs, the collection is kept is sync
+# with the API files in your source repository.
+#
+# If you have APIs in other API collections on 42Crunch Platform that you 
+# would like like to keep in sync with changes in the files in your source control,
+# you can use mappings for this.
 #
 # To configure the mapping, you must know the API UUID of the existing API
 # in 42Crunch Platform (you can check it in the API summary on 
 # the platform). You list the filenames and the corresponding API UUIDs 
 # in the 'mapping' section.
 #
-# In this example, the sample 'petstore.json' file is mapped and is uploaded
-# to the platform updating the API with the UUID 'e7cd62ce-1ee9-4320-af33-8bd9519c6f48' 
-# with its contents.
+# In this example, the sample 'petstore.json' file is mapped, and the plugin uploads 
+# it to the platform updating the contents of the API with
+# the UUID 'e7cd62ce-1ee9-4320-af33-8bd9519c6f48' with the contents of the file from
+# the source code repository.
 #
-# On the other hand, the sample 'petstore.yaml' found in the discovery phase is uploaded
-# to the platform as a new API, getting a new API UUID.
+# On the other hand, the sample file 'petstore.yaml' is not mapped,
+# so the plugin uploads to its default API collection.
 
 audit:
-  mapping:
-    petstore.json: e7cd62ce-1ee9-4320-af33-8bd9519c6f48
+  branches:
+    main:
+      mapping:
+        petstore.json: e7cd62ce-1ee9-4320-af33-8bd9519c6f48

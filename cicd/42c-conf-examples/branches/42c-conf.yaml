@@ -9,13 +9,13 @@
 # You can specify the plugin configuration individually for each branch in your repository.
 # You can also use wildcards for the branch names to apply the configuration to all
 # branches with matching names.
-
+#
 # In the following example, the branch called "main" has been configured to fail
 # if the minimum data validation score is under 70, and any branch with a name matching
 # the wildcard pattern "feature-*" to fail if the data validation score is under 50.
 # 
-# All other branches which don't match "main" or "feature-*" will match pattern "*" and will 
-# receive minimum data score of 60
+# All other branches are caught by the pattern "*" and are configured to fail if
+# the data validation score is under 60.
 
 audit:
   branches:

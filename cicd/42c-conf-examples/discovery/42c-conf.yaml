@@ -15,9 +15,11 @@
 # Files in 'foo/' are not discovered.
 
 audit:
-  discovery:
-    search:
-      - '**/*.json'
-      - '**/*.yaml'
-      - '**/*.yml'
-      - '!foo/**'
+  branches:
+    main:
+      discovery:
+        search:
+          - '**/*.json'
+          - '**/*.yaml'
+          - '**/*.yml'
+          - '!foo/**'

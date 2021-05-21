@@ -14,7 +14,9 @@
 # and less in security than the 30 points specified in 'security'.
 
 audit:
-  fail_on:
-    score:
-      data: 70
-      security: 30
+  branches:
+    main:
+      fail_on:
+        score:
+          data: 70
+          security: 30

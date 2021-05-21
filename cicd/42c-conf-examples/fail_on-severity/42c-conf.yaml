@@ -8,5 +8,7 @@
 # than what you configured, the issue is reported as a failure.
 
 audit:
-  fail_on:
-    severity: medium
+  branches:
+    main:
+      fail_on:
+        severity: medium

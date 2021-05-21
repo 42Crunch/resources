@@ -4,7 +4,7 @@
 # If there are issues that you want to fail the task on the CI/CD pipeline, you can specify their issue IDs in the 'fail_on' conditions for your plugin. 
 # If the plugin encounters these issue IDs during the audit, it reports each as a failure.
 #
-# Each entry in the 'issue_id' section is a regular expression that is
+# Each entry in the 'issue_id' section is a wildcard expression that is
 # used to check issue IDs that the audit reports.
 # 
 # In this example, audit reports the following failures on the sample 'petstore.json':
@@ -19,7 +19,9 @@
 #  'Found issue "v3-schema-string-pattern"'
 
 audit:
-  fail_on:
-    issue_id:
-      - v3-global-security
-      - ".*schema.*"
+  branches:
+    main:
+      fail_on:
+        issue_id:
+          - v3-global-security
+          - "*schema*"

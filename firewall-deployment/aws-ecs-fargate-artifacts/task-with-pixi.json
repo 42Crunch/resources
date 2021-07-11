@@ -14,7 +14,9 @@
           "awslogs-stream-prefix": "ecs"
         }
       },
-      "entryPoint": null,
+      "entryPoint": [
+        "/bin/squire"
+      ],
       "portMappings": [
         {
           "hostPort": 443,
@@ -22,7 +24,10 @@
           "containerPort": 443
         }
       ],
-      "command": null,
+      "command": [
+        "-platform",
+        "protection.42crunch.com:8001"
+      ],
       "linuxParameters": null,
       "cpu": 0,
       "environment": [
@@ -98,7 +103,7 @@
       "workingDirectory": null,
       "secrets": [
         {
-          "valueFrom": "arn:aws:secretsmanager:eu-west-1:749000XXXXX:secret:42c-protection-token-vwGqc8",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-1:749000819274:secret:42c-protection-token-ast-UyWqbs",
           "name": "PROTECTION_TOKEN"
         }
       ],
@@ -107,7 +112,7 @@
       "memoryReservation": 256,
       "volumesFrom": [],
       "stopTimeout": null,
-      "image": "749000xxxxx.dkr.ecr.eu-west-1.amazonaws.com/42c-fw:latest",
+      "image": "749000819274.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall",
       "startTimeout": null,
       "firelensConfiguration": null,
       "dependsOn": null,

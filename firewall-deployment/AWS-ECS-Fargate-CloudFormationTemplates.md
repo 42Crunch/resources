@@ -6,10 +6,9 @@
 
 ## Introduction
 
-This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall in AWS ECS with Fargate using a sample AWS CloudFormation template. For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
+This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall in AWS ECS with Fargate using  sample AWS CloudFormation templates. For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
 
 > The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues.
->
 
 ## Platform Overview
 
@@ -49,13 +48,13 @@ Make sure you have installed AWS CLI V2 (see instructions here: https://docs.aws
 
 ### API Firewall Image
 
-In these instructions, we assume you have pushed the 42Crunch firewall image to your own ECS registry. The firewall image is available on DockerHub (https://hub.docker.com/r/42crunch/apifirewall/tags?page=1&ordering=last_updated)
+In these instructions, we assume you have pushed the 42Crunch firewall image to your own ECS registry. The API firewall image is available on DockerHub (https://hub.docker.com/r/42crunch/apifirewall/tags?page=1&ordering=last_updated).
 
 ### SaaS platform connection
 
-When the API firewall starts, it connects to the platform at `protection.42crunch.com` (community site) or `protection.<your_platform_url>` (production deployments) on port **8001**. Make sure your network firewall configuration authorizes this connection.
+When the API firewall starts, it need to connect to our SaaS platform on a URL which varies depending on the platform you are using. Default is **[protection.42crunch.com](protection.42crunch.com/)** on port **8001**. Make sure your network firewall configuration authorizes this connection.
 
-> The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
+> This gRPC-based, secured connection is always established from the API firewall to the platform. Logs and configuration are uploaded/downloaded through this connection.
 
 ### Tools
 
@@ -119,9 +118,7 @@ Save the protection token in a configuration file. This file is read by the depl
    }
    ```
 
-> You can delete the configuration file once the secret has been successfully created.
-
-
+> You should delete the configuration file once the secret has been successfully created.
 
 # Deploying the Cluster VPC
 
@@ -139,7 +136,7 @@ Once deployed, open the AWS console and note the value of ExternalHostname. This
 
 # API Firewall Deployment 
 
-You need to now edit the sample CloudFormation template provided according to your setup. 
+You now need to edit the sample CloudFormation template provided according to your setup. 
 
 1. The apifirewall image value needs to be changed to point to the firewall image stored in your ECS registry, for example:
 
@@ -148,10 +145,10 @@ You need to now edit the sample CloudFormation template provided according to yo
    ...
      ApiFirewallImage:
        Type: String
-       Default: '749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:v1.0.4'
+       Default: '749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:v1.0.7'
    ```
 
-2. The platform protection endpoint needs to be changed according to the platform you are using 
+2. The platform protection endpoint needs to be changed according to the 42Crunch platform you are using, should it be our customer platforms or a dedicated instance. If your platform is acme.42crunch.com, then the protection endpoint will be: protection.acme.42crunch.com. Port is always 8001. See the 42Crunch [documentation](https://docs.42crunch.com) for details.
 
    ```yaml
    PlatformFirewallEndpoint:
@@ -168,6 +165,8 @@ You need to now edit the sample CloudFormation template provided according to yo
     Type: String
     Default: 'arn:aws:secretsmanager:eu-west-1:749000XXXXX:secret:42c-protection-token-vwGqc8'
 ```
+
+The firewall SERVER_NAME (the hostname it expects to be received) is set automatically from the ExternalHostName value.
 
 ## Deploying the API Firewall and Pixi example
 
@@ -187,14 +186,14 @@ aws cloudformation deploy --template-file pixi_service_no_tls.yaml --stack-name 
 {"status":404,"title":"path mapping","detail":"Not Found","uuid":"c90f2864-a8a1-4175-a631-74e6ce50d796"}
 ```
 
-You can also use curl to make the same request (using the -k option to avoid the self-signed certificates issue): `curl -k http://pixi-publi-1l02bnyoe1vom-3709e1770cf8bce1.elb.eu-west-1.amazonaws.com:8080
+You can also use curl to make the same request: `curl  http://pixi-publi-1l02bnyoe1vom-3709e1770cf8bce1.elb.eu-west-1.amazonaws.com:8080
 
 2. Import the  `postman-collection/Pixi_collection.json` file in Postman using **Import>Import from File**.
 
 3. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to the hostname you just tested (for example http://pixi-publi-1l02bnyoe1vom-3709e1770cf8bce1.elb.eu-west-1.amazonaws.com:8080).
    The final configuration should look like this in Postman:
 
-![Postman-Secure-Generic](./graphics/Postman-Secure-Generic.jpg)
+![Postman-Secure-Generic](./graphics/Postman-AWSEnvCFT.jpg)
 
 8. Go to the Pixi collection you just imported and invoke the operation **POST /api/register** with the following contents:
 

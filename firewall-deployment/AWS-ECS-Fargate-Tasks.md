@@ -9,7 +9,6 @@
 This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall in AWS ECS with Fargate. For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
 
 > The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues.
->
 
 ## Platform Overview
 
@@ -49,9 +48,9 @@ The API Firewall is started by the `root` user. The initial process as root read
 
 ### SaaS platform connection
 
-When the API firewall starts, it connects to the platform at **[protection.42crunch.com](protection.42crunch.com/)** or **[protection.us.42crunch.cloud](protection.us.42crunch.cloud)**, on port **8001**. Make sure your firewall configuration authorizes this connection.
+When the API firewall starts, it need to connect to our SaaS platform to a URL which varies depending on the platform you are using. Default is **[protection.42crunch.com](protection.42crunch.com/)** on port **8001**. Make sure your network firewall configuration authorizes this connection.
 
-> The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
+> This gRPC-based, secured connection is always established from the API firewall to the platform. Logs and configuration are uploaded/downloaded through this connection.
 
 ### Tools
 
@@ -61,7 +60,7 @@ We recommend you install [Postman](https://www.getpostman.com/downloads/) to dri
 
 Import the Pixi API and generate the protection configuration
 
-1. Log in to 42Crunch Platform
+1. Log in to 42Crunch Platform at <https://platform.42crunch.com> (or your assigned platform)
 
 2. Go to **API Collections** in the main menu and click on **New Collection**, name it  PixiTest.
 
@@ -144,9 +143,9 @@ and respond to the setup questions. You can use any CN you want for the purpose 
 
 ## Build Firewall Image
 
-1. Edit the `build.sh` script and set the proper tag name.
+1. Edit the `build.sh` script and set the proper tag name (using your container registry ID, here 749000XXXXX).
 
-```
+```shell
 #!/bin/bash
 set -e
 
@@ -157,7 +156,7 @@ echo "===========> Docker build"
 docker build . -t $IMAGE_TAG
 ```
 
-2. Use the script to build a Docker image which adds the cert/key pair you created previously to the base 42Crunch API firewall image. 
+2. Execute `build.sh` to build a Docker image which adds the cert/key pair you created previously to the base 42Crunch API firewall image. 
 
 3. Publish this image to your AWS container registry and record the image name, as per those instructions: https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html.
 
@@ -165,7 +164,7 @@ docker build . -t $IMAGE_TAG
 
 You need to now edit the sample task provided according to your setup. 
 
-1. The apifirewall image value needs to be changed to point to the  image created above, for example:
+1. The apifirewall image value needs to be changed to point to the image created above, for example:
 
    ```JSON
    {
@@ -192,7 +191,6 @@ You need to now edit the sample task provided according to your setup.
    | TIMEOUT_KEEPALIVE         | How long API Firewall waits for any subsequent requests from the client before closing the connection. By default, the value is in seconds. To define the timeout in milliseconds, add `ms` after the value. | 5                                          |
    | LOG_DESTINATION           | Destination of transaction logs (FILES/PLATFORM)             | PLATFORM                                   |
    | LOG_LEVEL                 | Debug level (warn/info/notice/debug/trace5)                  | warn                                       |
-   
 
 Those values are part of the environment configuration of the API Firewall container setup:
 
@@ -258,6 +256,17 @@ secrets": [
   }
 ```
 
+4. The platform **protection endpoint** needs to be changed according to the 42Crunch platform you are using, should it be our customer platforms or a dedicated instance. If your platform is `acme.42crunch.com`, then the protection endpoint will be: `protection.acme.42crunch.com`. Port is always 8001. See the 42Crunch [documentation](https://docs.42crunch.com) for details.
+
+   ```json
+   "command": [
+           "-platform",
+           "protection.42crunch.com:8001"
+   ],
+   ```
+
+   > You may need to open access to this hostname  in your firewall / network rules.
+
 ## Deploying the API Firewall
 
 Once the task has been configured and saved, you can create a service from this task, configuring AWS network components to make the Firewall reachable.
@@ -270,9 +279,8 @@ When creating the service from the task:
 
 * You will need to authorize access to secrets from the Fargate task (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data-secrets.html)
 
-* When the API Firewall starts, it needs to connect to **protection.42crunch.com:8001** - You may need to open access to this hostname  in your firewall / network rules.
-
   > There are many ways to deploy this setup, which will vary depending on your existing application architecture.  For example, you could use a application LB and terminate TLS at that level, or just do TCP load balancing in a network LB on port 443 so that the API Firewall terminates SSL.
+
 
 # Getting ready to test the API firewall
 
@@ -289,9 +297,10 @@ You can also use curl to make the same request (using the -k option to avoid the
 2. Import the  `postman-collection/Pixi_collection.json` file in Postman using **Import>Import from File**.
 
 3. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to the value of SERVER_NAME  to invoke the protected API (for example 42c-fw-lb-xxxx.elb.eu-west-1.amazonaws.com).
+   
    The final configuration should look like this in Postman:
 
-![Postman-Secure-Generic](./graphics/Postman-Secure-Generic.jpg)
+![Postman-Secure-Generic](./graphics/Postman-AWSEnv.jpg)
 
 8. Go to the Pixi collection you just imported and invoke the operation **POST /api/register** with the following contents:
 

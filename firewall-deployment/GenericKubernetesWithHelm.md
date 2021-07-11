@@ -65,11 +65,11 @@ image:
 
 ### SaaS platform connection
 
-When the API firewall starts, it connects by default to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your network firewall configuration authorizes this connection. 
+When the API firewall starts, it need to connect to our SaaS platform to a URL which varies depending on the platform you are using. Default is **[protection.42crunch.com](protection.42crunch.com/) on port \**8001\**. Make sure your network firewall configuration authorizes this connection.**
 
-> The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
+> **This gRPC-based, secured connection is always established from the API firewall to the platform. Logs and configuration are uploaded/downloaded through this connection.**
 
-If your company is hosted on a different 42Crunch SaaS instance, you can edit the `firewall-deployment/helm-artifacts/42c-evalguide/charts/protected-pixi/values.yaml`file and override this entry:
+If your company is hosted on a different 42Crunch SaaS instance, you can edit the `firewall-deployment/helm-artifacts/42c-evalguide/charts/protected-pixi/values.yaml`file and override this entry.
 
 ```yaml
 platform:

@@ -16,7 +16,7 @@ fi
 kubectl create namespace $RUNTIME_NS
 # Create secrets
 echo "===========> Creating Secrets"
-kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ./etc/tls/private.key --cert ./etc/tls/cert-fullchain.pem
+kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ./etc/tls/private.key --cert ./etc/tls/fullchain-cert-with-ca.pem
 kubectl create --namespace=$RUNTIME_NS secret generic generic-pixi-protection-token --from-env-file='./etc/secret-protection-token'
 # Config Map creation
 echo "===========> Creating ConfigMap"

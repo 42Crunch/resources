@@ -12,6 +12,12 @@ The directory provides examples on each option you can add to the configuration 
 
 For more details, see [CI/CD integration](https://docs.42crunch.com/latest/content/concepts/ci_cd_integration.htm).
 
+## Conformance Scan resources
+
+42Crunch supports deploying its conformance scan as a local agent, which can test local APIs which are not exposed through the Internet. 
+
+The conformance scan can be run on any developer's laptop [using Docker](https://docs.42crunch.com/latest/content/concepts/api_contract_conformance_scan.htm#scrollNav-10) but by popular demand, we also developed centralized deployment modes, one based on AWS Batch and the other one based on Kubernetes Jobs.
+
 ## API Firewall resources
 
 The `firewall-deployment` directory contains various guides and artifacts to guide you through deploying 42Crunch API Firewall. It is organized as follows:

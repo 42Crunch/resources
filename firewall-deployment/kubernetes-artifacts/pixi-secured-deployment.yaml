@@ -58,6 +58,14 @@ spec:
         imagePullPolicy: Always
         args: ["-platform", "protection.42crunch.com:8001"]
         command: ["/bin/squire"]
+        livenessProbe:
+          httpGet:
+            path: /hc
+            port: 8880
+        readinessProbe:
+          httpGet:
+            path: /hc
+            port: 8880
         ports:
           - containerPort: 8443
         env:

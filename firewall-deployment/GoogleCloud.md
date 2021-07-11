@@ -43,6 +43,12 @@ You need to clone the 42Crunch resources project located on Github (https://gith
 
 You must be a registered user on the [42Crunch Platform](https://platform.42crunch.com) to follow this guide. If you do not have an account, you can self-register at https://platform.42crunch.com/register.
 
+### SaaS platform connection
+
+When the API firewall starts, it need to connect to our SaaS platform to a URL which varies depending on the platform you are using. Default is **[protection.42crunch.com](protection.42crunch.com/)** on port **8001**. Make sure your network firewall configuration authorizes this connection.
+
+> This gRPC-based, secured connection is always established from the API firewall to the platform. Logs and configuration are uploaded/downloaded through this connection.
+
 ### GKE Kubernetes cluster
 
 You must have a GKE cluster running, and proper credentials to deploy the artifacts to that cluster. If you don't already have one, you can create one in three easy steps:
@@ -114,9 +120,9 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 ## Configuration Setup
 
-Import the Pixi API and generate the protection configuration
+### Import the Pixi API and generate the protection configuration
 
-1. Log in to 42Crunch Platform at <https://platform.42crunch.com>
+1. Log in to 42Crunch Platform at <https://platform.42crunch.com> (or your assigned platform)
 
 2. Go to **API Collections** in the main menu and click on **New Collection**, name it  PixiTest.
 
@@ -150,6 +156,16 @@ You must save the protection token in a configuration file. This file is read by
 
 ```shell
 PROTECTION_TOKEN=<your_token_value>
+```
+
+3. [Optional] The platform protection endpoint needs to be changed according to the 42Crunch platform you are using, should it be our customer platforms or a dedicated instance. If your platform is **acme.42crunch.com**, then the protection endpoint will be: **protection.acme.42crunch.com**. Port is always **8001**. See the 42Crunch [documentation](https://docs.42crunch.com) for details.
+
+```yaml
+      - name: apifirewall
+        image: '42crunch/apifirewall:latest'
+        imagePullPolicy: Always
+        args: ["-platform", "protection.42crunch.com:8001"]
+        command: ["/bin/squire"]
 ```
 
 ## Deploying the API Firewall
@@ -196,16 +212,13 @@ We now have a running configuration with two endpoints: one that invokes the uns
 
 1. Run `kubectl get svc -n 42crunch` to get the external IP of the `pixisecured` deployment (values shown here are placeholders):
 
-   ``shell
-   NAME           TYPE           CLUSTER-IP     EXTERNAL-IP    	PORT(S)          AGE
+   ```shell
+   NAME           TYPE           CLUSTER-IP     		EXTERNAL-IP    	PORT(S)          AGE
    pixi-open      LoadBalancer   10.0.110.240   <pixi-app-ip>   	8090:30445/TCP   113m
    pixi-secured   LoadBalancer   10.0.220.184   <pixi-secu-ip>   443:32476/TCP    113m
    pixidb         ClusterIP      10.0.222.107   <none>         	27017/TCP        113m
-
    ```
    
-   ```
-
 2. Go to edit your `hosts` file, and add the `pixisecured` and `pixi-open` deployments to it. Replace the placeholders `<pixi-secu-ip>` and `<pixi-app-ip>` with the actual external IPs returned by the command above:
 
    ```shell

@@ -54,9 +54,9 @@ Make sure that your Kubernetes environment allows for this container to start pr
 
 ### SaaS platform connection
 
-When the API firewall starts, it connects to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your firewall configuration authorizes this connections. 
+When the API firewall starts, it need to connect to our SaaS platform to a URL which varies depending on the platform you are using. Default is **[protection.42crunch.com](protection.42crunch.com/) on port \**8001\**. Make sure your network firewall configuration authorizes this connection.**
 
-> The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
+> **This gRPC-based, secured connection is always established from the API firewall to the platform. Logs and configuration are uploaded/downloaded through this connection.**
 
 ### Tools
 
@@ -89,7 +89,7 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 ### Import the Pixi API and generate the protection configuration
 
-1. Log in to 42Crunch Platform at <https://platform.42crunch.com>
+1. Log in to 42Crunch Platform at <https://platform.42crunch.com> (or your assigned platform)
 
 2. Go to **API Collections** in the main menu and click on **New Collection**, name it  PixiTest.
 
@@ -125,6 +125,18 @@ You must save the protection token in a configuration file. This file is read by
 PROTECTION_TOKEN=<your_token_value>
 ```
 
+3. [Optional] The platform protection endpoint needs to be changed according to the 42Crunch platform you are using, should it be our customer platforms or a dedicated instance. If your platform is acme.42crunch.com, then the protection endpoint will be: protection.acme.42crunch.com. Port is always 8001. See the 42Crunch [documentation](https://docs.42crunch.com) for details.
+
+```yaml
+      - name: apifirewall
+        image: '42crunch/apifirewall:latest'
+        imagePullPolicy: Always
+        args: ["-platform", "protection.42crunch.com:8001"]
+        command: ["/bin/squire"]
+```
+
+## 
+
 ## Deploying the API Firewall
 
 > *This deployment uses a specific namespace called `42crunch`. This means that you can deploy the artifacts in an existing Kubernetes cluster without overlapping other existing artifacts.*
@@ -142,8 +154,6 @@ PROTECTION_TOKEN=<your_token_value>
   kubectl config current-context
   gke_pixi-deploy_europe-west6-a_xxxx
   ```
-
-  
 
 2. Depending on your environment, run either the `pixi-create-demo.sh` or `pixi-create-demo.bat` script to deploy the sample configuration:
 

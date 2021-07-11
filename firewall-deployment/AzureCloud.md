@@ -8,7 +8,6 @@
 This document describes how to deploy and test [42Crunch](https://42crunch.com/) API Firewall in [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/services/kubernetes-service/). For more information on [42Crunch Platform](https://platform.42crunch.com) and [42Crunch API Firewall](https://docs.42crunch.com/latest/content/concepts/api_protection.htm#Firewall), take a look at the [platform documentation](https://docs.42crunch.com/).
 
 > The example setup in this document uses the Pixi API, a deliberately **vulnerable** API created as part of the [OWASP DevSlop](https://devslop.co/Home/Pixi) project to demonstrate common API issues. **We recommend that you install the Pixi API in a dedicated Kubernetes cluster, and delete the cluster once your tests are completed.** Do not leave the unprotected Pixi API running, it is vulnerable!
->
 
 ## Platform Overview
 
@@ -56,7 +55,7 @@ You must have an AKS Kubernetes cluster running, and proper credentials to deplo
 
     ```shell
     az group create --name rg-42crunch --location eastus
-    az aks create --resource-group rg-42crunch --name aks-42crunch --node-count 1 --enable-addons monitoring --node-vm-size Standard_D2s_v3 
+    az aks create --resource-group rg-42crunch --name aks-42crunch --node-count 1 --node-vm-size Standard_D2s_v3 
     ```
     
     After a few minutes, you should have a Kubernetes environment ready for testing. 
@@ -93,9 +92,9 @@ Make sure that your Kubernetes environment allows for this container to start pr
 
 ### SaaS platform connection
 
-When the API firewall starts, it connects to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your firewall configuration authorizes this connections. 
+When the API firewall starts, it need to connect to our SaaS platform to a URL which varies depending on the platform you are using. Default is **[protection.42crunch.com](protection.42crunch.com/)** on port **8001**. Make sure your network firewall configuration authorizes this connection.
 
-> The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
+> This gRPC-based, secured connection is always established from the API firewall to the platform. Logs and configuration are uploaded/downloaded through this connection.
 
 ### Tools
 
@@ -126,7 +125,7 @@ Both deployments are fronted by load balancers and point to a [MongoDB](https://
 
 Import the Pixi API and generate the protection configuration
 
-1. Log in to 42Crunch Platform at <https://platform.42crunch.com>
+1. Log in to 42Crunch Platform at <https://platform.42crunch.com> (or your assigned platform)
 
 2. Go to **API Collections** in the main menu and click on **New Collection**, name it  PixiTest.
 
@@ -162,7 +161,9 @@ You must save the protection token in a configuration file. This file is read by
    PROTECTION_TOKEN=<your_token_value>
    ```
 
-3. If you have subscribed to the API Firewall container offering from the Azure marketplace, edit the `pixi-secured-deployment.yaml` file and look for this section:
+3. [Optional] If you have subscribed to the API Firewall container offering from the Azure marketplace
+
+   1. Edit the `pixi-secured-deployment.yaml` file and look for this section:
 
    ```yaml
    spec:
@@ -171,9 +172,19 @@ You must save the protection token in a configuration file. This file is read by
        image: '42crunch/apifirewall:latest'  
    ```
 
-4. Replace `42crunch/apifirewall:latest` by the value you noted at the beginning of this guide, for example `myregistry.azurecr.io/42crunch158039xxxx/apifirewall:latest` and save the file.
+   2. Replace `42crunch/apifirewall:latest` by the value you noted at the beginning of this guide, for example `myregistry.azurecr.io/42crunch158039xxxx/apifirewall:latest` and save the file.
 
-> You will need to establish an integration between your Azure AKS cluster and your Azure container registry following these instructions: https://docs.microsoft.com/en-us/azure/aks/cluster-container-registry-integration. 
+> You will need to establish an integration between your Azure AKS cluster and your Azure container registry following these instructions: https://docs.microsoft.com/en-us/azure/aks/cluster-container-registry-integration or add secrets to your deployment to that it can access the registry.
+
+4. [Optional] The platform protection endpoint needs to be changed according to the 42Crunch platform you are using, should it be our customer platforms or a dedicated instance. If your platform is acme.42crunch.com, then the protection endpoint will be: protection.acme.42crunch.com. Port is always 8001. See the 42Crunch [documentation](https://docs.42crunch.com) for details.
+
+```yaml
+      - name: apifirewall
+        image: '42crunch/apifirewall:latest'
+        imagePullPolicy: Always
+        args: ["-platform", "protection.42crunch.com:8001"]
+        command: ["/bin/squire"]
+```
 
 ## Deploying the API Firewall
 

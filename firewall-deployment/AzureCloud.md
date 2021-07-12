@@ -135,7 +135,7 @@ Import the Pixi API and generate the protection configuration
 
 4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](./graphics/42c_ImportOAS.png?raw=true "Import API definition")
 
-   The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
+   The API should score around 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure the API firewall.
 
 5. In the main menu on the left, click **Protect** to launch the protection wizard
 
@@ -209,7 +209,7 @@ kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
 
 > Should the scripts fail for any reason, you can start from a clean situation using the deletion scripts.
 
-2. Run `kubectl get pods -w -n 42crunch`  and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from the DockerHub registry.	
+2. Run `kubectl get pods -w -n 42crunch`  and wait until all pods are successfully running. It takes usually a couple minutes the first time, since the docker images must be pulled from the DockerHub registry.
 
 ```shell
 NAME                            READY   STATUS    RESTARTS   AGE
@@ -217,6 +217,14 @@ NAME                            READY   STATUS    RESTARTS   AGE
  pixi-secured-54d957c8bc-h867f   2/2     Running   0          5m
  pixidb-755f648d47-k5pm9         1/1     Running   0          5m
 ```
+
+3. Back to the 42Crunch platform, check that you see the firewall in the list of active instances. This means the firewall has properly registered itself to the platform.
+
+   ![InstancesList](./graphics/InstancesList.jpg)
+
+If one of the pixi secured containers is not running or you can't see the instance in the SaaS UI, it means the firewall did not start properly. In this case, check the logs using this command (substitute the pod name by yours). Most common reasons are bad token value and bad platformUrl value. 
+
+`kubectl logs pixi-secured-54d957c8bc-h867f -c apifirewall`
 
 #### Kubernetes dashboard
 

@@ -226,18 +226,6 @@ If one of the pixi secured containers is not running or you can't see the instan
 
 `kubectl logs pixi-secured-54d957c8bc-h867f -c apifirewall`
 
-#### Kubernetes dashboard
-
-If you want to see/monitor the various artifacts which have been created (pods, services, deployments and secrets), you can launch the Kubernetes standard dashboard, like this:
-
-```shell 
-az aks browse --resource-group rg-42crunch --name aks-42crunch
-```
-
-Then, change the default namespace to 42crunch to browse all artifacts.
-
-> If you get authorization issues in the dashboard, see those instructions: https://docs.microsoft.com/en-us/azure/aks/kubernetes-dashboard.
-
 ### Getting ready to test the firewall
 
 We now have a running configuration with two endpoints: one that invokes the unsecured API and the other one that invokes the secured API.

@@ -199,12 +199,20 @@ pixi-5c55844c9-xdlpn           1/1     Running   0          3m33s
 pixi-secured-64c6f5f77-hbsbb   2/2     Running   0          3m32s
 pixidb-589f8fc649-4m49t        1/1     Running   0          3m33s
 ```
+3. Back to the 42Crunch platform, check that you see the firewall in the list of active instances. This means the firewall has properly registered itself to the platform.
+
+   ![InstancesList](./graphics/InstancesList.jpg)
+
+If one of the pixi secured containers is not running or you can't see the instance in the SaaS UI, it means the firewall did not start properly. In this case, check the logs using this command (substitute the pod name by yours). Most common reasons are bad token value and bad platformUrl value. 
+
+`kubectl logs pixi-secured-54d957c8bc-h867f -c apifirewall`
 
 If you want to see/monitor the various artifacts which have been created (pods, services, deployments and secrets), you should open the [Google console](https://console.cloud.google.com/), which presents a clear view of workloads and services deployed.
 
 ![](./graphics/42c_GKE_Workloads.jpeg)
 
 ![](./graphics/42c_gke_services.jpg)
+
 
 ### Getting ready to test the firewall
 

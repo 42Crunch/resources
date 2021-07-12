@@ -184,8 +184,13 @@ kubectl apply --namespace=$RUNTIME_NS -f pixi-secured-deployment.yaml
   pixidb-755f648d47-k5pm9         1/1     Running   0          5m
 ```
 
-3. Back in the SaaS platform, you can see a new entry under **Protection-Active instances**.
+3. Back to the 42Crunch platform, check that you see the firewall in the list of active instances. This means the firewall has properly registered itself to the platform.
+
    ![InstancesList](./graphics/InstancesList.jpg)
+
+If one of the pixi secured containers is not running or you can't see the instance in the SaaS UI, it means the firewall did not start properly. In this case, check the logs using this command (substitute the pod name by yours). Most common reasons are bad token value and bad platformUrl value. 
+
+`kubectl logs pixi-secured-54d957c8bc-h867f -c apifirewall`
 
 # Preparing to test the API firewall
 

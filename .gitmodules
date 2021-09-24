@@ -1,0 +1,3 @@
+[submodule "conformance-scan/kubernetes-integration"]
+	path = conformance-scan/kubernetes-integration
+	url = https://github.com/42Crunch/scand-manager

@@ -75,7 +75,7 @@ You should now have a Kubernetes environment ready for testing. You can verify t
 
 ### SaaS platform connection
 
-When the API firewall starts, it connects to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your firewall configuration authorizes this connection. 
+When the API firewall starts, it connects to the platform at this address: **[protection.42crunch.com](http://protection.42crunch.com/)** on port **8001**. Make sure your firewall (from your machine/laptop) configuration authorizes this connection. 
 
 > The connection is established from the  API firewall to the platform. It is a two-way, HTTP/2 gRPC connection. Logs and configuration are uploaded/downloaded through this connection.
 
@@ -159,13 +159,13 @@ PROTECTION_TOKEN=<your_token_value>
 	```shell
 	# Create secrets
 	echo "===========> Creating Secrets"
-	kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ./etc/tls/private.key 	--cert ./etc/tls/cert-fullchain.pem
-	kubectl create --namespace=$RUNTIME_NS secret generic generic-pixi-protection-token --	from-env-file='./etc/secret-protection-token'
+	kubectl create --namespace=$RUNTIME_NS secret tls firewall-certs --key ./etc/tls/private.key --cert ./etc/tls/cert-fullchain.pem
+	kubectl create --namespace=$RUNTIME_NS secret generic generic-pixi-protection-token -- from-env-file='./etc/secret-protection-token'
 	# Config Map creation
 	echo "===========> Creating ConfigMap"
-		kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env-	file='./etc/deployment.properties'
+        kubectl create --namespace=$RUNTIME_NS configmap firewall-props --from-env- file='./etc/deployment.properties'
 	# Deployment (Un-secured API + MongoDB)
-  echo "===========> Deploying unsecured pixi and database"
+        echo "===========> Deploying unsecured pixi and database"
 	kubectl apply --namespace=$RUNTIME_NS -f pixi-basic-deployment.yaml
 	# Deployment (Pixi + FW)
 	echo "===========> Deploying secured API firewall"

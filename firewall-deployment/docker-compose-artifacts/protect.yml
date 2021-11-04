@@ -1,0 +1,35 @@
+version: '3'
+services:
+  pixi-secured.42crunch.test:
+    image: 42crunch/apifirewall:latest
+    ports:
+      - '4241:443'
+      - '8880:8880'
+    volumes:
+      - ./storage/apifirewall/ssl:/opt/guardian/conf/ssl
+      - ./storage/apifirewall/logs:/opt/guardian/logs
+    command: ["/bin/squire", "-platform", "protection.42crunch.com:8001", "-debug"]
+    environment:
+      - PROTECTION_TOKEN=${PROTECTION_TOKEN}
+      - LISTEN_PORT=443
+      - TARGET_URL=http://pixi-open.42crunch.test:8090
+      - LISTEN_SSL_CERT=full-cert-chain.pem
+      - LISTEN_SSL_KEY=key.pem
+      - SERVER_NAME=pixi-secured.42crunch.test:4241
+      - GUARDIAN_NODE_NAME=Local-Firewall
+      - GUARDIAN_INSTANCE_NAME=Local-Firewall
+      - LOG_LEVEL=DEBUG
+      - LOG_DESTINATION=PLATFORM
+    depends_on:
+      - pixidb
+      - pixi-open.42crunch.test
+  pixidb:
+    image: 42crunch/pixi:datastore
+    ports:
+      - '27017'
+      - '28017'
+  pixi-open.42crunch.test:
+    image: 42crunch/pixi:app_v2
+    ports:
+      - '8000:8000'
+      - '8090:8090'

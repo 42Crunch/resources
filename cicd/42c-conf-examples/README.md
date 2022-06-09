@@ -2,7 +2,7 @@
 
 You can integrate Security Audit with different CI/CD solutions using plugins and automate the static security testing of your OpenAPI definitions from a simple push to your Git repository.
 
-This directory contains examples on each option for fine-tuning the CI/CD integration using a configuration file called `42c-conf.yaml` to change the behavior of the integration plugin: 
+This directory contains examples on each option for fine-tuning the CI/CD integration using a configuration file called `42c-conf.yaml` to change the behavior of the integration plugin:
 
 - `discovery`: How OpenAPI files can be discovered (included or excluded) based on their filenames.
 - `fail_on-invalid-contract`: Stop API definitions that do not conform to the OpenAPI Specification (OAS) being reported as failures.
@@ -11,6 +11,7 @@ This directory contains examples on each option for fine-tuning the CI/CD integr
 - `fail_on-severity`: Specify maximum allowed severity for found issues.
 - `mapping-and-discovery`: Map API files to your existing APIs in 42Crunch Platform.
 - `mapping-no-discovery`: Switch off the discovery phase and only audit specifically mapped API files.
+- `branches-tags-and-prs`: Specify different configs for builds running on different branches/tags and PRs
 
 Each example also comes with sample files (and directories where applicable) to make it easier to understand and test them in practice.
 

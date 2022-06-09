@@ -1,0 +1,65 @@
+# This example shows how to configure failure conditions based on the branch name,
+# tag name or PR target branch.
+#
+# When the CI/CD plugin starts, it creates an API collection in 42Crunch Platform
+# using the name of the repository and branch/tag/PR directly from your source control.
+#
+# If you run the plugin on multiple branches/tags/PRs in the same repository,
+# the plugin creates a separate API collection for each of them.
+#
+# You can specify the plugin configuration individually for each branch/tag/PR in your repository.
+# You can also use wildcards for the branch names to apply the configuration to all
+# branches with matching names.
+#
+# Wildcard chars "*" and "**" can be used as described below, "*" will match
+# any character with exception of "/" and "**" will match any characters including
+# the "/" character.
+#
+# In the following example, the branch called "main" has been configured to fail
+# if the minimum data validation score is under 70, and any branch with a name matching
+# the wildcard pattern "feature-*" to fail if the data validation score is under 50.
+#
+# All other branches are caught by the pattern "**" and are configured to fail if
+# the data validation score is under 60.
+#
+# Additionally you can specify plugin configuration for tags and PRs as shown below.
+# When specifying configuration for PRs, matching is done by a PR "target branch"
+# so it's possible for example specify that PRs targeting "main" branch will require
+# higher score, then PRs targeting other branches.
+
+audit:
+  branches:
+    main:
+      fail_on:
+        score:
+          data: 70
+    "feature-*":
+      fail_on:
+        score:
+          data: 50
+    "**":
+      fail_on:
+        score:
+          data: 60
+  tags:
+    v1.0:
+      fail_on:
+        score:
+          data: 50
+    v2.0:
+      fail_on:
+        score:
+          data: 60
+    "**":
+      fail_on:
+        score:
+          data: 70
+  prs:
+    main:
+      fail_on:
+        score:
+          data: 70
+    "**":
+      fail_on:
+        score:
+          data: 50

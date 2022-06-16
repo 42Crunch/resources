@@ -11,13 +11,13 @@
 # You can also use wildcards for the branch names to apply the configuration to all
 # branches with matching names.
 #
-# You can use wildcards `*` and `**` (see the example below): `*` matches
-# any character except `/`, while `**` matches any characters including `/`.
+# You can use wildcards * and ** (see the example below): * matches
+# any character except /, while ** matches any characters including /.
 #
 # In the example below, the branch called "main" has been configured to fail
 # if the minimum data validation score is under 70, and any branch with a name matching
-# the wildcard pattern `feature-*` to fail if the data validation score is under 50.
-# All other branches are caught by the pattern `**` and are configured to fail if
+# the wildcard pattern feature-* to fail if the data validation score is under 50.
+# All other branches are caught by the pattern ** and are configured to fail if
 # the data validation score is under 60.
 #
 # Additionally, you can specify plugin configuration for individual tags and PRs as shown below.

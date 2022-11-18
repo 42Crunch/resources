@@ -1,0 +1,186 @@
+{
+  "executionRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_TASK_ROLE}",
+  "containerDefinitions": [
+    {
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "${AWS_LOG_GROUP}",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "entryPoint": [
+        "/bin/squire"
+      ],
+      "command": [
+        "-platform",
+        "${XLIIC_PLATFORM}"
+      ],
+      "portMappings": [
+        {
+          "hostPort": 443,
+          "protocol": "tcp",
+          "containerPort": 443
+        }
+      ],
+      "cpu": 0,
+      "environment": [
+        {
+          "name": "GUARDIAN_INSTANCE_NAME",
+          "value": "aws-fargate-instance"
+        },
+        {
+          "name": "GUARDIAN_NODE_NAME",
+          "value": "aws-fargate-node"
+        },
+        {
+          "name": "LISTEN_PORT",
+          "value": "443"
+        },
+        {
+          "name": "LISTEN_SSL_CERT",
+          "value": "firewall-cert.pem"
+        },
+        {
+          "name": "LISTEN_SSL_KEY",
+          "value": "firewall-key.pem"
+        },
+        {
+          "name": "LOG_DESTINATION",
+          "value": "PLATFORM"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "value": "warn"
+        },
+        {
+          "name": "PRESERVE_HOST",
+          "value": "On"
+        },
+        {
+          "name": "SERVER_NAME",
+          "value": "${AWS_SERVER_NAME}"
+        },
+        {
+          "name": "STATUS_POLL_INTERVAL",
+          "value": "60"
+        },
+        {
+          "name": "TARGET_URL",
+          "value": "http://localhost:8090"
+        },
+        {
+          "name": "TIMEOUT_IN",
+          "value": "60"
+        },
+        {
+          "name": "TIMEOUT_KEEPALIVE",
+          "value": "15"
+        }
+      ],
+      "ulimits": [
+        {
+          "name": "nofile",
+          "softLimit": 65536,
+          "hardLimit": 65536
+        }
+      ],
+      "mountPoints": [
+        {
+          "containerPath": "/opt/guardian/logs",
+          "sourceVolume": "guardian-logs"
+        }
+      ],
+      "secrets": [
+        {
+          "valueFrom": "${AWS_SECRET_ARN}",
+          "name": "PROTECTION_TOKEN"
+        }
+      ],
+      "memory": 1024,
+      "memoryReservation": 256,
+      "volumesFrom": [],
+      "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_REPOSITORY}",
+      "healthCheck": {
+        "retries": 2,
+        "command": [
+          "CMD-SHELL",
+          "echo $'GET /hc HTTP/1.0\\r\\n\\r\\n' | nc 127.0.0.1 8880"
+        ],
+        "timeout": 2,
+        "interval": 60,
+        "startPeriod": 5
+      },
+      "essential": true,
+      "name": "apifirewall"
+    },
+    {
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "${AWS_LOG_GROUP}",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "portMappings": [
+        {
+          "hostPort": 8090,
+          "protocol": "tcp",
+          "containerPort": 8090
+        }
+      ],
+      "cpu": 0,
+      "environment": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "image": "42crunch/pixi:app_local",
+      "dependsOn": [
+        {
+          "containerName": "pixidb",
+          "condition": "START"
+        }
+      ],
+      "name": "pixiapp"
+    },
+    {
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "${AWS_LOG_GROUP}",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "portMappings": [
+        {
+          "hostPort": 27017,
+          "protocol": "tcp",
+          "containerPort": 27017
+        }
+      ],
+      "cpu": 0,
+      "environment": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "image": "42crunch/pixi:datastore",
+      "name": "pixidb"
+    }
+  ],
+  "placementConstraints": [],
+  "memory": "2048",
+  "family": "apifirewall",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "networkMode": "awsvpc",
+  "cpu": "1024",
+  "volumes": [
+    {
+      "name": "guardian-logs",
+      "host": {
+      }
+    }
+  ]
+}

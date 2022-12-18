@@ -1,0 +1,8 @@
+audit:
+  branches:
+    tags:
+      discovery: true
+      api_tags:
+        - 'SecurityQualityGatesTags:firstTag'
+        - 'SecurityQualityGatesTags:secondTag'
+

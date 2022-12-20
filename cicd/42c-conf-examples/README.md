@@ -12,6 +12,7 @@ This directory contains examples on each option for fine-tuning the CI/CD integr
 - `mapping-and-discovery`: Map API files to your existing APIs in 42Crunch Platform.
 - `mapping-no-discovery`: Switch off the discovery phase and only audit specifically mapped API files.
 - `branches-tags-and-prs`: Specify different configs for builds running on different branches/tags and PRs
+- `api_tags`: Tag APIs with the tags defined in 42Crunch Platform. Only the newly created APIs are tagged. All specified tags must exist on the platform.
 
 Each example also comes with sample files (and directories where applicable) to make it easier to understand and test them in practice.
 

@@ -1,8 +1,7 @@
 audit:
   branches:
-    tags:
-      discovery: true
+    master:
       api_tags:
-        - 'SecurityQualityGatesTags:firstTag'
-        - 'SecurityQualityGatesTags:secondTag'
+        - 'category1:tag1'
+        - 'category2:tag2'
 

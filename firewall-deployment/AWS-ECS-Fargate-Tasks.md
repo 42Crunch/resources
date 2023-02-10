@@ -70,7 +70,7 @@ Import the Pixi API and generate the protection configuration
 
 4. Click on **Import API** to upload the Pixi API definition from the file `OASFiles/Pixi-v2.0.json`. Once the file is imported, it is automatically audited.![Import API definition](./graphics/42c_ImportOAS.png?raw=true "Import API definition")
 
-   The API should score 94/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
+   The API should score 89/100 in API Contract Security Audit: the API contract description in this file has been optimized, in particular for data definition quality (such as inbound headers, query params, access tokens, and responses JSON schema). This implies we can use it as-is to configure our firewall.
 
 5. In the main menu on the left, click **Protect** to launch the protection wizard
 
@@ -82,7 +82,7 @@ Import the Pixi API and generate the protection configuration
 
 # Deployment Setup
 
-For simplicity, the pixi app, the pixi db and the Firewall have been deployed in the same Fargate task. 
+For simplicity, the pixi app, the pixi db and the Firewall will be deployed in the same Fargate task. 
 
 ## Protection Token Setup
 
@@ -90,29 +90,36 @@ The protection token is used by the API Firewall to retrieve its configuration f
 
 You must save the protection token in a configuration file. This file is read by the deployment scripts to create a secret in AWS SecretsManager.
 
-1. Edit  `etc/secret-protection-token` with any text editor.
+1. Edit  `variables.env` with any text editor.
 
-2. Replace the placeholder `<your_token_value>` with the protection token you copied, and save the file:
+2. Set the value of the `XLIIC_PROTECTION_TOKEN` environment variable to the protection token you copied, and save the file:
 
 ```shell
-<your_token_value>
+$ cat variables.env
+XLIIC_PROTECTION_TOKEN=587b70da-730a-4ac3-a2c9-78a68553e87c
+...
 ```
 
-### Create the Protection Token secret
+### Create an AWS secret for the Protection Token
 
 1. Use the `create-aws-secrets.sh` script to push the protection-token to  AWS secrets manager. This script assumes you're logged into the AWS CLI and have enough permissions to create the resources.
 
    > This assumes you're are using the CLI to create the files. You can create those  secrets through different means than this script, for example the AWS Console.
 
-2. Note the ARN value of the **42c-protection-token** secret. You will need it later to configure the API Firewall task.
+2. Store the ARN value of the **42c-protection-token** secret in the AWS_SECRET_ARN environment variable of the `variables.env` file.
 
-   ```JSON
-   {
-       "ARN": "arn:aws:secretsmanager:eu-west-1:749000XXXXX:secret:42c-protection-token-vwGqc8",
-       "Name": "42c-protection-token",
-       "VersionId": "34510b7c-a396-4e00-a9cc-4816c5ee4c9c"
-   }
-   ```
+```shell
+$ sh create-aws-secrets.sh 
+===========> Creating AWS Secrets 
+{
+    "ARN": "arn:aws:secretsmanager:eu-west-2:000000000000:secret:42c-protection-token2-adLeD9",
+    "Name": "42c-protection-token",
+    "VersionId": "dcc3f2f9-75fc-43ae-a593-2cc3992bc60b"
+}
+$ cat variables.env
+...
+AWS_SECRET_ARN=arn:aws:secretsmanager:eu-west-2:000000000000:secret:42c-protection-token2-adLeD9
+```
 
 ## TLS Setup
 
@@ -143,38 +150,46 @@ and respond to the setup questions. You can use any CN you want for the purpose 
 
 ## Build Firewall Image
 
-1. Edit the `build.sh` script and set the proper tag name (using your container registry ID, here 749000XXXXX).
+1. Create a private repository named `42cfirewall` in Amazon Elastic Container Registry (https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-create.html).
+2. Edit the `variables.env` file and set the `AWS_ACCOUNT_ID` environment variable (without dashes!) and the `AWS_REGION` to the corresponding values of your AWS environment. Finally, you may modify the `AWS_REPOSITORY` variable to correspond to the repository name you just created and set a tag, for instance `latest`:
 
 ```shell
-#!/bin/bash
-set -e
-
-IMAGE_TAG='749000XXXXXX.dkr.ecr.eu-west-1.amazonaws.com/42cfirewall:pixi-tls'
-
-# Retrieve secrets
-echo "===========> Docker build"
-docker build . -t $IMAGE_TAG
+$ cat variables.env
+...
+AWS_ACCOUNT_ID=123456789012
+AWS_REGION=eu-west-2
+AWS_REPOSITORY=42cfirewall:latest
+...
 ```
+3. Execute `build-image.sh`. This script consists of three steps:
+   * First, it will login docker to your AWS ECR environment
+   * Then, it will build a Docker image for the firewall, setting the cert/key pair you created previously on the base 42Crunch API firewall image
+   * Finally, it will upload this newly created image to the ECR registry.
 
-2. Execute `build.sh` to build a Docker image which adds the cert/key pair you created previously to the base 42Crunch API firewall image. 
+## Prepare the AWS environment
 
-3. Publish this image to your AWS container registry and record the image name, as per those instructions: https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html.
+Assuming the environment in which you're running the tutorial is new, you will need a cluster, a load balancer, a target group, and a security group.
 
-# API Firewall Deployment 
+* If you don't have an ECS cluster yet, now is the time to create a cluster, with default options (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create_cluster.html).
+* Create a CloudWatch log group to receive the logs from the containers (for example, `ecs/firewall`), and modify accordingly the `AWS_LOG_GROUP` environment variable
+* Create an ECS task execution role named `ecsTaskExecutionRole` that has `AmazonECSTaskExecutionRolePolicy`. If you are not using the `ecsTaskExecutionRole`, modify accordingly the `AWS_TASK_ROLE` value in `variables.env`. (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html#create-task-execution-role)
+* You will need to authorize access to the SecretsManager (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data-secrets.html) to the ECS execution task role.
+* If a load balancer isn't already configured to reach your ECS cluster, create an AWS Network Load Balancer to expose the firewall to the internet. The load balancer needs to be listening on port 443 and forwarding traffic to a 443 IP target group (https://docs.aws.amazon.com/elasticloadbalancing/latest/network/create-network-load-balancer.html)
+* Create a security group that allows `HTTPS/443` from `0.0.0.0/0` as an inbound rule. Allow `All traffic` as an outbound rule. This security group will be used when creating the service.
+  > There are many ways to deploy this setup, which will vary depending on your existing application architecture.  For example, you could use an application LB and terminate TLS at that level, or just do TCP load balancing in a network LB on port 443 so that the API Firewall terminates SSL.
 
-You need to now edit the sample task provided according to your setup. 
+# API Firewall Deployment
 
-1. The apifirewall image value needs to be changed to point to the image created above, for example:
+1. If required, the 42Crunch platform **protection endpoint** can be changed by modifying the `XLIIC_PLATFORM` environment variable in the  `variables.env` file. It should correspond to the 42Crunch platform you are using, should it be our customer platforms or a dedicated instance. If your platform is `acme.42crunch.com`, then the protection endpoint will be: `protection.acme.42crunch.com`. Port is always 8001. See the 42Crunch [documentation](https://docs.42crunch.com) for details.
+   > You may need to open access to this hostname  in your firewall / network rules.
 
-   ```JSON
-   {
-     ...
-       "image": "749000xxxxx.dkr.ecr.eu-west-1.amazonaws.com/42c-fw:latest",
-     ...
-   }
-   ```
+2. Edit `variables.env` to set the `AWS_SERVER_NAME` to the FQDN of the exposed service. If you created a load balancer, it will be the DNS name of this load balancer, for instance `lb-76f8ea9a4cf2f37a.elb.eu-west-2.amazonaws.com`.
+   
+3. We will now generate the Fargate task definition, by running the `create-task.sh` script. This script creates a task definition in the `task.json` file, from the `task.template` file and the environment variables you defined in `variables.env`.
 
-2. Environment variables
+4. Optional. API Firewall Environment variables
+
+  In `task.json` you can see the specific environment variables used by 42Crunch API firewall. Here is their description.
 
    | ENVIRONMENT VARIABLE NAME | DESCRIPTION                                                  | SAMPLE VALUE (in Task JSON file)           |
    | ------------------------- | ------------------------------------------------------------ | ------------------------------------------ |
@@ -230,7 +245,7 @@ Those values are part of the environment configuration of the API Firewall conta
            },
            {
              "name": "SERVER_NAME",
-             "value": "42c-fw-lb-xxxxx.elb.eu-west-1.amazonaws.com"
+             "value": "${AWS_SERVER_NAME}"
            },
            {
              "name": "TARGET_URL",
@@ -246,63 +261,30 @@ Those values are part of the environment configuration of the API Firewall conta
            }
 ```
 
-3. Set the **PROTECTION_TOKEN** value from the secret created earlier - Use the ARN obtained via the AWS CLI. 
-
-```
-secrets": [
-  {
-    "valueFrom": "arn:aws:secretsmanager:eu-west-1:749000XXXXX:secret:42c-protection-token-vwGqc8",
-     "name": "PROTECTION_TOKEN"
-  }
-```
-
-4. The platform **protection endpoint** needs to be changed according to the 42Crunch platform you are using, should it be our customer platforms or a dedicated instance. If your platform is `acme.42crunch.com`, then the protection endpoint will be: `protection.acme.42crunch.com`. Port is always 8001. See the 42Crunch [documentation](https://docs.42crunch.com) for details.
-
-   ```json
-   "command": [
-           "-platform",
-           "protection.42crunch.com:8001"
-   ],
-   ```
-
-   > You may need to open access to this hostname  in your firewall / network rules.
-
-## Deploying the API Firewall
-
-Once the task has been configured and saved, you can create a service from this task, configuring AWS network components to make the Firewall reachable.
-
-When creating the service from the task: 
-
-* You can use a network LB to expose the Firewall, with a 443 listening target
-
-* You will need to add HTTPS/443 as inbound rule to the security group the task is attached to
-
-* You will need to authorize access to secrets from the Fargate task (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data-secrets.html)
-
-  > There are many ways to deploy this setup, which will vary depending on your existing application architecture.  For example, you could use a application LB and terminate TLS at that level, or just do TCP load balancing in a network LB on port 443 so that the API Firewall terminates SSL.
-
+5. You can now create a new task definition in ECS from JSON, by copy/pasting the content of the `task.json` file (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create-task-definition.html).
+  
+6. Once the task has been configured and saved, create a service from this task. Make sure that in the `Networking` section, it uses the security group you created. In the `Load Balancer` section, specify the network load balancer you created, and the corresponding target group. Then click deploy.
 
 # Getting ready to test the API firewall
 
-1. Test the secured endpoint setup by invoking the hostname you have set, for example: https://42c-fw-lb-xxxx.elb.eu-west-1.amazonaws.com/ - You should receive a message like this one, indicating the firewall has blocked the request.
+The service will start, and the three containers defined in the task definition (firewall, pixi app and pixi db) will start.
 
+1. Test the secured endpoint setup by invoking the hostname you have set, for example by running the curl command: `curl -k https://lb-76f8ea9a4cf2f37a.elb.eu-west-2.amazonaws.com/`. You should receive a message like this one, indicating the firewall has blocked the request:
 > The API Firewall is configured with a self-signed certificate. You may have to accept an exception for the request to work properly, depending on where TLS termination is happening.
 
 ```json
-{"status":404,"title":"path mapping","detail":"Not Found","instance":"https://42c-fw-lb-xxxx.elb.eu-west-1.amazonaws.com/","uuid":"dd385220-xxxx-11ea-bdc0-c9cc06d42ae5"}
+{"status":400,"title":"path mapping","detail":"Bad Request","uuid":"2ce6eef2-28f0-45b0-86b7-2fea77febf0c"}
 ```
-
-You can also use curl to make the same request (using the -k option to avoid the self-signed certificates issue): `curl -k https://42c-fw-lb-xxxx.elb.eu-west-1.amazonaws.com/`
 
 2. Import the  `postman-collection/Pixi_collection.json` file in Postman using **Import>Import from File**.
 
-3. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to the value of SERVER_NAME  to invoke the protected API (for example 42c-fw-lb-xxxx.elb.eu-west-1.amazonaws.com).
+3. Create  an [environment variable](https://learning.getpostman.com/docs/postman/variables-and-environments/variables/) called **42c_url** inside an environment called **42Crunch-Secure** and set its value to the value of SERVER_NAME  to invoke the protected API (for example `https://lb-76f8ea9a4cf2f37a.elb.eu-west-2.amazonaws.com`/).
    
    The final configuration should look like this in Postman:
 
 ![Postman-Secure-Generic](./graphics/Postman-AWSEnv.jpg)
 
-8. Go to the Pixi collection you just imported and invoke the operation **POST /api/register** with the following contents:
+4. Go to the Pixi collection you just imported and invoke the operation **POST /api/register** with the following contents:
 
     ```json
     {

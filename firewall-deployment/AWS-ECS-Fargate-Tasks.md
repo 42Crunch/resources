@@ -34,6 +34,10 @@ In this guide, we deploy the 42Crunch API firewall in sidecar proxy mode (co-loc
 
 Before you start, ensure you comply with the following pre-requisites:
 
+### AWS CLI
+
+Install the [AWS CLI](https://docs.aws.amazon.com/cli/index.html) and then run `aws configure`
+
 ### 42Crunch resources project
 
 You need to clone the 42Crunch resources project located on Github (https://github.com/42Crunch/resources) to get a local copy of the artifacts used in this guide.

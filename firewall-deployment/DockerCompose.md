@@ -89,7 +89,7 @@ We recommend you install [Postman](https://www.getpostman.com/downloads/) to tes
 1. Open a terminal and navigate to the docker-compose-artifacts folder. Run the following command, replacing `<token>` with the protection token value copied to the clipboard in the previous step
 
     ```
-    PROTECTION_TOKEN=<token> docker-compose -p 42Crunch -f protect.yml up pixi-secured.42crunch.test
+    PROTECTION_TOKEN=<token> docker-compose -p 42crunch -f protect.yml up pixi-secured.42crunch.test
     ```
 
     The secured Pixi API is now accessible on your local machine through the 42Crunch API Firewall at: https://pixi-secured.42crunch.test:4241 

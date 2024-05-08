@@ -29,7 +29,7 @@ services:
       - '27017'
       - '28017'
   pixi-open.42crunch.test:
-    image: 42crunch/pixi:app_v2
+    image: 42crunch/pixi:v4.7.1
     ports:
       - '8000:8000'
       - '8090:8090'

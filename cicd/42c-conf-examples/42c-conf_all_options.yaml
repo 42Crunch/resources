@@ -1,0 +1,96 @@
+# 42Crunch CI/CD Security Audit Configuration File (42c-conf.yaml)
+#
+# This configuration file helps integrate 42Crunch's Security Audit with your CI/CD pipeline,
+# automating the static security testing of your OpenAPI definitions.
+#
+# Below is a detailed configuration that covers various audit options, including 
+# mapping, discovery, failure conditions, tagging, and more.
+
+audit:
+  # Define different configurations for specific branches, tags, or PRs.
+  branches:
+    # Configuration for the 'main' branch.
+    main:
+      # Mapping section: Map specific API files in your repo to existing APIs in the 42Crunch Platform.
+      # 'petstore.json' is mapped to an existing API in the platform using its UUID.
+      mapping:
+        petstore.json: e7cd62ce-1ee9-4320-af33-8bd9519c6f48
+      
+      # Discovery section: Discover OpenAPI files based on their filenames.
+      # In this case, any JSON, YAML, or YML files in any directories (except in 'foo/') will be included.
+      discovery:
+        search:
+          - '**/*.json'
+          - '**/*.yaml'
+          - '**/*.yml'
+          - '!foo/**'
+
+      # Fail on invalid contracts: Disable failure for invalid OpenAPI Specification contracts.
+      fail_on:
+        invalid_contract: false
+
+      # Fail on specific issue IDs: Fail the task if specific issue IDs are encountered.
+        issue_id:
+          - v3-global-security
+          - "*schema*"
+
+      # Fail on minimum audit scores: Set minimum data validation and security scores.
+        score:
+          data: 70
+          security: 30
+
+      # Fail on severity: Fail the task if issues of 'medium' severity or higher are found.
+        severity: medium
+
+      # API tagging: Tag APIs with the specified tags when they are created in 42Crunch Platform.
+      api_tags:
+        - 'category1:tag1'
+        - 'category2:tag2'
+
+    # Configuration for branches matching the pattern 'feature-*'.
+    "feature-*":
+      fail_on:
+        score:
+          data: 50
+
+    # Default configuration for all other branches.
+    "**":
+      fail_on:
+        score:
+          data: 60
+
+  # Configuration for tags.
+  tags:
+    v1.0:
+      fail_on:
+        score:
+          data: 50
+    v2.0:
+      fail_on:
+        score:
+          data: 60
+    "**":
+      fail_on:
+        score:
+          data: 70
+
+  # Configuration for pull requests (PRs) based on the target branch.
+  prs:
+    main:
+      fail_on:
+        score:
+          data: 70
+    "**":
+      fail_on:
+        score:
+          data: 50
+
+  # Mapping and discovery: Combines mapping of APIs with a discovery phase for new APIs.
+  # If an API file is not mapped, the plugin will upload it to the default API collection.
+  mapping-and-discovery: true
+
+  # Mapping with no discovery: Only mapped API files will be audited. Discovery phase is disabled.
+  mapping-no-discovery: false
+
+# This configuration is comprehensive and adaptable to various branch/tag/PR setups,
+# as well as specific failure conditions and file discovery strategies.

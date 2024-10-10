@@ -1,6 +1,6 @@
 # 42Crunch CI/CD Security Audit Configuration
 
-This repository contains the configuration for integrating 42Crunch's API Security Audit with a CI/CD pipeline. It automates the static security testing of your OpenAPI definitions on every push to your repository.
+This repository contains the configuration for integrating 42Crunch's API Security Audit with a CI/CD pipeline. It automates the static security testing of your OpenAPI definitions on every push to your Git repository.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -171,5 +171,6 @@ The associated directories contain additional examples on each option for fine-t
 - `mapping-no-discovery`: Switch off the discovery phase and only audit specifically mapped API files.
 - `branches-tags-and-prs`: Specify different configs for builds running on different branches/tags and PRs
 - `api_tags`: Tag APIs with the tags defined in 42Crunch Platform. Only the newly created APIs are tagged. All specified tags must exist on the platform.
+- `42c-conf_all_options.yaml`: This file contains an inline noted example of the above options in a single file.
 
 For more details on the plugins that use this file, see [CI/CD integration](https://docs.42crunch.com/latest/content/concepts/ci_cd_integration.htm).

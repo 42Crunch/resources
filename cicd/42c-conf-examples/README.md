@@ -1,6 +1,6 @@
 # 42Crunch CI/CD Security Audit Configuration
 
-This repository contains the configuration for integrating 42Crunch's API Security Audit with a CI/CD pipeline. It automates the static security testing of your OpenAPI definitions on every push to your Git repository.
+This repository contains the configuration for integrating 42Crunch's API Security Audit with a CI/CD pipeline. It automates the static security testing of your OpenAPI definitions on every push to your repository.
 
 ## Table of Contents
 - [Overview](#overview)

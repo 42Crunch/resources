@@ -167,8 +167,6 @@ The associated directories contain additional examples on each option for fine-t
 - `fail_on-issue-id`: List the issues that you want always to fail the task.
 - `fail_on-scores`: Specify minimum audit scores that APIs must reach in data validation and security.
 - `fail_on-severity`: Specify maximum allowed severity for found issues.
-- `mapping-and-discovery`: Map API files to your existing APIs in 42Crunch Platform.
-- `mapping-no-discovery`: Switch off the discovery phase and only audit specifically mapped API files.
 - `branches-tags-and-prs`: Specify different configs for builds running on different branches/tags and PRs
 - `api_tags`: Tag APIs with the tags defined in 42Crunch Platform. Only the newly created APIs are tagged. All specified tags must exist on the platform.
 - `42c-conf_all_options.yaml`: This file contains an inline noted example of the above options in a single file.

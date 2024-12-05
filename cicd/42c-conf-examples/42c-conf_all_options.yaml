@@ -85,12 +85,5 @@ audit:
         score:
           data: 50
 
-  # Mapping and discovery: Combines mapping of APIs with a discovery phase for new APIs.
-  # If an API file is not mapped, the plugin will upload it to the default API collection.
-  mapping-and-discovery: true
-
-  # Mapping with no discovery: Only mapped API files will be audited. Discovery phase is disabled.
-  mapping-no-discovery: false
-
 # This configuration is comprehensive and adaptable to various branch/tag/PR setups,
 # as well as specific failure conditions and file discovery strategies.

@@ -17,7 +17,9 @@
 #
 # Optional properties:
 # - 'search': List of glob patterns for file discovery (defaults to standard OpenAPI extensions).
-# - 'teams': Defines team access to the collection.
+# - 'teams': Defines team access to the collection. Keys under 'teams' must be existing team names.
+#            Permissions ('read', 'write', 'delete') are applied only when a new collection is created.
+#            Existing collections' permissions will not be changed.
 #   - Each key under 'teams' is a team name.
 #   - 'permissions': A list of 'read', 'write', 'delete'.
 # - 'api_tags': List of tags to apply to APIs in the collection.

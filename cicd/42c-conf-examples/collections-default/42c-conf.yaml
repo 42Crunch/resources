@@ -1,0 +1,44 @@
+# This example shows how to use the "collections" mode with a "default" configuration.
+# In this mode, the specified collections configuration applies to all types of
+# CICD runs (branches, tags, PRs) unless a more specific branch/tag/pr
+# configuration is found for the current run.
+#
+# The plugin will scan the specified directories for OpenAPI files
+# and upload them to the corresponding collections in 42Crunch Platform.
+# If a collection does not exist, it will be created.
+#
+# The 'default' key is used under 'audit' to specify this global collections config.
+# Each key (foo, bar, baz) under 'collections' specifies a collection technical name.
+#
+# Required properties for each collection:
+# - 'dir': Relative path to the directory to scan.
+#
+# Optional properties:
+# - 'search': List of glob patterns for file discovery (defaults to standard OpenAPI extensions).
+# - 'teams': Defines team access to the collection.
+#   - Each key under 'teams' is a team name.
+#   - 'permissions': A list of 'read', 'write', 'delete'.
+# - 'api_tags': List of tags to apply to APIs in the collection.
+# - 'ignore_failures': Boolean, if true, pipeline continues on audit failure.
+# - 'collection_name': Display name for the collection in the UI.
+#
+# The result of this example:
+# - APIs found in 'foo/' will be in collection "foo".
+#   (No specific search, teams, or other options set for "foo" in this default example).
+# - APIs found in 'bar/' will be in collection "bar", and audit failures will be ignored.
+
+audit:
+  default:
+    collections:
+      foo:
+        dir: foo
+        # teams: # Example teams, can be added if needed
+        #   TeamOne:
+        #     permissions:
+        #       - read
+      bar:
+        dir: bar
+        ignore_failures: true
+        # search: # Example search, can be added if needed
+        #   - '**/*.json'
+        #   - '**/*.yaml'

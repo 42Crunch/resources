@@ -1,0 +1,57 @@
+# This example shows how to use the "collections" mode.
+# In this mode, you can define multiple collections, each with its own
+# directory, search patterns, and team permissions.
+#
+# This example applies collections mode to the 'main' branch only,
+# non-matching branches, tags, etc. will be processed in the default mode (discover mode).
+# If you want to apply collections mode to all branches, refer to the "collections-default" example.
+#
+# The plugin will scan the specified directories for OpenAPI files
+# and upload them to the corresponding collections in 42Crunch Platform.
+# If a collection does not exist, it will be created.
+#
+# Each key (foo, bar) under 'collections' specifies a collection technical name.
+#
+# Required properties for each collection:
+# - 'dir': Relative path to the directory to scan.
+#
+# Optional properties:
+# - 'search': List of glob patterns for file discovery (defaults to standard OpenAPI extensions).
+# - 'teams': Defines team access to the collection.
+#   - Each key under 'teams' is a team name.
+#   - 'permissions': A list of 'read', 'write', 'delete'.
+# - 'api_tags': List of tags to apply to APIs in the collection.
+# - 'ignore_failures': Boolean, if true, pipeline continues on audit failure.
+# - 'collection_name': Display name for the collection in the UI.
+#
+# The result of this example:
+# - APIs found in 'foo/' will be in collection "foo".
+#   TeamOne gets read/write, TeamTwo gets read/write/delete.
+# - APIs found in 'bar/' matching '*.json' or '*.yaml' will be in collection "bar".
+#   TeamAlpha gets read.
+
+audit:
+  branches:
+    main:
+      collections:
+        foo:
+          dir: foo
+          teams:
+            TeamOne:
+              permissions:
+                - read
+                - write
+            TeamTwo:
+              permissions:
+                - read
+                - write
+                - delete
+        bar:
+          dir: bar
+          search:
+            - '**/*.json'
+            - '**/*.yaml'
+          teams:
+            TeamAlpha:
+              permissions:
+                - read

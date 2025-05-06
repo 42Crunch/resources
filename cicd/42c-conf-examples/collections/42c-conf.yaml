@@ -20,7 +20,10 @@
 # - 'dir': The relative path to the directory that the plugin scans.
 #
 # Optional properties:
-# - 'search': List of glob patterns for file discovery (defaults to standard OpenAPI extensions).
+# - 'search': A list of glob patterns for file discovery (defaults to standard OpenAPI extensions). 
+#             The 'search' list must contain inclusion patterns followed by any exclusion
+#             patterns. Each exclusion pattern must start with '!' (exclamation mark).
+#             The format of the pattern is a glob expression, similar to format in '.gitignore'.
 # - 'teams': Sharing the API collection with particular teams in your organization, including the 
 #            level of access (permissions) each team has to the collection. 
 #            Keys under 'teams' must be names of existing teams in your organization (here 'TeamOne').

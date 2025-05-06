@@ -77,7 +77,7 @@ The JSON file looks like this.
 
 ```
 
-You can obtain the on-premises scan token following these instructions: https://docs-preview.42crunch.com/latest/content/tasks/scan_api_conformance.htm#scrollNav-4
+You can obtain the on-premises scan token following these instructions: [Conformance Scan Docs](https://docs.42crunch.com/latest/content/tasks/scan_api_conformance.htm#scrollNav-4)
 
 If you deploy the job definition multiple times, you need to indicate the revision number, like this : 
 

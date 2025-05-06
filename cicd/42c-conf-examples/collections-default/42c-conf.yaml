@@ -1,8 +1,8 @@
 # This example shows how to use the collection mode and default configuration.
-
+#
 # In collection mode, you can point the plugin to search for OpenAPI files in different directories in your 
 # source code repository and to compile the discovered APIs into specific API collections with your pre-defined settings.
- 
+#
 # The 'default' under 'audit' specifies that this is the default configuration that the plugin applies to any CI/CD run unless 
 # it finds a more specific one# for a particular branch, tag, or PR.
 #

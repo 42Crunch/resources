@@ -1,36 +1,45 @@
-# This example shows how to use the "collections" mode.
-# In this mode, you can define multiple collections, each with its own
-# directory, search patterns, and team permissions.
+# This example shows how to use the collection mode.
 #
-# This example applies collections mode to the 'main' branch only,
-# non-matching branches, tags, etc. will be processed in the default mode (discover mode).
-# If you want to apply collections mode to all branches, refer to the "collections-default" example.
+# In collection mode, you can point the plugin to search for OpenAPI files in a directory in your 
+# source code repository and to compile the discovered APIs into specific API collections with your 
+# pre-defined settings. You can specify multiple directories, each with their designated API collection, 
+# search patterns, and sharing settings.
 #
-# The plugin will scan the specified directories for OpenAPI files
-# and upload them to the corresponding collections in 42Crunch Platform.
-# If a collection does not exist, it will be created.
+# In this example, the collection mode is configured to only apply to the 'main' branch. The plugin 
+# continues to apply the normal, non-collection-based discovery mode on other branches, tags, or PRs. 
+# If you want to apply collections mode to all branches, see the example "collections-default".
+#
+# The plugin scans the directories specified in the configuration for OpenAPI files and 
+# uploads them to API collections in 42Crunch Platform as specified by technical names under 'collections' 
+# (here 'foo' and 'bar'). If a particular API collection in the configuration does not exist in the platform, 
+# the plugin creates it.
 #
 # Each key (foo, bar) under 'collections' specifies a collection technical name.
 #
-# Required properties for each collection:
-# - 'dir': Relative path to the directory to scan.
+# Required properties for each API collection:
+# - 'dir': The relative path to the directory that the plugin scans.
 #
 # Optional properties:
-# - 'search': List of glob patterns for file discovery (defaults to standard OpenAPI extensions).
-# - 'teams': Defines team access to the collection. Keys under 'teams' must be existing team names.
-#            Permissions ('read', 'write', 'delete') are applied only when a new collection is created.
-#            Existing collections' permissions will not be changed.
-#   - Each key under 'teams' is a team name.
-#   - 'permissions': A list of 'read', 'write', 'delete'.
-# - 'api_tags': List of tags to apply to APIs in the collection.
-# - 'ignore_failures': Boolean, if true, pipeline continues on audit failure.
-# - 'collection_name': Display name for the collection in the UI.
+# - 'search': A list of glob patterns for file discovery (defaults to standard OpenAPI extensions). 
+#             The 'search' list must contain inclusion patterns followed by any exclusion
+#             patterns. Each exclusion pattern must start with '!' (exclamation mark).
+#             The format of the pattern is a glob expression, similar to format in '.gitignore'.
+# - 'teams': Sharing the API collection with particular teams in your organization, including the 
+#            level of access (permissions) each team has to the collection. 
+#            Keys under 'teams' must be names of existing teams in your organization (here 'TeamOne').
+#            Permissions ('read', 'write', 'delete') are applied ONLY when a new API collection is created, 
+#            not to already existing collections.
+# - 'api_tags': List of tags to be applied to APIs in the API collection. Tags are only applied to new APIs, not APIs already in the collection.
+# - 'ignore_failures': If set to 'true', the plugin does not stop the CI/CD pipeline if the audit step fails. 
+#                      If set to 'false', the pipeline stops on failure.
+# - 'collection_name': The (friendly) name for the API collection shown on the UI in addition to the technical name.
 #
-# The result of this example:
-# - APIs found in 'foo/' will be in collection "foo".
-#   TeamOne gets read/write, TeamTwo gets read/write/delete.
-# - APIs found in 'bar/' matching '*.json' or '*.yaml' will be in collection "bar".
-#   TeamAlpha gets read.
+# The result of the configuration example below would be:
+# - APIs found in the directory 'foo/' will be uploaded in the API collection called "foo" that is shared with the teams
+#   'TeamOne' (read/write access) and 'TeamTwo' (read/write/delete access).
+# - APIs found in the directory 'bar/' that match '*.json' or '*.yaml' will be uploaded in the API collection "bar" that is 
+#   shared with 'TeamAlpha' (read-only access).
+# - This only happens when the pipeline runs on the branch 'main'.
 
 audit:
   branches:

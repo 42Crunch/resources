@@ -1,44 +1,53 @@
-# This example shows how to use the "collections" mode with a "default" configuration.
-# In this mode, the specified collections configuration applies to all types of
-# CICD runs (branches, tags, PRs) unless a more specific branch/tag/pr
-# configuration is found for the current run.
+# This example shows how to use the collection mode with default configuration.
 #
-# The plugin will scan the specified directories for OpenAPI files
-# and upload them to the corresponding collections in 42Crunch Platform.
-# If a collection does not exist, it will be created.
+# In collection mode, you can point the plugin to search for OpenAPI files in a directory in your 
+# source code repository and to compile the discovered APIs into specific API collections with your 
+# pre-defined settings. You can specify multiple directories, each with their designated API collection, 
+# search patterns, and sharing settings.
+# 
+# The 'default' under 'audit' specifies that this is the default configuration that the plugin applies to 
+# any CI/CD run _unless_ it finds a more specific one for a particular branch, tag, or PR. For mode details on
+# how to define configurations for a specific branch, tag, or PR, see the example "branches-tags-and-prs".
 #
-# The 'default' key is used under 'audit' to specify this global collections config.
-# Each key (foo, bar, baz) under 'collections' specifies a collection technical name.
+# The plugin scans the directories specified in the configuration for OpenAPI files and 
+# uploads them to API collections in 42Crunch Platform as specified by technical names under 'collections' 
+# (here 'foo' and 'bar'). If a particular API collection in the configuration does not exist in the platform, 
+# the plugin creates it.
+# 
+# Required properties for each API collection:
+# - 'dir': The relative path to the directory that the plugin scans.
 #
-# Required properties for each collection:
-# - 'dir': Relative path to the directory to scan.
+# You can also define the following optional properties:
+# - 'search': A list of glob patterns for file discovery (defaults to standard OpenAPI extensions). 
+#             The 'search' list must contain inclusion patterns followed by any exclusion
+#             patterns. Each exclusion pattern must start with '!' (exclamation mark).
+#             The format of the pattern is a glob expression, similar to format in '.gitignore'.
+# - 'teams': Sharing the API collection with particular teams in your organization, including the 
+#            level of access (permissions) each team has to the collection. 
+#            Keys under 'teams' must be names of existing teams in your organization (here 'TeamOne').
+#            Permissions ('read', 'write', 'delete') are applied ONLY when a new API collection is created, 
+#            not to already existing collections.
+# - 'api_tags': List of tags to be applied to APIs in the API collection. Tags are only applied to new APIs, not APIs already in the collection.
+# - 'ignore_failures': If set to 'true', the plugin does not stop the CI/CD pipeline if the audit step fails. 
+#                      If set to 'false', the pipeline stops on failure.
+# - 'collection_name': The (friendly) name for the API collection shown on the UI in addition to the technical name.
 #
-# Optional properties:
-# - 'search': List of glob patterns for file discovery (defaults to standard OpenAPI extensions).
-# - 'teams': Defines team access to the collection. Keys under 'teams' must be existing team names.
-#            Permissions ('read', 'write', 'delete') are applied only when a new collection is created.
-#            Existing collections' permissions will not be changed.
-# - 'api_tags': List of tags to apply to APIs in the collection.
-# - 'ignore_failures': Boolean, if true, pipeline continues on audit failure.
-# - 'collection_name': Display name for the collection in the UI.
-#
-# The result of this example:
-# - APIs found in 'foo/' will be in collection "foo".
-#   (No specific search, teams, or other options set for "foo" in this default example).
-# - APIs found in 'bar/' will be in collection "bar", and audit failures will be ignored.
+# The result of the configuration example below would be:
+# - APIs found in the directory 'foo/' will be uploaded to the API collection called "foo", no other behavior options specified.
+# - APIs found in the directory 'bar/' will be uploaded to the APi collection called "bar", failing the audit step does not stop the pipeline.
 
 audit:
   default:
     collections:
       foo:
         dir: foo
-        # teams: # Example teams, can be added if needed
+        # teams: # Example teams, optional
         #   TeamOne:
         #     permissions:
         #       - read
       bar:
         dir: bar
         ignore_failures: true
-        # search: # Example search, can be added if needed
+        # search: # Example search, optional
         #   - '**/*.json'
         #   - '**/*.yaml'

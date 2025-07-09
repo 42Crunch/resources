@@ -28,7 +28,8 @@
 #            level of access (permissions) each team has to the collection. 
 #            Keys under 'teams' must be names of existing teams in your organization (here 'TeamOne').
 #            Permissions ('read', 'write', 'delete') are applied ONLY when a new API collection is created, 
-#            not to already existing collections.
+#            unless the 'overwrite_teams' property is set to 'true'.
+# - 'overwrite_teams': If set to 'true', the plugin overwrites the existing sharing settings of the API collection
 # - 'api_tags': List of tags to be applied to APIs in the API collection. Tags are only applied to new APIs, not APIs already in the collection.
 # - 'ignore_failures': If set to 'true', the plugin does not stop the CI/CD pipeline if the audit step fails. 
 #                      If set to 'false', the pipeline stops on failure.
@@ -62,6 +63,7 @@ audit:
           search:
             - '**/*.json'
             - '**/*.yaml'
+          overwrite_teams: true
           teams:
             TeamAlpha:
               permissions:

@@ -1,174 +1,275 @@
-# 42Crunch CI/CD Security Audit Configuration
+# 42Crunch CI/CD Configuration Examples (`42c-conf.yaml`)
 
-This repository contains the configuration for integrating 42Crunch's API Security Audit with a CI/CD pipeline. It automates the static security testing of your OpenAPI definitions on every push to your Git repository.
+This directory contains curated examples of **`42c-conf.yaml` configuration files** used to control how the 42Crunch API Security Audit behaves inside CI/CD pipelines.
+
+These examples help you:
+
+- Discover OpenAPI files automatically
+- Map files to existing APIs in the 42Crunch Platform
+- Customize behavior per branch, tag, or pull request
+- Enforce quality gates (scores, severity, specific findings)
+- Automatically tag APIs
+- Control collection naming and sharing
+- Gradually harden security enforcement
+
+---
 
 ## Table of Contents
-- [Overview](#overview)
-- [Configuration Details](#configuration-details)
-  - [Branches Configuration](#branches-configuration)
-  - [Tags Configuration](#tags-configuration)
-  - [PR Configuration](#pr-configuration)
-  - [Mapping and Discovery](#mapping-and-discovery)
-  - [API OAS Tagging](#api-tagging)
-  - [Fail Conditions](#fail-conditions)
-- [Usage](#usage)
 
-## <a name=overview></a>Overview
-This configuration allows you to:
+1. [What is 42c-conf.yaml](#what-is-42c-confyaml)
+2. [How Configuration is Applied](#how-configuration-is-applied)
+3. [Directory Overview](#directory-overview)
+4. [Configuration Concepts](#configuration-concepts)
+5. [Collection Mode](#collection-mode)
+6. [Fail Conditions](#fail-conditions)
+7. [How to Use These Examples](#how-to-use-these-examples)
+8. [Best Practices](#best-practices)
 
-- Map your API files in a repository to existing APIs in 42Crunch Platform.
-- Discover OpenAPI files based on their filenames and paths.
-- Set specific failure conditions based on score, severity, and issue ID.
-- Apply different configurations for different branches, tags, and PR targets.
-- Automatically tag new APIs created on the 42Crunch Platform.
+---
 
+## What is 42c-conf.yaml
 
-## <a name=configuration-details></a>Configuration Details
+`42c-conf.yaml` is an optional configuration file that lets you declaratively control how 42Crunch processes OpenAPI files during CI/CD runs.
 
-### <a name=branches-configuratio></a>Branches Configuration
-The `branches` section defines different configurations for specific branches in your repository. You can set up custom configurations for audit behavior, failure conditions, and API mappings.
+If present in the repository root used by your pipeline, it overrides default behavior of the integration and allows you to define:
+
+- File discovery rules
+- Mapping of files → API UUIDs
+- Branch/tag/PR-specific behavior
+- Fail conditions
+- Tagging
+- Collection naming
+- Collection sharing
+
+If the file is not present, default behavior is used.
+
+---
+
+## How Configuration is Applied
+
+Priority order:
+
+```
+branch → tag → pull request → default
+```
+
+Matching blocks override default.
+
+---
+
+## Directory Overview
+
+Each folder demonstrates a focused configuration scenario.
+
+| Path | Purpose |
+|------|--------|
+| discovery/ | automatic file discovery |
+| mapping-and-discovery/ | hybrid mapping + discovery |
+| mapping-no-discovery/ | only mapped APIs processed |
+| branches-tags-and-prs/ | context-specific rules |
+| api_tags/ | automatic tagging |
+| fail_on-invalid-contract/ | invalid spec failure |
+| fail_on-issue-id/ | fail on specific findings |
+| fail_on-scores/ | enforce minimum scores |
+| fail_on-severity/ | enforce severity thresholds |
+| 42c-conf_all_options.yaml | full example |
+
+---
+
+## Configuration Concepts
+
+### Discovery
+
+Automatically finds OpenAPI files.
 
 ```yaml
-audit:
-  branches:
-    main:
-      mapping:
-        petstore.json: e7cd62ce-1ee9-4320-af33-8bd9519c6f48
-      discovery:
-        search:
-          - '**/*.json'
-          - '**/*.yaml'
-          - '**/*.yml'
-          - '!foo/**'
-      fail_on:
-        invalid_contract: false
-        issue_id:
-          - v3-global-security
-          - "*schema*"
-        score:
-          data: 70
-          security: 30
-        severity: medium
+discovery:
+  search:
+    - "**/*.yaml"
+    - "**/*.json"
+    - "!legacy/**"
 ```
-### <a name=pr-configuration></a> PR Configuration
 
-This example shows how to configure failure conditions based on the branch name, tag name, or PR target branch.
+---
 
-When the CI/CD plugin starts, it creates an API collection in 42Crunch Platform using the name of the repository and branch, tag, or PR directly from your source control.
+### Mapping APIs
 
-If you run the plugin on multiple branches, tags, or PRs in the same repository, the plugin creates a separate API collection for each of them.
-
-You can specify the plugin configuration individually for each branch, tag, or PR in your repository.  You can also use wildcards for the branch names to apply the configuration to all branches with matching names.
-
-You can use wildcards * and ** (see the example below): * matches any character except /, while ** matches any characters including /.
-
-In the example below, the branch called "main" has been configured to fail if the minimum data validation score is under 70, and any branch with a name matching the wildcard pattern feature-* to fail if the data validation score is under 50.  All other branches are caught by the pattern ** and are configured to fail if the data validation score is under 60.
-
-Additionally, you can specify plugin configuration for individual tags and PRs as shown below.
-Configurations for PRs are matched based on the PR target branch, so you can, for example, specify that PRs targeting the main branch require higher score than PRs targeting other branches.
+Mapping connects repo files to existing APIs.
 
 ```yaml
-audit:
-  branches:
-    main:
-      fail_on:
-        score:
-          data: 70
-    "feature-*":
-      fail_on:
-        score:
-          data: 50
-    "**":
-      fail_on:
-        score:
-          data: 60
-  tags:
-    v1.0:
-      fail_on:
-        score:
-          data: 50
-    v2.0:
-      fail_on:
-        score:
-          data: 60
-    "**":
-      fail_on:
-        score:
-          data: 70
-  prs:
-    main:
-      fail_on:
-        score:
-          data: 70
-    "**":
-      fail_on:
-        score:
-          data: 50
+mapping:
+  apis/petstore.yaml: "uuid-here"
 ```
 
-### <a name=mapping-and-discovery></a> Mapping and Discovery
-This example shows how to map API files in your repository to APIs you already have in 42Crunch Platform.
+Use mapping when:
 
-When the CI/CD plugin starts, it creates an API collection in 42Crunch Platform using the name of the repository and branch directly from your source control.
+- APIs already exist in platform
+- You need audit history continuity
+- You want stable reporting and governance tracking
+- You want to optimize license usage by mapping multiple branches/tags/prs to a single API on our platform
 
-The plugin uploads any APIs it finds during the discovery phase into this API collection On subsequent runs, the collection is kept is sync with the API files in your source repository.
+---
 
-If you have APIs in other API collections on 42Crunch Platform that you would like like to keep in sync with changes in the files in your source control, you can use mappings for this.
-
-To configure the mapping, you must know the API UUID of the existing API in 42Crunch Platform (you can check it in the API summary on the platform). You list the filenames and the corresponding API UUIDs in the 'mapping' section.
-
-In this example, the sample 'petstore.json' file is mapped, and the plugin uploads it to the platform updating the contents of the API with the UUID 'e7cd62ce-1ee9-4320-af33-8bd9519c6f48' with the contents of the file from the source code repository.
-
-On the other hand, the sample file 'petstore.yaml' is not mapped, so the plugin uploads to its default API collection.
-
-``` yaml
-audit:
-  branches:
-    main:
-      mapping:
-        petstore.json: e7cd62ce-1ee9-4320-af33-8bd9519c6f48
-```
-
-### <a name=api-tagging></a> API OAS Tagging
-
-This feature allows one to associate a category and a tag from said category to APIs found during discovery (or mapping, etc).
-
-``` yaml
-audit:
-  branches:
-    master:
-      api_tags:
-        - 'category1:tag1'
-        - 'category2:tag2'
-```
-
-### <a name=fail-conditions></a> Fail Conditions
-
-By default, an API definition that does not fully conform to the OpenAPI Specification (OAS) is reported as a failure.
-
-For example, the sample 'petstore.json' in this example does not have the 'paths' attribute defined, which is something that the OAS requires. Trying to audit this file results in the report "The OpenAPI definition is not valid".
-
-You can switch this off by setting 'invalid_contract' to 'false', as shown below.
+### Branch Tag PR Overrides
 
 ```yaml
-audit:
-  branches:
-    main:
-      fail_on:
-        invalid_contract: false
+branches:
+  main:
+    fail_on:
+      severity: high
+
+  feature-*:
+    fail_on:
+      severity: critical
 ```
 
-### <a name=Usage></a> Usage
+Overrides allow stricter policies on protected branches and relaxed policies for development branches.
 
-The associated directories contain additional examples on each option for fine-tuning the CI/CD integration using a configuration file called 42c-conf.yaml to change the behavior of the integration plugin:
+---
 
-- `discovery`: How OpenAPI files can be discovered (included or excluded) based on their filenames.
-- `fail_on-invalid-contract`: Stop API definitions that do not conform to the OpenAPI Specification (OAS) being reported as failures.
-- `fail_on-issue-id`: List the issues that you want always to fail the task.
-- `fail_on-scores`: Specify minimum audit scores that APIs must reach in data validation and security.
-- `fail_on-severity`: Specify maximum allowed severity for found issues.
-- `branches-tags-and-prs`: Specify different configs for builds running on different branches/tags and PRs
-- `api_tags`: Tag APIs with the tags defined in 42Crunch Platform. Only the newly created APIs are tagged. All specified tags must exist on the platform.
-- `42c-conf_all_options.yaml`: This file contains an inline noted example of the above options in a single file.
+### API Tagging
 
-For more details on the plugins that use this file, see [CI/CD integration](https://docs.42crunch.com/latest/content/concepts/ci_cd_integration.htm).
+```yaml
+api_tags:
+  - team:payments
+  - env:prod
+```
+
+Tags must already exist in the platform and be valid for their category.
+
+---
+
+## Collection Mode
+
+By default, the CI/CD integration automatically creates a collection using:
+
+```
+repository + branch/tag/PR
+```
+
+This works well for simple setups, but in real production environments you usually want more control.  
+**Collection mode exists to give you that control.**
+
+You should use collection configuration when you need:
+
+- Stable collection names across runs
+- Consistent reporting targets
+- Separation of environments
+- Multi‑team visibility
+- Governance‑controlled ownership
+
+Typical enterprise uses:
+
+| Use Case | Why Collection Mode Helps |
+|--------|----------------------------|
+Stable dashboards | Same collection name every run |
+Environment isolation | dev / stage / prod collections |
+Team ownership | share collections with specific teams |
+Compliance | auditors always review same collection |
+
+Conceptually, a collection configuration might look like:
+
+```yaml
+collection:
+  name: payments-prod
+```
+
+More advanced examples in this directory show:
+
+- branch‑specific collection naming
+- centralized collections for production
+- shared collections for cross‑team visibility
+
+**Important design principle**
+
+Collections should represent **logical API ownership or lifecycle stage**, not individual CI runs.
+
+Good:
+
+```
+payments-prod
+payments-dev
+core-platform
+```
+
+Bad:
+
+```
+run-1432
+build-abcdef
+```
+
+Design collections intentionally — they become reporting anchors across your platform.
+
+---
+
+## Fail Conditions
+
+The `fail_on` configuration allows a pipeline to fail based on audit results.
+
+Supported controls:
+
+- invalid_contract
+- severity
+- score
+- issue_id
+
+Example:
+
+```yaml
+fail_on:
+  severity: high
+```
+
+---
+
+### Important Recommendation — Prefer Security Quality Gates
+
+The `fail_on` mechanism is useful for quick enforcement, but it is **not the recommended long‑term governance model**.
+
+42Crunch provides **Security Quality Gates (SQGs)** which are the preferred and more scalable approach for enforcing policy centrally across APIs:
+
+https://docs.42crunch.com/latest/content/concepts/security_quality_gates.htm
+
+Reasons SQGs are superior:
+
+- centrally managed policy
+- reusable across teams
+- auditable
+- versionable
+- consistent across tools
+- platform‑enforced (not pipeline‑only)
+
+Because of this, `fail_on` options may eventually become deprecated or discouraged in favor of SQGs for compliance‑driven environments.
+
+Recommended strategy:
+
+| Stage | Approach |
+|------|---------|
+Early adoption | use fail_on locally |
+Maturing teams | migrate rules to SQGs |
+Enterprise governance | enforce only SQGs |
+
+Treat `fail_on` as a convenience feature — not your primary compliance enforcement system.
+
+---
+
+## How to Use These Examples
+
+1. Copy example
+2. Rename to `42c-conf.yaml`
+3. Place in repo root
+4. Adjust values
+5. Commit and run pipeline
+
+---
+
+## Best Practices
+
+- Start simple → tighten later
+- Always map production APIs
+- Use tags for governance
+- Separate environments into collections
+- Treat config as code
+- Prefer SQGs for enforcement instead of fail_on rules
+
